@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeSet;
 
+import com.jredfox.confighelper.Registry.DataType;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.enchantment.Enchantment;
@@ -20,22 +22,17 @@ import net.minecraftforge.common.DimensionManager;
 
 public class RegistryTracker {
 	
-	static
-	{
-		RegistryConfig.load();
-	}
-	
 	public static boolean hasConflicts;
 	public static boolean startup = true;
 	
-	public static Registry biomes = new Registry(!RegistryConfig.autoConfig,"biome");
-	public static Registry enchantments = new Registry(!RegistryConfig.autoConfig,"enchantment");
-	public static Registry potions = new Registry(!RegistryConfig.autoConfig,"potion");
-	public static Registry dimensions = new Registry(!RegistryConfig.autoConfig,"dimension");
-	public static Registry providers = new Registry(!RegistryConfig.autoConfig,"provider");
-	public static Registry entities = new Registry(!RegistryConfig.autoConfig,"entity");
+	public static Registry biomes = new Registry(!RegistryConfig.autoConfig, DataType.BIOME);
+	public static Registry enchantments = new Registry(!RegistryConfig.autoConfig, DataType.ENCHANTMENT);
+	public static Registry potions = new Registry(!RegistryConfig.autoConfig, DataType.POTION);
+	public static Registry dimensions = new Registry(!RegistryConfig.autoConfig, DataType.DIMENSION);
+	public static Registry providers = new Registry(!RegistryConfig.autoConfig, DataType.PROVIDER);
+	public static Registry entities = new Registry(!RegistryConfig.autoConfig, DataType.ENTITY);
 	
-	public static Registry dataWatcherPlayers = new Registry(!RegistryConfig.autoConfig,"dataWatcherPlayers");
+	public static Registry dataWatcherPlayers = new Registry(!RegistryConfig.autoConfig, DataType.DATAWATCHERPLAYER);
 	
 	public static int registerBiome(BiomeGenBase biome, int id)
 	{

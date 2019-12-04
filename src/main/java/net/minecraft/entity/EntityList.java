@@ -81,7 +81,7 @@ public class EntityList
     /** Provides a mapping between a string and an entity classes */
     public static Map classToStringMapping = new HashMap();
     /** provides a mapping between an entityID and an Entity Class */
-    public static Map IDtoClassMapping = new HashMap();
+    public static Map<Integer,Class> IDtoClassMapping = new HashMap();
     /** provides a mapping between an Entity Class and an entity ID */
     private static Map classToIDMapping = new HashMap();
     /** Maps entity names to their numeric identifiers */

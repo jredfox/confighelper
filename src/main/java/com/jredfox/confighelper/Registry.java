@@ -19,17 +19,18 @@ public class Registry {
 	 */
 	public int id;
 	public boolean strict;
-	public String dataType;
+	public DataType dataType;
 	
 	public Registry(){}
-	public Registry(boolean strict, String dataType)
+	public Registry(boolean strict, DataType dataType)
 	{
 		this.strict = strict;
-		this.dataType = dataType.toLowerCase();
+		this.dataType = dataType;
 	}
 	
 	public int reg(Object obj, int id)
 	{
+		id = this.getId(obj, id);
 		List<Class> list = reg.get(id);
 		if(list == null)
 		{
@@ -59,20 +60,22 @@ public class Registry {
 		        Minecraft.getMinecraft().displayCrashReport(Minecraft.getMinecraft().addGraphicsAndWorldToCrashReport(crashreport));
 			}
 		}
-		return RegistryConfig.autoConfig ? this.id++ : getId(obj, id);
+		return RegistryConfig.autoConfig ? this.id++ : id;
 	}
-
+	
 	/**
-	 * auto configure vanilla ids
+	 * configure vanilla ids
 	 */
-	private int getId(Object obj, int id) 
+	protected int getId(Object obj, int id)
 	{
-		if(getClass(obj).getName().startsWith("net.minecraft.") && !this.dataType.equals(RegistryTracker.dimensions.dataType))
-			return this.id++;
+		if(getClass(obj).getName().startsWith("net.minecraft."))
+		{
+			return RegistryVanillaConfig.getId(this.dataType, id);
+		}
 		return id;
 	}
 	
-	private Class getClass(Object entry)
+	public static Class getClass(Object entry)
 	{
 		if(entry instanceof Class)
 			return (Class) entry;
@@ -90,5 +93,17 @@ public class Registry {
 		}
 		return -1;
 	}
+    
+    public static enum DataType{
+    	BIOME(),
+    	ENCHANTMENT(),
+    	POTION(),
+    	DIMENSION(),
+    	PROVIDER(),
+    	ENTITY(),
+    	DATAWATCHERPLAYER(),
+    	BLOCK(),
+    	ITEM();
+    }
 
 }

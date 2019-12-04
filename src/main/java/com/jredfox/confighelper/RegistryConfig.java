@@ -16,7 +16,7 @@ public class RegistryConfig {
 	public static int dataWatchersLimit = 31;
 
 	public static boolean autoConfig = true;
-	public static void load()
+	static
 	{
 		Configuration cfg = new Configuration(new File("./config/confighelper/main.cfg"));
 		cfg.load();
