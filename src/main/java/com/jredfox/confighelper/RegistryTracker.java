@@ -198,10 +198,6 @@ public class RegistryTracker {
 		writer.write("enchantments:\r\n" + spacer + "\r\n");
 		writeRegistry(writer, enchantments);
 		writer.close();
-		
-//		writer = new BufferedWriter(new FileWriter(new File(dirDataWatchers,"conflicts.txt")));
-//		writer.write("dataWatcherPlayers:\r\n" + spacer + "\r\n");
-//		writeRegistry(writer, dataWatcherPlayers);
 		}
 		catch(Throwable t)
 		{
@@ -291,7 +287,6 @@ public class RegistryTracker {
 			if(li.size() > 1)
 			{
 				writer.write(id +  "=" + getListClass(li) + "\r\n");
-				hasConflicts = true;
 			}
 		}
 	}

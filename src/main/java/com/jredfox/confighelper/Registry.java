@@ -52,6 +52,7 @@ public class Registry {
 		}
 		if(list.size() > 1)
 		{
+			RegistryTracker.hasConflicts = true;
 			if(!RegistryTracker.startup || this.strict)
 			{
 				RegistryTracker.output();
@@ -68,11 +69,16 @@ public class Registry {
 	 */
 	protected int getId(Object obj, int id)
 	{
-		if(getClass(obj).getName().startsWith("net.minecraft."))
+		if(isVanillaObj(obj))
 		{
 			return RegistryVanillaConfig.getId(this.dataType, id);
 		}
 		return id;
+	}
+	
+	public static boolean isVanillaObj(Object obj)
+	{
+		return getClass(obj).getName().startsWith("net.minecraft.");
 	}
 	
 	public static Class getClass(Object entry)
@@ -102,8 +108,8 @@ public class Registry {
     	PROVIDER(),
     	ENTITY(),
     	DATAWATCHERPLAYER(),
-    	BLOCK(),
-    	ITEM();
+    	ITEM(),
+    	BLOCK();
     }
 
 }

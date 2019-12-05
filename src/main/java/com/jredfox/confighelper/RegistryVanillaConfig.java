@@ -1,6 +1,7 @@
 package com.jredfox.confighelper;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.Map;
 
 import com.jredfox.confighelper.Registry.DataType;
@@ -10,26 +11,63 @@ import net.minecraft.entity.EntityList;
 import net.minecraft.potion.Potion;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraftforge.common.DimensionManager;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.config.ConfigCategory;
 import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.common.config.Property;
 
 public class RegistryVanillaConfig {
 	
+	public static Map<Integer,Integer> cfgBiomes = new HashMap<Integer,Integer>();
+	public static Map<Integer,Integer> cfgDimensions = new HashMap<Integer,Integer>();
+	public static Map<Integer,Integer> cfgPotions = new HashMap<Integer,Integer>();
+	public static Map<Integer,Integer> cfgEnchantments = new HashMap<Integer,Integer>();
+	public static Map<Integer,Integer> cfgEntities = new HashMap<Integer,Integer>();
+	public static Map<Integer,Integer> cfgDataWatcherPlayers = new HashMap<Integer,Integer>();
+	/**
+	 * when in mdk this may be manually turned into true
+	 */
+	public static final boolean genCfgVanilla = false;
+	public static final File vanillacfg = new File("./config/confighelper/vanilla/" + MinecraftForge.MC_VERSION + "/vanilla.cfg");
+	
 	static
 	{
-		
+//		loadConfig();
 	}
 	
+	private static void loadConfig() 
+	{
+		Configuration cfg = new Configuration(vanillacfg);
+		cfg.load();
+		populateIntMap(cfgBiomes, cfg.getCategory("biomes"));
+		populateIntMap(cfgDimensions, cfg.getCategory("dimensions"));
+		populateIntMap(cfgPotions, cfg.getCategory("potions"));
+		populateIntMap(cfgEnchantments, cfg.getCategory("enchantments"));
+		populateIntMap(cfgEntities, cfg.getCategory("entities"));
+		cfg.save();
+	}
+	
+	private static void populateIntMap(Map<Integer, Integer> cfg, ConfigCategory cat) 
+	{
+		for(Map.Entry<String, Property> map : cat.entrySet())
+		{
+			String str = map.getKey();
+			String strId = str.substring(str.indexOf("id:") + "id:".length(), str.length());
+			cfg.put(Integer.parseInt(strId), (Integer)map.getValue().getInt());
+		}
+	}
+
 	/**
 	 * use in mdk to generate vanilla configs
 	 */
 	public static void genConfigs()
 	{
-		Configuration cfg = new Configuration(new File("./config/confighelper/vanilla/vanilla.cfg"));
+		Configuration cfg = new Configuration(vanillacfg);
 		cfg.load();
 		int index = 0;
 		for(BiomeGenBase b : BiomeGenBase.biomeList)
 		{
-			if(b != null && Registry.getClass(b).getName().startsWith("net.minecraft."))
+			if(b != null && Registry.isVanillaObj(b))
 			{
 				cfg.get("biomes", b.biomeName + " id:" + b.biomeID, index++).getInt();
 			}
@@ -37,7 +75,7 @@ public class RegistryVanillaConfig {
 		index = 0;
 		for(Potion p : Potion.potionTypes)
 		{
-			if(p != null && Registry.getClass(p).getName().startsWith("net.minecraft."))
+			if(p != null && Registry.isVanillaObj(p))
 			{
 				cfg.get("potions", p.getName() + " id:" + p.id, index++).getInt();
 			}
@@ -45,7 +83,7 @@ public class RegistryVanillaConfig {
 		index = 0;
 		for(Enchantment e : Enchantment.enchantmentsList)
 		{
-			if(e != null && Registry.getClass(e).getName().startsWith("net.minecraft."))
+			if(e != null && Registry.isVanillaObj(e))
 			{
 				cfg.get("enchantments", e.getName() + " id:" + e.effectId, index++).getInt();
 			}
@@ -53,7 +91,7 @@ public class RegistryVanillaConfig {
 		index = 0;
 		for(Map.Entry<Integer, Class> map : EntityList.IDtoClassMapping.entrySet())
 		{
-			if(map.getValue().getName().startsWith("net.minecraft."))
+			if(Registry.isVanillaObj(map.getValue()))
 			{
 				int id = map.getKey();
 				String name = EntityList.getStringFromID(id);
@@ -63,10 +101,10 @@ public class RegistryVanillaConfig {
 		
 		for(Integer dim : DimensionManager.providers.keySet())
 		{
-			String c = DimensionManager.providers.get(dim).getName();
-			if(c.startsWith("net.minecraft."))
+			Class c = DimensionManager.providers.get(dim);
+			if(Registry.isVanillaObj(c))
 			{
-				cfg.get("dimensions", dim + " " + c, dim);
+				cfg.get("dimensions", dim + " " + c.getName(), dim);
 			}
 		}
 		cfg.save();
@@ -77,7 +115,7 @@ public class RegistryVanillaConfig {
 	 */
 	public static int getId(DataType dataType, int org) 
 	{
-		if(true)
+		if(genCfgVanilla)
 			return org;
 		if(dataType == DataType.BIOME)
 			return getBiomeId(org);
@@ -95,34 +133,27 @@ public class RegistryVanillaConfig {
 	}
 
 	private static int getDataWatcherId(int org) {
-		// TODO Auto-generated method stub
-		return 0;
+		return cfgDataWatcherPlayers.get(org);
 	}
 
 	private static int getEntityId(int org) {
-		// TODO Auto-generated method stub
-		return 0;
+		return cfgEntities.get(org);
 	}
 
 	private static int getEnchantmentId(int org) {
-		// TODO Auto-generated method stub
-		return 0;
+		return cfgEnchantments.get(org);
 	}
 
 	private static int getPotionId(int org) {
-		// TODO Auto-generated method stub
-		return 0;
+		return cfgPotions.get(org);
 	}
 
-	private static int getBiomeId(int org) 
-	{
-		// TODO Auto-generated method stub
-		return 0;
+	private static int getBiomeId(int org) {
+		return cfgBiomes.get(org);
 	}
 	
 	private static int getDimensionId(int org) {
-		// TODO Auto-generated method stub
-		return 0;
+		return cfgDimensions.get(org);
 	}
 
 }
