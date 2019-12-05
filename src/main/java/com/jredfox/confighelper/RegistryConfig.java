@@ -12,7 +12,7 @@ public class RegistryConfig {
 	public static int searchDim = 500;
 	public static int potionsLimit = 256;
 	public static int enchantmentsLimit = 32767;
-	public static int entitiesLimit = 256;
+	public static int searchEntities = 256;
 	public static int dataWatchersLimit = 31;
 
 	public static boolean autoConfig = true;
@@ -26,7 +26,7 @@ public class RegistryConfig {
 		dimensionLimit = cfg.get("limit", "dimSearch", searchDim).getInt();
 		potionsLimit = cfg.get("limit", "potions", potionsLimit).getInt();
 		enchantmentsLimit = cfg.get("limit", "enchantments", enchantmentsLimit).getInt();
-		entitiesLimit = cfg.get("limit", "entities", entitiesLimit).getInt();
+		searchEntities = cfg.get("limit", "searchEntities", searchEntities).getInt();
 		dataWatchersLimit = cfg.get("limit", "dataWatchers", dataWatchersLimit).getInt();
 		cfg.save();
 	}

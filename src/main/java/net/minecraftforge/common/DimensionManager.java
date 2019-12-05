@@ -114,8 +114,9 @@ public class DimensionManager
 
     public static void registerDimension(int id, int providerId)
     {
-    	id = RegistryTracker.registerDimension(RegistryTracker.providers.reg.get(providerId), id);
-    	providerId = RegistryTracker.providers.getIndex(providerId);
+    	id = RegistryTracker.registerDimension(id);
+    	System.out.println(providerId + " " + RegistryTracker.providers.reg);
+    	providerId = RegistryTracker.providers.getEntry(providerId).get(0).newId;//best guess for the new provider id although it will be wrong if conflicts are found
       	
         if (dimensions.containsKey(id))
         {

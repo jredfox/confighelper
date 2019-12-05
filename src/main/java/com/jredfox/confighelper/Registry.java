@@ -1,19 +1,31 @@
 package com.jredfox.confighelper;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.crash.CrashReport;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.enchantment.Enchantment;
+import net.minecraft.entity.DataWatcher;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityList;
+import net.minecraft.potion.Potion;
+import net.minecraft.world.WorldProvider;
+import net.minecraft.world.biome.BiomeGenBase;
 
 public class Registry {
 	
-	public HashMap<Integer,List<Class>> reg = new LinkedHashMap<Integer,List<Class>>();
+	public Map<Integer,List<Registry.Entry>> reg = new HashMap<Integer,List<Registry.Entry>>();
+	/**
+	 * for very fast grabbing of the original ids
+	 */
+	public Map<Integer,Integer> newToOld = new HashMap<Integer,Integer>();
+	
 	/**
 	 * an automated integer
 	 */
@@ -31,49 +43,44 @@ public class Registry {
 	public int reg(Object obj, int id)
 	{
 		id = this.getId(obj, id);
-		List<Class> list = reg.get(id);
+		int newId = RegistryConfig.autoConfig ? this.id++ : id;
+		this.newToOld.put(newId, id);
+		List<Entry> list = this.getEntry(id);
 		if(list == null)
 		{
-			list = new ArrayList<Class>();
-			reg.put(id, list);
+			list = new ArrayList<Entry>();
+			this.reg.put(id, list);
 		}
-		if(obj instanceof List)
-		{
-			List li = (List)obj;
-			for(Object index : li)
-			{
-				Class clazz = getClass(index);
-				list.add(clazz);
-			}
-		}
-		else
-		{
-			list.add(getClass(obj));
-		}
+		list.add(new Entry(getClass(obj), newId));
 		if(list.size() > 1)
 		{
 			RegistryTracker.hasConflicts = true;
 			if(!RegistryTracker.startup || this.strict)
 			{
 				RegistryTracker.output();
-				CrashReport crashreport = CrashReport.makeCrashReport(new RuntimeException(this.dataType + " Id conflict has caused the game to crash " + "id:" + id + "=" + list), "In Game");
+				CrashReport crashreport = CrashReport.makeCrashReport(new RuntimeException(this.dataType + " Id conflict has caused the game to crash " + "id:" + id + "=" + list.toString()), "In Game");
 				crashreport.makeCategory("In Game");
 		        Minecraft.getMinecraft().displayCrashReport(Minecraft.getMinecraft().addGraphicsAndWorldToCrashReport(crashreport));
 			}
 		}
-		return RegistryConfig.autoConfig ? this.id++ : id;
+		return newId;
 	}
 	
+	public int getOriginalId(int newId) 
+	{
+		return this.newToOld.get((Integer)newId);
+	}
+
 	/**
-	 * configure vanilla ids
+	 * configure vanilla ids or auto config specific data types(biomes,potion,enchantments)
 	 */
-	protected int getId(Object obj, int id)
+	protected int getId(Object obj, int org)
 	{
 		if(isVanillaObj(obj))
 		{
-			return RegistryVanillaConfig.getId(this.dataType, id);
+			return RegistryVanillaConfig.getId(this.dataType, org);
 		}
-		return id;
+		return org;
 	}
 	
 	public static boolean isVanillaObj(Object obj)
@@ -87,17 +94,15 @@ public class Registry {
 			return (Class) entry;
 		return entry.getClass();
 	}
-
-    public Integer getIndex(int org) 
-    {
-    	int index = 0;
-		for(Integer compare : this.reg.keySet())
-		{
-			if(org == compare)
-				return index;
-			index++;
-		}
-		return -1;
+	
+	public boolean isConflicting(int org)
+	{
+		return this.getEntry(org).size() > 1;
+	}
+	
+	public List<Entry> getEntry(int org)
+	{
+		return this.reg.get(org);
 	}
     
     public static enum DataType{
@@ -110,6 +115,44 @@ public class Registry {
     	DATAWATCHERPLAYER(),
     	ITEM(),
     	BLOCK();
+    }
+    
+    public static class Entry
+    {
+    	public int newId;
+    	public Class clazz;
+    	public String name;
+    	
+    	public Entry(Class c, int newId)
+    	{
+    		this.clazz = c;
+    		this.newId = newId;
+    	}
+    	
+    	public void setName(String name)
+    	{
+    		this.name = name;
+    	}
+    	
+    	@Override
+    	public String toString()
+    	{
+    		return "name:" + this.name + ",newId:" + this.newId + ",class:" + this.clazz;
+    	}
+    	
+    	@Override
+    	public boolean equals(Object obj)
+    	{
+    		if(!(obj instanceof Entry))
+    			return false;
+    		return this.newId == ((Entry)obj).newId;
+    	}
+    	
+    	@Override
+    	public int hashCode()
+    	{
+    		return ((Integer)this.newId).hashCode();
+    	}
     }
 
 }

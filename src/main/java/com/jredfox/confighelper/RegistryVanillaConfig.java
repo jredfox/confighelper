@@ -168,11 +168,11 @@ public class RegistryVanillaConfig {
 		else if(dataType == DataType.ENTITY)
 			return getEntityId(org);
 		else if(dataType == DataType.DATAWATCHERPLAYER)
-			return getDataWatcherId(org);
+			return getDataWatcherPlayerId(org);
 		return -1;
 	}
 
-	private static int getDataWatcherId(int org) {
+	private static int getDataWatcherPlayerId(int org) {
 		return cfgDataWatcherPlayers.get(org);
 	}
 

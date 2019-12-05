@@ -31,7 +31,7 @@ public class RegistryTracker {
 	public static Registry dimensions = new Registry(!RegistryConfig.autoConfig, DataType.DIMENSION);
 	public static Registry providers = new Registry(!RegistryConfig.autoConfig, DataType.PROVIDER);
 	public static Registry entities = new Registry(!RegistryConfig.autoConfig, DataType.ENTITY);
-	
+	//TODO:
 	public static Registry dataWatcherPlayers = new Registry(!RegistryConfig.autoConfig, DataType.DATAWATCHERPLAYER);
 	
 	public static int registerBiome(BiomeGenBase biome, int id)
@@ -44,9 +44,9 @@ public class RegistryTracker {
 		return register(providerObj, providerId, providers);
 	}
 	
-	public static int registerDimension(List<Class> providerObj, int dimId)
+	public static int registerDimension(int dimId)
 	{
-		return register(providerObj, dimId, dimensions);
+		return register(Integer.class, dimId, dimensions);
 	}
 	
 	public static int registerPotion(Potion p, int id)
@@ -80,33 +80,6 @@ public class RegistryTracker {
 	public static final File dirEnchantments = new File(root, "enchantments");
 	public static final File dirEntities = new File(root, "entities");
 	
-	public static void outputConfigIds()
-	{
-		try
-		{
-		mkdirs();
-		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(dirBiomes, "suggested.txt")));
-		writeBiomes(writer);
-		writer.close();
-		writer = new BufferedWriter(new FileWriter(new File(dirDimensions, "suggested.txt")));
-		writeProviders(writer);
-		writer.close();
-		writer = new BufferedWriter(new FileWriter(new File(dirPotions, "suggested.txt")));
-		writePotions(writer);
-		writer.close();
-		writer = new BufferedWriter(new FileWriter(new File(dirEnchantments, "suggested.txt")));
-		writeEnchantments(writer);
-		writer.close();
-		writer = new BufferedWriter(new FileWriter(new File(dirEntities, "suggested.txt")));
-		writeEntities(writer);
-		writer.close();
-		}
-		catch(Throwable t)
-		{
-			t.printStackTrace();
-		}
-	}
-	
 	public static void mkdirs() 
 	{
 		if(!root.exists())
@@ -122,38 +95,66 @@ public class RegistryTracker {
 		if(!dirEntities.exists())
 			dirEntities.mkdir();
 	}
-
-	private static void writeEntities(BufferedWriter writer) throws IOException 
+	
+	public static void output() 
 	{
-		Map<Integer,Class> map = EntityList.IDtoClassMapping;
-		for(Map.Entry<Integer, Class> entry : map.entrySet())
-		{
-			writer.write("id:" + entry.getKey() + " = " + entry.getValue() + "\r\n");
-		}
+		RegistryTracker.outputConfigIds();
+		RegistryTracker.outputConflictedIds();
+		RegistryTracker.outputFreeIds();
 	}
-
-	private static void writePotions(BufferedWriter writer) throws IOException
+	
+	public static void outputConfigIds()
 	{
-		writeStaticRegistry(writer, Potion.potionTypes);
+		try
+		{
+		mkdirs();
+		
+		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(dirBiomes, "suggested.txt")));
+		writeBiomes(writer);
+		writer.close();
+		writer = new BufferedWriter(new FileWriter(new File(dirPotions, "suggested.txt")));
+		writePotions(writer);
+		writer.close();
+		writer = new BufferedWriter(new FileWriter(new File(dirEnchantments, "suggested.txt")));
+		writeEnchantments(writer);
+		writer.close();
+		writer = new BufferedWriter(new FileWriter(new File(dirDimensions, "suggested.txt")));
+		writeProviders(writer);
+		writer.close();
+		writer = new BufferedWriter(new FileWriter(new File(dirEntities, "suggested.txt")));
+		writeEntities(writer);
+		writer.close();
+		}
+		catch(Throwable t)
+		{
+			t.printStackTrace();
+		}
 	}
 	
 	private static void writeBiomes(BufferedWriter writer) throws IOException
 	{
-		writeStaticRegistry(writer, BiomeGenBase.biomeList);
+		writeStaticRegistry(writer, BiomeGenBase.biomeList, biomes);
+	}
+	
+	private static void writePotions(BufferedWriter writer) throws IOException
+	{
+		writeStaticRegistry(writer, Potion.potionTypes, potions);
 	}
 	
 	private static void writeEnchantments(BufferedWriter writer) throws IOException
 	{
-		writeStaticRegistry(writer, Enchantment.enchantmentsList);
+		writeStaticRegistry(writer, Enchantment.enchantmentsList, enchantments);
 	}
-
-	private static void writeStaticRegistry(BufferedWriter writer, Object[] arr) throws IOException
+	
+	private static void writeStaticRegistry(BufferedWriter writer, Object[] arr, Registry reg) throws IOException
 	{
 		for(int i=0;i<arr.length;i++)
 		{
-			Object p = arr[i];
-			if(p != null)
-				writer.write("id:" + i + " = " + p.getClass() + "\r\n");
+			Object obj = arr[i];
+			if(obj != null)
+			{
+				writer.write("id:" + i + " = " + reg.getEntry(reg.getOriginalId(i)) + "\r\n");
+			}
 		}
 	}
 	
@@ -162,7 +163,17 @@ public class RegistryTracker {
 		TreeSet<Integer> map = new TreeSet(DimensionManager.providers.keySet());
 		for(Integer id : map)
 		{
-			writer.write("id:" + id + " = " + DimensionManager.providers.get(id).getName() + "\r\n");
+			writer.write("id:" + id + " = " + providers.getEntry(providers.getOriginalId(id)) + "\r\n");
+		}
+	}
+
+	private static void writeEntities(BufferedWriter writer) throws IOException 
+	{
+		Map<Integer,Class> map = EntityList.IDtoClassMapping;
+		for(Map.Entry<Integer, Class> entry : map.entrySet())
+		{
+			int id = entry.getKey();
+			writer.write("id:" + id + " = " + entities.getEntry(entities.getOriginalId(id)) + "\r\n");
 		}
 	}
 
@@ -173,35 +184,48 @@ public class RegistryTracker {
 		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(dirBiomes,"conflicts.txt")));
 		String spacer = "___________________________________";
 		writer.write("biomes:\r\n" + spacer + "\r\n");
-		writeRegistry(writer, biomes);
+		writeConflicts(writer, biomes);
 		writer.close();
 		
 		writer = new BufferedWriter(new FileWriter(new File(dirDimensions,"conflicts.txt")));
 		writer.write("providers:\r\n" + spacer + "\r\n");
-		writeRegistry(writer, providers);
+		writeConflicts(writer, providers);
 		writer.write(spacer + "\r\n");
 		writer.write("dimensions:\r\n" + spacer + "\r\n");
-		writeRegistry(writer, dimensions);
+		writeConflicts(writer, dimensions);
 		writer.close();
 		
 		writer = new BufferedWriter(new FileWriter(new File(dirEntities,"conflicts.txt")));
 		writer.write("entities:\r\n" + spacer + "\r\n");
-		writeRegistry(writer, entities);
+		writeConflicts(writer, entities);
 		writer.close();
 		
 		writer = new BufferedWriter(new FileWriter(new File(dirPotions,"conflicts.txt")));
 		writer.write("potions:\r\n" + spacer + "\r\n");
-		writeRegistry(writer, potions);
+		writeConflicts(writer, potions);
 		writer.close();
 		
 		writer = new BufferedWriter(new FileWriter(new File(dirEnchantments,"conflicts.txt")));
 		writer.write("enchantments:\r\n" + spacer + "\r\n");
-		writeRegistry(writer, enchantments);
+		writeConflicts(writer, enchantments);
 		writer.close();
 		}
 		catch(Throwable t)
 		{
 			t.printStackTrace();
+		}
+	}
+	
+	public static void writeConflicts(BufferedWriter writer, Registry reg) throws IOException
+	{
+		for(Entry<Integer, List<Registry.Entry>> map : reg.reg.entrySet())
+		{
+			int id = map.getKey();
+			if(reg.isConflicting(id))
+			{
+				List<Registry.Entry> list = map.getValue();
+				writer.write(id +  "=" + list + "\r\n");
+			}
 		}
 	}
 	
@@ -238,9 +262,9 @@ public class RegistryTracker {
 	
 	private static void writeFreeEntityIds(BufferedWriter writer) throws IOException 
 	{
-		for(int i=0;i<=RegistryConfig.entitiesLimit;i++)
+		for(int i=0;i<=RegistryConfig.searchEntities;i++)
 		{
-			if(entities.reg.get(i) == null)
+			if(entities.getEntry(i) == null)
 				writer.write("id:" + i + "\r\n");
 		}
 	}
@@ -249,7 +273,7 @@ public class RegistryTracker {
 	{
 		for(int i=0;i<=RegistryConfig.searchDim;i++)
 		{
-			if(dimensions.reg.get(i) == null && providers.reg.get(i) == null)
+			if(dimensions.getEntry(i) == null && providers.getEntry(i) == null)
 				writer.write("id:" + i + "\r\n");
 		}
 	}
@@ -273,39 +297,9 @@ public class RegistryTracker {
 	{
 		for(int i=0;i<arr.length;i++)
 		{
-			if(reg.reg.get(i) == null)
+			if(reg.getEntry(i) == null)
 				writer.write("id:" + i + "\r\n");
 		}
-	}
-	
-	public static void writeRegistry(BufferedWriter writer, Registry reg) throws IOException
-	{
-		for(Entry<Integer, List<Class>> map : reg.reg.entrySet())
-		{
-			int id = map.getKey();
-			List<Class> li = map.getValue();
-			if(li.size() > 1)
-			{
-				writer.write(id +  "=" + getListClass(li) + "\r\n");
-			}
-		}
-	}
-
-	private static String getListClass(List<Class> li) 
-	{
-		StringBuilder str = new StringBuilder();
-		str.append("[");
-		for(Class c : li)
-			str.append(c.getName() + ",");
-		String built = str.toString();
-		return built.toString().substring(0, built.length()-1) + "]";
-	}
-
-	public static void output() 
-	{
-		RegistryTracker.outputConfigIds();
-		RegistryTracker.outputConflictedIds();
-		RegistryTracker.outputFreeIds();
 	}
 
 }
