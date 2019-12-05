@@ -37,9 +37,7 @@ public class ConfigHelperMod
      */
     @EventHandler
     public void loadComplete(FMLLoadCompleteEvent event)
-    {
-    	RegistryVanillaConfig.genConfigs();
-    	
+    {	
     	RegistryTracker.startup = false;
 		RegistryTracker.output();
 		if(RegistryTracker.hasConflicts)

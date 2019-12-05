@@ -1,8 +1,12 @@
 package com.jredfox.confighelper;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.apache.commons.io.IOUtils;
 
 import com.jredfox.confighelper.Registry.DataType;
 
@@ -27,24 +31,60 @@ public class RegistryVanillaConfig {
 	/**
 	 * when in mdk this may be manually turned into true
 	 */
-	public static final boolean genCfgVanilla = false;
+	public static final boolean genVanillacfg = false;
 	public static final File vanillacfg = new File("./config/confighelper/vanilla/" + MinecraftForge.MC_VERSION + "/vanilla.cfg");
 	
 	static
 	{
-//		loadConfig();
+		if(!genVanillacfg)
+			loadConfig();
+		else
+		{
+			if(vanillacfg.exists())
+				vanillacfg.delete();
+			genConfigs();
+		}
 	}
 	
 	private static void loadConfig() 
 	{
+		if(!vanillacfg.exists())
+		{
+			vanillacfg.getParentFile().mkdirs();
+			moveFileFromJar(RegistryVanillaConfig.class, "assets/" + ConfigHelperMod.MODID + "/" + MinecraftForge.MC_VERSION + "/vanilla.cfg", vanillacfg, true);
+		}
 		Configuration cfg = new Configuration(vanillacfg);
 		cfg.load();
 		populateIntMap(cfgBiomes, cfg.getCategory("biomes"));
-		populateIntMap(cfgDimensions, cfg.getCategory("dimensions"));
+		populateDim(cfg.getCategory("dimensions"));
 		populateIntMap(cfgPotions, cfg.getCategory("potions"));
 		populateIntMap(cfgEnchantments, cfg.getCategory("enchantments"));
 		populateIntMap(cfgEntities, cfg.getCategory("entities"));
 		cfg.save();
+	}
+	
+	@SuppressWarnings("rawtypes")
+	public static void moveFileFromJar(Class clazz, String input, File output, boolean replace) {
+		if(output.exists() && !replace)
+			return;
+		try {
+			InputStream inputstream =  clazz.getClassLoader().getResourceAsStream(input);
+			FileOutputStream outputstream = new FileOutputStream(output);
+			output.createNewFile();
+			IOUtils.copy(inputstream,outputstream);
+			inputstream.close();
+			outputstream.close();
+		} catch (Exception io) {io.printStackTrace();}
+	}
+	
+	private static void populateDim(ConfigCategory cat) 
+	{
+		for(Map.Entry<String, Property> map : cat.entrySet())
+		{
+			String str = map.getKey();
+			String strId = str.substring(0, str.indexOf(' '));
+			cfgDimensions.put(Integer.parseInt(strId), (Integer)map.getValue().getInt());
+		}
 	}
 	
 	private static void populateIntMap(Map<Integer, Integer> cfg, ConfigCategory cat) 
@@ -115,7 +155,7 @@ public class RegistryVanillaConfig {
 	 */
 	public static int getId(DataType dataType, int org) 
 	{
-		if(genCfgVanilla)
+		if(genVanillacfg)
 			return org;
 		if(dataType == DataType.BIOME)
 			return getBiomeId(org);
