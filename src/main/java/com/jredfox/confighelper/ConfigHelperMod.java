@@ -41,16 +41,6 @@ public class ConfigHelperMod
     		Potion.potionTypes = potions;
     	}
     }
-    @EventHandler
-    public void preinit(FMLPreInitializationEvent event)
-    {	
-    	//force load these classes
-    	Object[] c =
-        {Potion.blindness,
-    	 Enchantment.aquaAffinity,
-    	 BiomeGenBase.beach};
-    	 DimensionManager.init();
-    }
     
     /**
      * once the game has completely initialized output suggested ids for all mods
@@ -60,11 +50,11 @@ public class ConfigHelperMod
     {	
     	RegistryTracker.startup = false;
 		RegistryTracker.output();
-//		if(RegistryTracker.hasConflicts)
-//		{
-//			CrashReport crashreport = CrashReport.makeCrashReport(new RuntimeException("Id Conflicts have been detected! Reconfigure your modpack"), "Load Complete");
-//			crashreport.makeCategory("LoadComplete");
-//			Minecraft.getMinecraft().displayCrashReport(Minecraft.getMinecraft().addGraphicsAndWorldToCrashReport(crashreport));
-//		}
+		if(RegistryTracker.hasConflicts)
+		{
+			CrashReport crashreport = CrashReport.makeCrashReport(new RuntimeException("Id Conflicts have been detected! Reconfigure your modpack"), "Load Complete");
+			crashreport.makeCategory("LoadComplete");
+			Minecraft.getMinecraft().displayCrashReport(Minecraft.getMinecraft().addGraphicsAndWorldToCrashReport(crashreport));
+		}
     }
 }
