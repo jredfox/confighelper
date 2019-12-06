@@ -98,11 +98,17 @@ public class RegistryTracker {
 	
 	public static void output() 
 	{
+		RegistryTracker.conFigureNames();
 		RegistryTracker.outputConfigIds();
 		RegistryTracker.outputConflictedIds();
 		RegistryTracker.outputFreeIds();
 	}
 	
+	private static void conFigureNames() 
+	{
+//		for(List<>)
+	}
+
 	public static void outputConfigIds()
 	{
 		try

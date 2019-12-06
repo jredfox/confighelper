@@ -26,61 +26,35 @@ public class RegistryDim extends Registry{
 	@Override
 	protected int getFreeId(int org) 
 	{
-		if(this.dataType == DataType.DIMENSION)
+		if(org < 0)
 		{
-			if(org < 0)
+			for(int i = this.lowerIndex; i >= lowerLimit; i--)
 			{
-				for(int i = this.lowerIndex; i >= lowerLimit; i--)
+				this.lowerIndex = i;
+				if(!this.containsDim(this.lowerIndex))
 				{
-					this.lowerIndex = i;
-					if(!DimensionManager.isDimensionRegistered(this.lowerIndex))
-					{
-						return this.lowerIndex;
-					}
+					return this.lowerIndex;
 				}
-				throw new IllegalArgumentException("no more ids for lower Dimension Limit try upping the amount of ids");
 			}
-			else
-			{
-				for(int i = this.uperIndex; i <= this.uperLimit; i++)
-				{
-					this.uperIndex = i;
-					if(!DimensionManager.isDimensionRegistered(this.uperIndex))
-					{
-						return this.uperIndex;
-					}
-				}
-				throw new IllegalArgumentException("no more ids for lower Dimension Limit try upping the amount of ids");
-			}
+			throw new IllegalArgumentException("no more ids for lower Dimension Limit try upping the amount of ids");
 		}
-		if(this.dataType == DataType.PROVIDER)
+		else
 		{
-			if(org < 0)
+			for(int i = this.uperIndex; i <= this.uperLimit; i++)
 			{
-				for(int i = this.lowerIndex; i >= lowerLimit; i--)
+				this.uperIndex = i;
+				if(!this.containsDim(this.uperIndex))
 				{
-					this.lowerIndex = i;
-					if(!DimensionManager.providers.containsKey(this.lowerIndex))
-					{
-						return this.lowerIndex;
-					}
+					return this.uperIndex;
 				}
-				throw new IllegalArgumentException("no more ids for lower Dimension Limit try upping the amount of ids");
 			}
-			else
-			{
-				for(int i = this.uperIndex; i <= this.uperLimit; i++)
-				{
-					this.uperIndex = i;
-					if(!DimensionManager.providers.containsKey(this.uperIndex))
-					{
-						return this.uperIndex;
-					}
-				}
-				throw new IllegalArgumentException("no more ids for lower Dimension Limit try upping the amount of ids");
-			}
+			throw new IllegalArgumentException("no more ids for lower Dimension Limit try upping the amount of ids");
 		}
-		return -1;
+	}
+	
+	public boolean containsDim(int id)
+	{
+		return this.dataType == DataType.DIMENSION ? DimensionManager.isDimensionRegistered(id) :  DimensionManager.providers.contains(id);
 	}
 
 }
