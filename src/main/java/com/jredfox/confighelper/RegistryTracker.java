@@ -28,8 +28,8 @@ public class RegistryTracker {
 	public static Registry biomes = new Registry(!RegistryConfig.autoConfig, DataType.BIOME);
 	public static Registry enchantments = new Registry(!RegistryConfig.autoConfig, DataType.ENCHANTMENT);
 	public static Registry potions = new Registry(!RegistryConfig.autoConfig, DataType.POTION);
-	public static Registry dimensions = new Registry(!RegistryConfig.autoConfig, DataType.DIMENSION);
-	public static Registry providers = new Registry(!RegistryConfig.autoConfig, DataType.PROVIDER);
+	public static Registry dimensions = new RegistryDim(!RegistryConfig.autoConfig, DataType.DIMENSION);
+	public static Registry providers = new RegistryDim(!RegistryConfig.autoConfig, DataType.PROVIDER);
 	public static Registry entities = new Registry(!RegistryConfig.autoConfig, DataType.ENTITY);
 	//TODO:
 	public static Registry dataWatcherPlayers = new Registry(!RegistryConfig.autoConfig, DataType.DATAWATCHERPLAYER);
@@ -271,7 +271,7 @@ public class RegistryTracker {
 
 	private static void writeFreeDimIds(BufferedWriter writer) throws IOException 
 	{
-		for(int i=0;i<=RegistryConfig.searchDim;i++)
+		for(int i=RegistryConfig.searchDimLower;i<=RegistryConfig.searchDimUper;i++)
 		{
 			if(dimensions.getEntry(i) == null && providers.getEntry(i) == null)
 				writer.write("id:" + i + "\r\n");

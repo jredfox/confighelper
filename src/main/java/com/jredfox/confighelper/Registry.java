@@ -49,7 +49,7 @@ public class Registry {
 	
 	public int reg(Object obj, int id)
 	{
-		int newId = this.canAuto(obj) ? this.getFreeId() : id;
+		int newId = this.canAuto(obj) ? this.getFreeId(id) : id;
 		this.newToOld.put(newId, id);
 		List<Entry> list = this.getEntry(id);
 		if(list == null)
@@ -74,8 +74,9 @@ public class Registry {
 	
 	/**
 	 * warning this will automatically set your id counter and return the next free id
+	 * @param org is the original id which is used to compare for negative data type searching in dimensions/providers....
 	 */
-	protected int getFreeId() 
+	protected int getFreeId(int org) 
 	{
 		Object[] arr = this.getStaticArr();
 		if(arr != null)
@@ -83,28 +84,6 @@ public class Registry {
 			for(int i=this.id;i<arr.length;i++)
 			{
 				if(arr[i] == null)
-				{
-					this.id = i;
-					return this.id;
-				}
-			}
-		}
-		if(this.dataType == DataType.DIMENSION)
-		{
-			for(int i=this.id;i<RegistryConfig.searchDim;i++)
-			{
-				if(!DimensionManager.isDimensionRegistered(i))
-				{
-					this.id = i;
-					return this.id;
-				}
-			}
-		}
-		if(this.dataType == DataType.PROVIDER)
-		{
-			for(int i=this.id;i<RegistryConfig.searchDim;i++)
-			{
-				if(!DimensionManager.providers.containsKey(i))
 				{
 					this.id = i;
 					return this.id;
