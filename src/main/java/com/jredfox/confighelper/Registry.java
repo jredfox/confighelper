@@ -64,8 +64,9 @@ public class Registry {
 			if(!RegistryTracker.startup || this.strict)
 			{
 				RegistryTracker.output();
-				CrashReport crashreport = CrashReport.makeCrashReport(new RuntimeException(this.dataType + " Id conflict has caused the game to crash " + "id:" + id + "=" + list.toString()), "In Game");
-				crashreport.makeCategory("In Game");
+				String inGame = !RegistryTracker.startup ? "In Game" : "Loading";
+				CrashReport crashreport = CrashReport.makeCrashReport(new RuntimeException(this.dataType + " Id conflict during " +  inGame + " id:" + id + "=" + list.toString()), inGame);
+				crashreport.makeCategory(inGame);
 		        Minecraft.getMinecraft().displayCrashReport(Minecraft.getMinecraft().addGraphicsAndWorldToCrashReport(crashreport));
 			}
 		}
