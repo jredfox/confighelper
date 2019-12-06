@@ -17,6 +17,7 @@ import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.EntityList;
 import net.minecraft.potion.Potion;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldProvider;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraftforge.common.DimensionManager;
 
@@ -104,9 +105,63 @@ public class RegistryTracker {
 		RegistryTracker.outputFreeIds();
 	}
 	
-	private static void conFigureNames() 
+	private static void conFigureNames()
 	{
-//		for(List<>)
+		addNames(biomes, BiomeGenBase.biomeList);
+		addNames(enchantments, Enchantment.enchantmentsList);
+		addNames(potions, Potion.potionTypes);
+		
+		for(List<Registry.Entry> li : providers.reg.values())
+		{
+			for(Registry.Entry entry : li)
+			{
+				entry.setName(getNameProvider(entry.newId));
+			}
+		}
+		
+		for(List<Registry.Entry> li : entities.reg.values())
+		{
+			for(Registry.Entry entry : li)
+			{
+				entry.setName(EntityList.getStringFromID(entry.newId));
+			}
+		}
+	}
+
+	public static String getNameProvider(int newId) 
+	{
+		try
+		{
+			WorldProvider provider = DimensionManager.providers.get(newId).newInstance();
+			return provider.getDimensionName();
+		}
+		catch(Throwable t)
+		{
+			t.printStackTrace();
+		}
+		return null;
+	}
+
+	private static void addNames(Registry reg, Object[] arr) 
+	{
+		for(List<Registry.Entry> li : reg.reg.values())
+		{
+			for(Registry.Entry entry : li)
+			{
+				entry.setName(getName(arr[entry.newId]) );
+			}
+		}
+	}
+	
+	private static String getName(Object obj)
+	{
+		if(obj instanceof BiomeGenBase)
+			return ((BiomeGenBase)obj).biomeName;
+		else if(obj instanceof Enchantment)
+			return ((Enchantment)obj).getName();
+		else if(obj instanceof Potion)
+			return ((Potion)obj).getName();
+		return null;
 	}
 
 	public static void outputConfigIds()
@@ -230,7 +285,7 @@ public class RegistryTracker {
 			if(reg.isConflicting(id))
 			{
 				List<Registry.Entry> list = map.getValue();
-				writer.write(id +  "=" + list + "\r\n");
+				writer.write(id +  " = " + list + "\r\n");
 			}
 		}
 	}

@@ -21,7 +21,7 @@ import net.minecraftforge.common.DimensionManager;
 
 public class Registry {
 	
-	public Map<Integer,List<Registry.Entry>> reg = new HashMap<Integer,List<Registry.Entry>>();
+	public Map<Integer,List<Registry.Entry>> reg = new LinkedHashMap<Integer,List<Registry.Entry>>();
 	/**
 	 * for very fast grabbing of the original ids
 	 */
@@ -36,7 +36,8 @@ public class Registry {
 	/**
 	 * derp id
 	 */
-	public static final int megaTaiga = 161;
+	public static final int megaTaigaHills = 161;
+	public static final int megaTaiga = 160;
 	
 	public Registry(){}
 	public Registry(boolean strict, DataType dataType)
@@ -44,12 +45,12 @@ public class Registry {
 		this.strict = strict;
 		this.dataType = dataType;
 		if(this.dataType == DataType.BIOME)
-			newToOld.put(161, 160);//work around for vanilla's der biomeArr[160]=biomeArr[161]...
+			newToOld.put(megaTaigaHills, megaTaiga);//work around for vanilla's der biomeArr[160]=biomeArr[161]...	
 	}
 	
 	public int reg(Object obj, int id)
 	{
-		int newId = this.canAuto(obj) ? this.getFreeId(id) : id;
+		int newId = this.canAuto(obj, id) ? this.getFreeId(id) : id;
 		this.newToOld.put(newId, id);
 		List<Entry> list = this.getEntry(id);
 		if(list == null)
@@ -75,7 +76,6 @@ public class Registry {
 	
 	/**
 	 * warning this will automatically set your id counter and return the next free id
-	 * @param org is the original id which is used to compare for negative data type searching in dimensions/providers....
 	 */
 	protected int getFreeId(int org) 
 	{
@@ -119,7 +119,7 @@ public class Registry {
 	/**
 	 * is this mod allowed to auto configure the ids based on data type and/or mode
 	 */
-	public boolean canAuto(Object obj) 
+	public boolean canAuto(Object obj, int org) 
 	{
 		if(isVanillaObj(obj))
 			return false;
@@ -185,7 +185,7 @@ public class Registry {
     	@Override
     	public String toString()
     	{
-    		return "name:" + this.name + ",newId:" + this.newId + ",class:" + this.clazz;
+    		return "{name:" + this.name + ",newId:" + this.newId + ",class:" + this.clazz + "}";
     	}
     	
     	@Override

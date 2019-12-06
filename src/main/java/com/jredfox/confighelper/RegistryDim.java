@@ -6,10 +6,8 @@ import net.minecraftforge.common.DimensionManager;
 
 public class RegistryDim extends Registry{
 	
-	public int lowerLimit = RegistryConfig.searchDimLower;
-	public int lowerIndex = -1;
-	public int uperLimit =  RegistryConfig.searchDimUper;
-	public int uperIndex;
+	public int upper = 2;
+	public int lower = -2;
 	
 	public RegistryDim(boolean strict, DataType type)
 	{
@@ -21,40 +19,50 @@ public class RegistryDim extends Registry{
 			throw new IllegalArgumentException("DataType for RegistryDim must be DIMENSION or PROVIDER Data types");
 		return type;
 	}
+	
+	/**
+	 * prevent vanilla ids from getting automated
+	 */
+	@Override
+	public boolean canAuto(Object obj, int org)
+	{
+		return RegistryConfig.autoConfig && (org > 1 || org < -1);
+	}
 
 
 	@Override
 	protected int getFreeId(int org) 
 	{
-		if(org < 0)
+		if(org >= 0)
 		{
-			for(int i = this.lowerIndex; i >= lowerLimit; i--)
+			for(int i=this.upper;i<=RegistryConfig.searchDimUper;i++)
 			{
-				this.lowerIndex = i;
-				if(!this.containsDim(this.lowerIndex))
+				if(!this.containsDim(this.upper))
 				{
-					return this.lowerIndex;
+					return this.upper;
 				}
+				this.upper++;
 			}
-			throw new IllegalArgumentException("no more ids for lower Dimension Limit try upping the amount of ids");
 		}
 		else
 		{
-			for(int i = this.uperIndex; i <= this.uperLimit; i++)
+			for(int i=this.lower;i>=RegistryConfig.searchDimLower;i--)
 			{
-				this.uperIndex = i;
-				if(!this.containsDim(this.uperIndex))
+				if(!this.containsDim(this.lower))
 				{
-					return this.uperIndex;
+					return this.lower;
 				}
+				this.lower--;
 			}
-			throw new IllegalArgumentException("no more ids for lower Dimension Limit try upping the amount of ids");
 		}
+		return org;
 	}
 	
 	public boolean containsDim(int id)
 	{
-		return this.dataType == DataType.DIMENSION ? DimensionManager.isDimensionRegistered(id) :  DimensionManager.providers.contains(id);
+		if(this.dataType == DataType.PROVIDER)
+			return DimensionManager.providers.containsKey(id);
+		return DimensionManager.dimensions.containsKey(id);
 	}
 
 }
