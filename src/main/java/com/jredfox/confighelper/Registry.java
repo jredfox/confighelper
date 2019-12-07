@@ -39,7 +39,6 @@ public class Registry {
 	public static final int megaTaigaHills = 161;
 	public static final int megaTaiga = 160;
 	
-	public Registry(){}
 	public Registry(boolean strict, DataType dataType)
 	{
 		this.strict = strict;
@@ -62,7 +61,7 @@ public class Registry {
 		if(list.size() > 1)
 		{
 			RegistryTracker.hasConflicts = true;
-			if(!RegistryTracker.startup || this.strict)
+			if(this.canCrash())
 			{
 				RegistryTracker.output();
 				String inGame = !RegistryTracker.startup ? "In Game" : "Loading";
@@ -75,6 +74,15 @@ public class Registry {
 	}
 	
 	/**
+	 * returns whether or not it should crash on the first sign of conflict
+	 */
+	public boolean canCrash()
+	{
+		return !RegistryTracker.startup || this.strict;
+	}
+
+	/**
+	 * grabs the next automatic id that works around vanilla ids usually
 	 * warning this will automatically set your id counter and return the next free id
 	 */
 	protected int getFreeId(int org) 

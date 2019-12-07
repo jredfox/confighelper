@@ -53,7 +53,7 @@ public class ConfigHelperMod
 		if(RegistryTracker.hasConflicts)
 		{
 			CrashReport crashreport = CrashReport.makeCrashReport(new RuntimeException("Id Conflicts have been detected! Reconfigure your modpack"), "Load Complete");
-			crashreport.makeCategory("LoadComplete");
+			crashreport.makeCategory("Load Complete");
 			Minecraft.getMinecraft().displayCrashReport(Minecraft.getMinecraft().addGraphicsAndWorldToCrashReport(crashreport));
 		}
     }

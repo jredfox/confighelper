@@ -13,7 +13,7 @@ public class RegistryConfig {
 	public static int searchDimLower = -100;
 	public static int searchDimUper = 300;
 	public static int searchEntities = 256;
-	public static int dataWatchersLimit = 31;
+	public static int dataWatchersLimit = 254;
 	
 	//mod config
 	public static boolean autoConfig = true;

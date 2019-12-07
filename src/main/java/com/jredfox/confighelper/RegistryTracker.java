@@ -32,8 +32,10 @@ public class RegistryTracker {
 	public static Registry dimensions = new RegistryDim(!RegistryConfig.autoConfig, DataType.DIMENSION);
 	public static Registry providers = new RegistryDim(!RegistryConfig.autoConfig, DataType.PROVIDER);
 	public static Registry entities = new Registry(!RegistryConfig.autoConfig, DataType.ENTITY);
-	//TODO:
-	public static Registry dataWatcherPlayers = new Registry(!RegistryConfig.autoConfig, DataType.DATAWATCHERPLAYER);
+	/**
+	 * the last EntityPlayer data watcher object list
+	 */
+	public static Registry dataWatchers = null;
 	
 	public static int registerBiome(BiomeGenBase biome, int id)
 	{
@@ -63,6 +65,11 @@ public class RegistryTracker {
 	public static int registerEntity(Class entity, int id) 
 	{
 		return register(entity, id, entities);
+	}
+	
+	public static int registerDataWatcher(Class obj, int id, Registry reg)
+	{
+		return register(obj, id, reg);
 	}
 	
 	public static int register(Object obj, int id, Registry reg)
