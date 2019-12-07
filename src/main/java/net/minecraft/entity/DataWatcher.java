@@ -17,6 +17,8 @@ import com.jredfox.confighelper.RegistryConfig;
 import com.jredfox.confighelper.RegistryDataWatcher;
 import com.jredfox.confighelper.RegistryTracker;
 
+import cpw.mods.fml.common.Loader;
+import cpw.mods.fml.common.ModContainer;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.crash.CrashReport;

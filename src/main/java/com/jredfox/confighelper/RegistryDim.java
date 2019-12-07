@@ -21,6 +21,14 @@ public class RegistryDim extends Registry{
 		return type;
 	}
 	
+	public static boolean isVanillaId(int org)
+	{
+		for(int v : dimIds)
+			if(v == org)
+				return true;
+		return false;
+	}
+	
 	/**
 	 * prevent vanilla ids from getting automated
 	 */

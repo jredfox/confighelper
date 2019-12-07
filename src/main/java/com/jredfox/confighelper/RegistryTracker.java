@@ -82,7 +82,6 @@ public class RegistryTracker {
 	
 	/**
 	 * a live look at the arrays
-	 * @param dir
 	 */
 	public static final File root = new File("./config/confighelper");
 	public static final File dirBiomes = new File(root, "biomes");
@@ -132,11 +131,28 @@ public class RegistryTracker {
 			}
 		}
 		
+		for(List<Registry.Entry> li : dimensions.reg.values())
+		{
+			for(Registry.Entry e : li)
+			{
+				e.setName(RegistryDim.isVanillaId(e.newId) ? "vanilla" : "modded");
+			}
+		}
+		
 		for(List<Registry.Entry> li : entities.reg.values())
 		{
 			for(Registry.Entry entry : li)
 			{
 				entry.setName(EntityList.getStringFromID(entry.newId));
+			}
+		}
+		
+		if(datawatchers != null)
+		for(List<Registry.Entry> li : datawatchers.reg.values())
+		{
+			for(Registry.Entry e : li)
+			{
+				e.setName(RegistryDataWatcher.isVanillaId(e.newId) ? "vanilla" : "modded");
 			}
 		}
 	}
@@ -183,25 +199,25 @@ public class RegistryTracker {
 		{
 		mkdirs();
 		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(dirBiomes, "suggested.txt")));
-		writeSuggestedArray(writer, biomes);
+		writeSuggested(writer, biomes);
 		writer.close();
 		writer = new BufferedWriter(new FileWriter(new File(dirPotions, "suggested.txt")));
-		writeSuggestedArray(writer, potions);
+		writeSuggested(writer, potions);
 		writer.close();
 		writer = new BufferedWriter(new FileWriter(new File(dirEnchantments, "suggested.txt")));
-		writeSuggestedArray(writer, enchantments);
+		writeSuggested(writer, enchantments);
 		writer.close();
 		writer = new BufferedWriter(new FileWriter(new File(dirDimensions, "suggested.txt")));
-		writeSuggestedArray(writer, providers);
+		writeSuggested(writer, providers);
 		writer.close();
 		writer = new BufferedWriter(new FileWriter(new File(dirEntities, "suggested.txt")));
-		writeSuggestedArray(writer, entities);
+		writeSuggested(writer, entities);
 		writer.close();
 		
 		if(datawatchers != null)
 		{
 			writer = new BufferedWriter(new FileWriter(new File(dirDatawatchers, "suggested.txt")));
-			writeSuggestedArray(writer, datawatchers);
+			writeDatawatchers(writer);
 			writer.close();
 		}
 		
@@ -212,7 +228,7 @@ public class RegistryTracker {
 		}
 	}
 	
-	private static void writeSuggestedArray(BufferedWriter writer, Registry reg) throws IOException
+	private static void writeSuggested(BufferedWriter writer, Registry reg) throws IOException
 	{
 		List<Registry.Entry> entries = new ArrayList();
 		for(List<Registry.Entry> list : reg.reg.values())
@@ -232,7 +248,34 @@ public class RegistryTracker {
 		
 		for(Registry.Entry e : entries)
 		{
+			if(e.dupe)
+				continue;
 			writer.write(e.newId + " " + e.getDisplay() + "\r\n");
+		}
+	}
+	
+	private static void writeDatawatchers(BufferedWriter writer) throws IOException
+	{
+		List<Registry.Entry> entries = new ArrayList();
+		for(List<Registry.Entry> list : datawatchers.reg.values())
+		{
+			entries.addAll(list);
+		}
+		Collections.sort(entries, new Comparator()
+		{
+			@Override
+			public int compare(Object arg0, Object arg1) 
+			{
+				Integer i1 = ((Registry.Entry)arg0).newId;
+				Integer i2 = ((Registry.Entry)arg1).newId;
+				return i1.compareTo(i2);
+			}
+		});
+		for(Registry.Entry e : entries)
+		{
+			if(e.dupe)
+				continue;
+			writer.write(e.newId + " (" + e.name + ")\r\n");
 		}
 	}
 
@@ -268,6 +311,14 @@ public class RegistryTracker {
 		writer.write("enchantments:\r\n" + spacer + "\r\n");
 		writeConflicts(writer, enchantments);
 		writer.close();
+		
+		if(datawatchers != null)
+		{
+			writer = new BufferedWriter(new FileWriter(new File(dirDatawatchers,"conflicts.txt")));
+			writer.write("datawatchers:\r\n" + spacer + "\r\n");
+			writeConflicts(writer, datawatchers);
+			writer.close();
+		}
 		}
 		catch(Throwable t)
 		{
@@ -312,6 +363,13 @@ public class RegistryTracker {
 			writer = new BufferedWriter(new FileWriter(new File(dirEntities, "freeids.txt")));
 			writeFreeIds(writer, RegistryConfig.entities, entities);
 			writer.close();
+			
+			if(datawatchers != null)
+			{
+				writer = new BufferedWriter(new FileWriter(new File(dirDatawatchers, "freeids.txt")));
+				writeFreeIds(writer, RegistryConfig.dataWatchersLimit, datawatchers);
+				writer.close();
+			}
 		}
 		catch(Throwable t)
 		{

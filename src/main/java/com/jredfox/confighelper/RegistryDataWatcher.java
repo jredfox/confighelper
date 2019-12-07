@@ -1,7 +1,11 @@
 package com.jredfox.confighelper;
 
-import java.util.HashSet;
+import java.util.List;
 
+import com.jredfox.confighelper.Registry.Entry;
+
+import cpw.mods.fml.common.registry.EntityRegistry;
+import cpw.mods.fml.common.registry.EntityRegistry.EntityRegistration;
 import net.minecraft.entity.DataWatcher;
 
 public class RegistryDataWatcher extends Registry{
@@ -27,7 +31,7 @@ public class RegistryDataWatcher extends Registry{
 		return RegistryConfig.autoConfig && !this.isVanillaId(org);
 	}
 	
-	public boolean isVanillaId(int org) 
+	public static boolean isVanillaId(int org) 
 	{
 		for(int v : ids)
 			if(v == org)
@@ -54,5 +58,19 @@ public class RegistryDataWatcher extends Registry{
 		}
 		return -1;
 	}
+	
+	@Override
+    public String getDisplay(int id)
+    {
+    	StringBuilder builder = new StringBuilder();
+    	builder.append('[');
+    	List<Entry> list = this.reg.get(id);
+    	for(Entry e : list)
+    	{
+    		builder.append("(name:" + e.name + "), ");
+    	}
+    	builder.append(']');
+    	return builder.toString();
+    }
 
 }

@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import cpw.mods.fml.common.Loader;
+import cpw.mods.fml.common.ModContainer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.enchantment.Enchantment;
@@ -22,10 +24,6 @@ import net.minecraftforge.common.DimensionManager;
 public class Registry {
 	
 	public Map<Integer,List<Registry.Entry>> reg = new LinkedHashMap<Integer,List<Registry.Entry>>();
-	/**
-	 * for very fast grabbing of the original ids
-	 */
-	public Map<Integer,Integer> newToOld = new HashMap<Integer,Integer>();
 	
 	/**
 	 * an automated integer
@@ -43,23 +41,22 @@ public class Registry {
 	{
 		this.strict = strict;
 		this.dataType = dataType;
-		if(this.dataType == DataType.BIOME)
-			newToOld.put(megaTaigaHills, megaTaiga);//work around for vanilla's der biomeArr[160]=biomeArr[161]...	
 	}
 	
 	public int reg(Object obj, int id)
 	{
 		int newId = this.canAuto(obj, id) ? this.getFreeId(id) : id;
-		this.newToOld.put(newId, id);
 		List<Entry> list = this.getEntry(id);
 		if(list == null)
 		{
 			list = new ArrayList<Entry>();
 			this.reg.put(id, list);
 		}
-		list.add(new Entry(getClass(obj), newId, id));
+		Entry entry = new Entry(getClass(obj), newId, id);
+		list.add(entry);
 		if(list.size() > 1)
 		{
+			entry.dupe = newId == id;//is this a straight up conflict?
 			RegistryTracker.hasConflicts = true;
 			if(this.canCrash())
 			{
@@ -134,11 +131,6 @@ public class Registry {
 		return RegistryConfig.autoConfig;
 	}
 	
-	public int getOriginalId(int newId) 
-	{
-		return this.newToOld.get((Integer)newId);
-	}
-	
 	public static boolean isVanillaObj(Object obj)
 	{
 		return getClass(obj).getName().startsWith("net.minecraft.");
@@ -179,6 +171,10 @@ public class Registry {
     	public int newId;
     	public Class clazz;
     	public String name;
+    	/**
+    	 * is this entry a duplicate (newId == org) && there is more then one in the registry
+    	 */
+    	public boolean dupe;
     	
     	public Entry(Class c, int newId, int org)
     	{
@@ -187,9 +183,9 @@ public class Registry {
     		this.org = org;
     	}
     	
-    	public void setName(String name)
+    	public void setName(String str)
     	{
-    		this.name = name;
+    		this.name = str;
     	}
     	
     	@Override

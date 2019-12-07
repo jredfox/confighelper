@@ -24,7 +24,7 @@ public class RegistryConfig {
 		cfg.load();
 		autoConfig = cfg.get("general", "autoConfig", autoConfig).getBoolean();
 		
-		cfg.addCustomCategoryComment("limit", "changing these will not increase/decrease the limit of the ids. This is just so If a mod does extend ids change these");
+		cfg.addCustomCategoryComment("limit", "changing these will not increase/decrease the limit of the ids. This is just so If a mod does extend the ids you can change them");
 		biomeLimit = cfg.get("limit", "biome", biomeLimit).getInt();
 		searchDimUper = cfg.get("limit", "searchDimUper", searchDimUper).getInt();
 		searchDimLower = cfg.get("limit", "searchDimLower", searchDimLower).getInt();
