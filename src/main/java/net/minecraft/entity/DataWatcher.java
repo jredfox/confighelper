@@ -38,11 +38,15 @@ public class DataWatcher
     private boolean objectChanged;
     private ReadWriteLock lock = new ReentrantReadWriteLock();
     private static final String __OBFID = "CL_00001559";
-    public Registry reg = new RegistryDataWatcher(!RegistryConfig.autoConfig);
-
-    public DataWatcher(Entity p_i45313_1_)
+    public Registry reg;
+    
+    public DataWatcher(Entity e)
     {
-        this.field_151511_a = p_i45313_1_;
+        this.field_151511_a = e;
+        if(e instanceof EntityPlayer)
+        {
+        	this.reg = new RegistryDataWatcher(!RegistryConfig.autoConfig, this);
+        }
     }
 
     /**
@@ -52,9 +56,9 @@ public class DataWatcher
     public void addObject(int id, Object obj)
     {
     	if(this.field_151511_a instanceof EntityPlayer)
-    	{
-    		RegistryTracker.dataWatchers = this.reg;
-    		id = RegistryTracker.registerDataWatcher(obj.getClass(), id, this.reg);
+    	{	
+    		RegistryTracker.dataWatchers = reg;
+    		id = RegistryTracker.registerDataWatcher(this.field_151511_a.getClass(), id, reg);
     	}
         Integer integer = (Integer)dataTypes.get(obj.getClass());
 
@@ -66,7 +70,7 @@ public class DataWatcher
         {
         	throw new IllegalArgumentException("Ids must be between (0-254)");
         }
-        else if (this.watchedObjects.containsKey(Integer.valueOf(id)))
+        else if (this.containsId(Integer.valueOf(id)))
         {
             throw new IllegalArgumentException("Duplicate DataWatcher id:" + id + "!");
         }
@@ -156,6 +160,11 @@ public class DataWatcher
 
         this.lock.readLock().unlock();
         return watchableobject;
+    }
+    
+    public boolean containsId(int id)
+    {
+    	return this.watchedObjects.containsKey(id);
     }
 
     /**

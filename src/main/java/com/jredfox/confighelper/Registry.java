@@ -210,5 +210,11 @@ public class Registry {
     		return ((Integer)this.newId).hashCode();
     	}
     }
+    
+    @Override
+    public String toString()
+    {
+    	return this.reg.toString();
+    }
 
 }

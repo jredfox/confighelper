@@ -22,7 +22,7 @@ import net.minecraft.util.StringUtils;
 public class Potion
 {
     /** The array of potion types. */
-    public static Potion[] potionTypes = new Potion[40];
+    public static Potion[] potionTypes = new Potion[256];
     public static final Potion field_76423_b = null;
     public static final Potion moveSpeed = (new Potion(1, false, 8171462)).setPotionName("potion.moveSpeed").setIconIndex(0, 0).func_111184_a(SharedMonsterAttributes.movementSpeed, "91AEAA56-376B-4498-935B-2F7F68070635", 0.20000000298023224D, 2);
     public static final Potion moveSlowdown = (new Potion(2, true, 5926017)).setPotionName("potion.moveSlowdown").setIconIndex(1, 0).func_111184_a(SharedMonsterAttributes.movementSpeed, "7107DE5E-7CE8-4030-940E-514C1F160890", -0.15000000596046448D, 2);

@@ -19,6 +19,7 @@ import net.minecraft.potion.Potion;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraftforge.common.DimensionManager;
+import net.minecraftforge.common.MinecraftForge;
 
 @Mod(modid = ConfigHelperMod.MODID, version = ConfigHelperMod.VERSION, name = ConfigHelperMod.NAME)
 public class ConfigHelperMod
@@ -27,19 +28,10 @@ public class ConfigHelperMod
     public static final String VERSION = "1.0";
     public static final String NAME = "Config Helper";
     
-    static
+    @EventHandler
+    public void preinit(FMLPreInitializationEvent event)
     {
-    	//extend potion ids to byte and save any currently stored potions in here
-    	if(Potion.potionTypes.length < 256)
-    	{
-    		System.out.println("Extending Potion limit to byte[0-255]");
-    		Potion[] potions = new Potion[256];
-    		for(int i=0;i<Potion.potionTypes.length;i++)
-    		{
-    			potions[i] = Potion.potionTypes[i];
-    		}
-    		Potion.potionTypes = potions;
-    	}
+    	MinecraftForge.EVENT_BUS.register(new DataWatcherEvent());
     }
     
     /**

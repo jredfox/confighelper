@@ -6,6 +6,7 @@ import net.minecraftforge.common.DimensionManager;
 
 public class RegistryDim extends Registry{
 	
+	public static final int[] dimIds = new int[]{-1,0,1};
 	public int upper = 2;
 	public int lower = -2;
 	
