@@ -57,7 +57,7 @@ public class Registry {
 			list = new ArrayList<Entry>();
 			this.reg.put(id, list);
 		}
-		list.add(new Entry(getClass(obj), newId));
+		list.add(new Entry(getClass(obj), newId, id));
 		if(list.size() > 1)
 		{
 			RegistryTracker.hasConflicts = true;
@@ -175,14 +175,16 @@ public class Registry {
     
     public static class Entry
     {
+    	public int org;
     	public int newId;
     	public Class clazz;
     	public String name;
     	
-    	public Entry(Class c, int newId)
+    	public Entry(Class c, int newId, int org)
     	{
     		this.clazz = c;
     		this.newId = newId;
+    		this.org = org;
     	}
     	
     	public void setName(String name)
@@ -193,7 +195,12 @@ public class Registry {
     	@Override
     	public String toString()
     	{
-    		return "{name:" + this.name + ",newId:" + this.newId + ",class:" + this.clazz + "}";
+    		return "{name:" + this.name + ",newId:" + this.newId + ",class:" + this.clazz.getName() + "}";
+    	}
+    	
+    	public String getDisplay()
+    	{
+    		return "(name:" + this.name + ", " + this.clazz.getName() + ")";
     	}
     	
     	@Override
@@ -215,6 +222,19 @@ public class Registry {
     public String toString()
     {
     	return this.reg.toString();
+    }
+    
+    public String getDisplay(int id)
+    {
+    	StringBuilder builder = new StringBuilder();
+    	builder.append('[');
+    	List<Entry> list = this.reg.get(id);
+    	for(Entry e : list)
+    	{
+    		builder.append(e.getDisplay() + ", ");
+    	}
+    	builder.append(']');
+    	return builder.toString();
     }
 
 }

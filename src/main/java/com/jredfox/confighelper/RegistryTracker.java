@@ -4,6 +4,9 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -35,7 +38,7 @@ public class RegistryTracker {
 	/**
 	 * the last EntityPlayer data watcher object list
 	 */
-	public static Registry dataWatchers = null;
+	public static Registry datawatchers;
 	
 	public static int registerBiome(BiomeGenBase biome, int id)
 	{
@@ -67,9 +70,9 @@ public class RegistryTracker {
 		return register(entity, id, entities);
 	}
 	
-	public static int registerDataWatcher(Class obj, int id, Registry reg)
+	public static int registerDataWatcher(Class entityClass, int id, Registry reg)
 	{
-		return register(obj, id, reg);
+		return register(entityClass, id, reg);
 	}
 	
 	public static int register(Object obj, int id, Registry reg)
@@ -87,6 +90,7 @@ public class RegistryTracker {
 	public static final File dirPotions = new File(root, "potions");
 	public static final File dirEnchantments = new File(root, "enchantments");
 	public static final File dirEntities = new File(root, "entities");
+	public static final File dirDatawatchers = new File(root,"datawatchers");
 	
 	public static void mkdirs() 
 	{
@@ -102,17 +106,19 @@ public class RegistryTracker {
 			dirEnchantments.mkdir();
 		if(!dirEntities.exists())
 			dirEntities.mkdir();
+		if(!dirDatawatchers.exists())
+			dirDatawatchers.mkdir();
 	}
 	
 	public static void output() 
 	{
-		RegistryTracker.conFigureNames();
+		RegistryTracker.grabNames();
 		RegistryTracker.outputConfigIds();
 		RegistryTracker.outputConflictedIds();
 		RegistryTracker.outputFreeIds();
 	}
 	
-	private static void conFigureNames()
+	private static void grabNames()
 	{
 		addNames(biomes, BiomeGenBase.biomeList);
 		addNames(enchantments, Enchantment.enchantmentsList);
@@ -176,22 +182,29 @@ public class RegistryTracker {
 		try
 		{
 		mkdirs();
-		
 		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(dirBiomes, "suggested.txt")));
-		writeBiomes(writer);
+		writeSuggestedArray(writer, biomes);
 		writer.close();
 		writer = new BufferedWriter(new FileWriter(new File(dirPotions, "suggested.txt")));
-		writePotions(writer);
+		writeSuggestedArray(writer, potions);
 		writer.close();
 		writer = new BufferedWriter(new FileWriter(new File(dirEnchantments, "suggested.txt")));
-		writeEnchantments(writer);
+		writeSuggestedArray(writer, enchantments);
 		writer.close();
 		writer = new BufferedWriter(new FileWriter(new File(dirDimensions, "suggested.txt")));
-		writeProviders(writer);
+		writeSuggestedArray(writer, providers);
 		writer.close();
 		writer = new BufferedWriter(new FileWriter(new File(dirEntities, "suggested.txt")));
-		writeEntities(writer);
+		writeSuggestedArray(writer, entities);
 		writer.close();
+		
+		if(datawatchers != null)
+		{
+			writer = new BufferedWriter(new FileWriter(new File(dirDatawatchers, "suggested.txt")));
+			writeSuggestedArray(writer, datawatchers);
+			writer.close();
+		}
+		
 		}
 		catch(Throwable t)
 		{
@@ -199,49 +212,27 @@ public class RegistryTracker {
 		}
 	}
 	
-	private static void writeBiomes(BufferedWriter writer) throws IOException
+	private static void writeSuggestedArray(BufferedWriter writer, Registry reg) throws IOException
 	{
-		writeStaticRegistry(writer, BiomeGenBase.biomeList, biomes);
-	}
-	
-	private static void writePotions(BufferedWriter writer) throws IOException
-	{
-		writeStaticRegistry(writer, Potion.potionTypes, potions);
-	}
-	
-	private static void writeEnchantments(BufferedWriter writer) throws IOException
-	{
-		writeStaticRegistry(writer, Enchantment.enchantmentsList, enchantments);
-	}
-	
-	private static void writeStaticRegistry(BufferedWriter writer, Object[] arr, Registry reg) throws IOException
-	{
-		for(int i=0;i<arr.length;i++)
+		List<Registry.Entry> entries = new ArrayList();
+		for(List<Registry.Entry> list : reg.reg.values())
 		{
-			Object obj = arr[i];
-			if(obj != null)
+			entries.addAll(list);
+		}
+		Collections.sort(entries, new Comparator()
+		{
+			@Override
+			public int compare(Object arg0, Object arg1) 
 			{
-				writer.write("id:" + i + " = " + reg.getEntry(reg.getOriginalId(i)) + "\r\n");
+				Integer i1 = ((Registry.Entry)arg0).newId;
+				Integer i2 = ((Registry.Entry)arg1).newId;
+				return i1.compareTo(i2);
 			}
-		}
-	}
-	
-	private static void writeProviders(BufferedWriter writer) throws IOException
-	{
-		TreeSet<Integer> map = new TreeSet(DimensionManager.providers.keySet());
-		for(Integer id : map)
+		});
+		
+		for(Registry.Entry e : entries)
 		{
-			writer.write("id:" + id + " = " + providers.getEntry(providers.getOriginalId(id)) + "\r\n");
-		}
-	}
-
-	private static void writeEntities(BufferedWriter writer) throws IOException 
-	{
-		Map<Integer,Class> map = EntityList.IDtoClassMapping;
-		for(Map.Entry<Integer, Class> entry : map.entrySet())
-		{
-			int id = entry.getKey();
-			writer.write("id:" + id + " = " + entities.getEntry(entities.getOriginalId(id)) + "\r\n");
+			writer.write(e.newId + " " + e.getDisplay() + "\r\n");
 		}
 	}
 
@@ -292,7 +283,7 @@ public class RegistryTracker {
 			if(reg.isConflicting(id))
 			{
 				List<Registry.Entry> list = map.getValue();
-				writer.write(id +  " = " + list + "\r\n");
+				writer.write(id +  " = " + reg.getDisplay(id) + "\r\n");
 			}
 		}
 	}
@@ -303,15 +294,15 @@ public class RegistryTracker {
 		{
 			mkdirs();
 			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(dirBiomes, "freeids.txt")));
-			writeFreeBiomeIds(writer);
+			writeFreeIds(writer, RegistryConfig.biomeLimit, biomes);
 			writer.close();
 			
 			writer = new BufferedWriter(new FileWriter(new File(dirPotions, "freeids.txt")));
-			writeFreePotionIds(writer);
+			writeFreeIds(writer, RegistryConfig.potionsLimit, potions);
 			writer.close();
 			
 			writer = new BufferedWriter(new FileWriter(new File(dirEnchantments, "freeids.txt")));
-			writeFreeEnchantmentIds(writer);
+			writeFreeIds(writer, RegistryConfig.enchantmentsLimit, enchantments);
 			writer.close();
 			
 			writer = new BufferedWriter(new FileWriter(new File(dirDimensions, "freeids.txt")));
@@ -319,7 +310,7 @@ public class RegistryTracker {
 			writer.close();
 			
 			writer = new BufferedWriter(new FileWriter(new File(dirEntities, "freeids.txt")));
-			writeFreeEntityIds(writer);
+			writeFreeIds(writer, RegistryConfig.entities, entities);
 			writer.close();
 		}
 		catch(Throwable t)
@@ -327,46 +318,22 @@ public class RegistryTracker {
 			t.printStackTrace();
 		}
 	}
-	
-	private static void writeFreeEntityIds(BufferedWriter writer) throws IOException 
+
+	private static void writeFreeIds(BufferedWriter writer, int limit, Registry reg) throws IOException
 	{
-		for(int i=0;i<=RegistryConfig.searchEntities;i++)
+		for(int i=0;i<=limit;i++)
 		{
-			if(entities.getEntry(i) == null)
-				writer.write("id:" + i + "\r\n");
+			if(reg.getEntry(i) == null)
+				writer.write(i + "\r\n");
 		}
 	}
-
+	
 	private static void writeFreeDimIds(BufferedWriter writer) throws IOException 
 	{
 		for(int i=RegistryConfig.searchDimLower;i<=RegistryConfig.searchDimUper;i++)
 		{
 			if(dimensions.getEntry(i) == null && providers.getEntry(i) == null)
-				writer.write("id:" + i + "\r\n");
-		}
-	}
-
-	private static void writeFreePotionIds(BufferedWriter writer) throws IOException 
-	{
-		writeFreeIds(writer, Potion.potionTypes, potions);
-	}
-	
-	private static void writeFreeEnchantmentIds(BufferedWriter writer) throws IOException 
-	{
-		writeFreeIds(writer, Enchantment.enchantmentsList, enchantments);
-	}
-	
-	private static void writeFreeBiomeIds(BufferedWriter writer) throws IOException 
-	{
-		writeFreeIds(writer, BiomeGenBase.biomeList, biomes);
-	}
-
-	private static void writeFreeIds(BufferedWriter writer, Object[] arr, Registry reg) throws IOException 
-	{
-		for(int i=0;i<arr.length;i++)
-		{
-			if(reg.getEntry(i) == null)
-				writer.write("id:" + i + "\r\n");
+				writer.write(i + "\r\n");
 		}
 	}
 

@@ -14,6 +14,7 @@ public class DataWatcherEvent {
 	{
 		if(event.entity instanceof EntityPlayer)
 		{
+			RegistryTracker.datawatchers.strict = true;
 			if(RegistryTracker.hasConflicts)
 			{
 				RegistryTracker.output();
