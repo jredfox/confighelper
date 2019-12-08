@@ -15,7 +15,7 @@ public class RegistryDataWatcher extends Registry{
 
 	public RegistryDataWatcher(boolean strict, DataWatcher watcher)
 	{
-		super(strict, DataType.DATAWATCHERPLAYER);
+		super(strict, DataType.DATAWATCHER);
 		this.watcher = watcher;
 	}
 	

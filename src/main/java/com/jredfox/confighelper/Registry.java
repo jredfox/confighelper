@@ -160,7 +160,7 @@ public class Registry {
     	DIMENSION(),
     	PROVIDER(),
     	ENTITY(),
-    	DATAWATCHERPLAYER(),
+    	DATAWATCHER(),
     	ITEM(),
     	BLOCK();
     }
@@ -185,7 +185,8 @@ public class Registry {
     	
     	public void setName(String str)
     	{
-    		this.name = str;
+    		if(!this.dupe)
+    			this.name = str;
     	}
     	
     	@Override

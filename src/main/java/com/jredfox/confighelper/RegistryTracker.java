@@ -133,9 +133,9 @@ public class RegistryTracker {
 		
 		for(List<Registry.Entry> li : dimensions.reg.values())
 		{
-			for(Registry.Entry e : li)
+			for(Registry.Entry entry : li)
 			{
-				e.setName(RegistryDim.isVanillaId(e.newId) ? "vanilla" : "modded");
+				entry.setName(RegistryDim.isVanillaId(entry.newId) ? "vanilla" : "modded");
 			}
 		}
 		
@@ -150,9 +150,9 @@ public class RegistryTracker {
 		if(datawatchers != null)
 		for(List<Registry.Entry> li : datawatchers.reg.values())
 		{
-			for(Registry.Entry e : li)
+			for(Registry.Entry entry : li)
 			{
-				e.setName(RegistryDataWatcher.isVanillaId(e.newId) ? "vanilla" : "modded");
+				entry.setName(RegistryDataWatcher.isVanillaId(entry.newId) ? "vanilla" : "modded");
 			}
 		}
 	}
@@ -217,7 +217,7 @@ public class RegistryTracker {
 		if(datawatchers != null)
 		{
 			writer = new BufferedWriter(new FileWriter(new File(dirDatawatchers, "suggested.txt")));
-			writeDatawatchers(writer);
+			writeSuggested(writer, datawatchers);
 			writer.close();
 		}
 		
@@ -250,32 +250,10 @@ public class RegistryTracker {
 		{
 			if(e.dupe)
 				continue;
-			writer.write(e.newId + " " + e.getDisplay() + "\r\n");
-		}
-	}
-	
-	private static void writeDatawatchers(BufferedWriter writer) throws IOException
-	{
-		List<Registry.Entry> entries = new ArrayList();
-		for(List<Registry.Entry> list : datawatchers.reg.values())
-		{
-			entries.addAll(list);
-		}
-		Collections.sort(entries, new Comparator()
-		{
-			@Override
-			public int compare(Object arg0, Object arg1) 
-			{
-				Integer i1 = ((Registry.Entry)arg0).newId;
-				Integer i2 = ((Registry.Entry)arg1).newId;
-				return i1.compareTo(i2);
-			}
-		});
-		for(Registry.Entry e : entries)
-		{
-			if(e.dupe)
-				continue;
-			writer.write(e.newId + " (" + e.name + ")\r\n");
+			if(reg.dataType == DataType.DATAWATCHER)
+				writer.write(e.newId + " (" + e.name  + ")\r\n");
+			else
+				writer.write(e.newId + " " + e.getDisplay() + "\r\n");
 		}
 	}
 
