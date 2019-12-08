@@ -35,7 +35,9 @@ public class RegistryDim extends Registry{
 	@Override
 	public boolean canAuto(Object obj, int org)
 	{
-		return RegistryConfig.autoConfig && (org > 1 || org < -1);
+		if(isVanillaId(org))
+			return RegistryConfig.autoConfig && this.containsId(org);
+		return RegistryConfig.autoConfig;
 	}
 
 
@@ -46,7 +48,7 @@ public class RegistryDim extends Registry{
 		{
 			for(int i=this.upper;i<=RegistryConfig.searchDimUper;i++)
 			{
-				if(!this.containsDim(this.upper))
+				if(!this.containsId(this.upper))
 				{
 					return this.upper;
 				}
@@ -57,7 +59,7 @@ public class RegistryDim extends Registry{
 		{
 			for(int i=this.lower;i>=RegistryConfig.searchDimLower;i--)
 			{
-				if(!this.containsDim(this.lower))
+				if(!this.containsId(this.lower))
 				{
 					return this.lower;
 				}
@@ -67,7 +69,7 @@ public class RegistryDim extends Registry{
 		return org;
 	}
 	
-	public boolean containsDim(int id)
+	public boolean containsId(int id)
 	{
 		if(this.dataType == DataType.PROVIDER)
 			return DimensionManager.providers.containsKey(id);

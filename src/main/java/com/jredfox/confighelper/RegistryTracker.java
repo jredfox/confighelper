@@ -119,6 +119,7 @@ public class RegistryTracker {
 	
 	private static void grabNames()
 	{
+		System.out.println("grabbing names");
 		addNames(biomes, BiomeGenBase.biomeList);
 		addNames(enchantments, Enchantment.enchantmentsList);
 		addNames(potions, Potion.potionTypes);
@@ -135,7 +136,7 @@ public class RegistryTracker {
 		{
 			for(Registry.Entry entry : li)
 			{
-				entry.setName(RegistryDim.isVanillaId(entry.newId) ? "vanilla" : "modded");
+				entry.setName(RegistryDim.isVanillaId(entry.newId) && !entry.dupe ? "vanilla" : "modded");
 			}
 		}
 		
@@ -152,8 +153,12 @@ public class RegistryTracker {
 		{
 			for(Registry.Entry entry : li)
 			{
-				entry.setName(RegistryDataWatcher.isVanillaId(entry.newId) ? "vanilla" : "modded");
+				entry.setName(RegistryDataWatcher.isVanillaId(entry.newId)  && !entry.dupe ? "vanilla" : "modded");
 			}
+		}
+		else
+		{
+			System.out.println("NULL DATA WATCHER ARRAY");
 		}
 	}
 

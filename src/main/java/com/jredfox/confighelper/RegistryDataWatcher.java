@@ -28,9 +28,16 @@ public class RegistryDataWatcher extends Registry{
 	@Override
 	public boolean canAuto(Object obj, int org)
 	{
-		return RegistryConfig.autoConfig && !this.isVanillaId(org);
+		if(isVanillaId(org))
+			return RegistryConfig.autoConfig && this.containsId(org);//if vanilla id is already registered it can be auto configurable
+		return RegistryConfig.autoConfig;
 	}
 	
+	private boolean containsId(int org) 
+	{
+		return this.watcher.containsId(org);
+	}
+
 	public static boolean isVanillaId(int org) 
 	{
 		for(int v : ids)
