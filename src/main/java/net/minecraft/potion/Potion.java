@@ -1,14 +1,15 @@
 package net.minecraft.potion;
 
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.UUID;
+
 import com.google.common.collect.Maps;
 import com.jredfox.confighelper.RegistryTracker;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.UUID;
-import java.util.Map.Entry;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;

@@ -24,6 +24,7 @@ public class DataWatcherEvent {
 			}
 			else if(!event.entity.worldObj.isRemote && RegistryConfig.autoConfig)
 			{
+				RegistryTracker.output();
 				CrashReport crashreport = CrashReport.makeCrashReport(new RuntimeException("Ids cannot be automatic for in game purposes! Disable autoConfig after configuring your modpack"), "Load Complete");
 				crashreport.makeCategory("Load Complete");
 				Minecraft.getMinecraft().displayCrashReport(Minecraft.getMinecraft().addGraphicsAndWorldToCrashReport(crashreport));

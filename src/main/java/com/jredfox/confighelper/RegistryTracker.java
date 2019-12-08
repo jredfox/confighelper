@@ -8,18 +8,18 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
-import java.util.TreeSet;
 
+import org.ralleytn.simple.json.JSONArray;
+import org.ralleytn.simple.json.JSONObject;
+import org.ralleytn.simple.json.JSONParseException;
+
+import com.evilnotch.lib.util.JavaUtil;
 import com.jredfox.confighelper.Registry.DataType;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.crash.CrashReport;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.EntityList;
 import net.minecraft.potion.Potion;
-import net.minecraft.world.World;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraftforge.common.DimensionManager;
@@ -119,7 +119,6 @@ public class RegistryTracker {
 	
 	private static void grabNames()
 	{
-		System.out.println("grabbing names");
 		addNames(biomes, BiomeGenBase.biomeList);
 		addNames(enchantments, Enchantment.enchantmentsList);
 		addNames(potions, Potion.potionTypes);
@@ -136,7 +135,7 @@ public class RegistryTracker {
 		{
 			for(Registry.Entry entry : li)
 			{
-				entry.setName(RegistryDim.isVanillaId(entry.newId) && !entry.dupe ? "vanilla" : "modded");
+				entry.setName(RegistryDim.isVanillaId(entry.newId) && !entry.dupe ? "vanilla" : "modded", true);
 			}
 		}
 		
@@ -153,12 +152,8 @@ public class RegistryTracker {
 		{
 			for(Registry.Entry entry : li)
 			{
-				entry.setName(RegistryDataWatcher.isVanillaId(entry.newId)  && !entry.dupe ? "vanilla" : "modded");
+				entry.setName(RegistryDataWatcher.isVanillaId(entry.newId)  && !entry.dupe ? "vanilla" : "modded", true);
 			}
-		}
-		else
-		{
-			System.out.println("NULL DATA WATCHER ARRAY");
 		}
 	}
 
@@ -266,39 +261,30 @@ public class RegistryTracker {
 	{
 		try{
 		mkdirs();
-		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(dirBiomes,"conflicts.txt")));
-		String spacer = "___________________________________";
-		writer.write("biomes:\r\n" + spacer + "\r\n");
+		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(dirBiomes,"conflicts.json")));
 		writeConflicts(writer, biomes);
 		writer.close();
 		
-		writer = new BufferedWriter(new FileWriter(new File(dirDimensions,"conflicts.txt")));
-		writer.write("providers:\r\n" + spacer + "\r\n");
+		writer = new BufferedWriter(new FileWriter(new File(dirDimensions,"conflicts.json")));
 		writeConflicts(writer, providers);
-		writer.write(spacer + "\r\n");
-		writer.write("dimensions:\r\n" + spacer + "\r\n");
 		writeConflicts(writer, dimensions);
 		writer.close();
 		
-		writer = new BufferedWriter(new FileWriter(new File(dirEntities,"conflicts.txt")));
-		writer.write("entities:\r\n" + spacer + "\r\n");
+		writer = new BufferedWriter(new FileWriter(new File(dirEntities,"conflicts.json")));
 		writeConflicts(writer, entities);
 		writer.close();
 		
-		writer = new BufferedWriter(new FileWriter(new File(dirPotions,"conflicts.txt")));
-		writer.write("potions:\r\n" + spacer + "\r\n");
+		writer = new BufferedWriter(new FileWriter(new File(dirPotions,"conflicts.json")));
 		writeConflicts(writer, potions);
 		writer.close();
 		
-		writer = new BufferedWriter(new FileWriter(new File(dirEnchantments,"conflicts.txt")));
-		writer.write("enchantments:\r\n" + spacer + "\r\n");
+		writer = new BufferedWriter(new FileWriter(new File(dirEnchantments,"conflicts.json")));
 		writeConflicts(writer, enchantments);
 		writer.close();
 		
 		if(datawatchers != null)
 		{
-			writer = new BufferedWriter(new FileWriter(new File(dirDatawatchers,"conflicts.txt")));
-			writer.write("datawatchers:\r\n" + spacer + "\r\n");
+			writer = new BufferedWriter(new FileWriter(new File(dirDatawatchers,"conflicts.json")));
 			writeConflicts(writer, datawatchers);
 			writer.close();
 		}
@@ -309,16 +295,29 @@ public class RegistryTracker {
 		}
 	}
 	
-	public static void writeConflicts(BufferedWriter writer, Registry reg) throws IOException
+	public static void writeConflicts(BufferedWriter writer, Registry reg) throws IOException, JSONParseException
 	{
+		JSONObject filejson = new JSONObject();
 		for(Entry<Integer, List<Registry.Entry>> map : reg.reg.entrySet())
 		{
 			int id = map.getKey();
 			if(reg.isConflicting(id))
 			{
-				List<Registry.Entry> list = map.getValue();
-				writer.write(id +  " = " + reg.getDisplay(id) + "\r\n");
+				JSONArray arr = new JSONArray();
+				filejson.put(reg.dataType.toString().toLowerCase() + "s-id:" + id, arr);
+				for(Registry.Entry entry : reg.getEntry(id))
+				{
+					JSONObject json = new JSONObject();
+					arr.add(json);
+					json.put("newId", entry.newId);
+					json.put("name", entry.name);
+					json.put("class", entry.clazz.getName());
+				}
 			}
+		}
+		if(!filejson.isEmpty())
+		{
+			writer.write(JavaUtil.toPrettyFormat(filejson.toString()));
 		}
 	}
 	

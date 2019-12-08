@@ -17,8 +17,6 @@ import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Lists;
 import com.google.common.collect.MapMaker;
 import com.google.common.collect.Multiset;
-import com.jredfox.confighelper.Registry.DataType;
-import com.jredfox.confighelper.RegistryConfig;
 import com.jredfox.confighelper.RegistryTracker;
 
 import cpw.mods.fml.common.FMLCommonHandler;

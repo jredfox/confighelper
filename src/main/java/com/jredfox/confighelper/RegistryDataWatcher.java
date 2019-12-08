@@ -2,10 +2,6 @@ package com.jredfox.confighelper;
 
 import java.util.List;
 
-import com.jredfox.confighelper.Registry.Entry;
-
-import cpw.mods.fml.common.registry.EntityRegistry;
-import cpw.mods.fml.common.registry.EntityRegistry.EntityRegistration;
 import net.minecraft.entity.DataWatcher;
 
 public class RegistryDataWatcher extends Registry{

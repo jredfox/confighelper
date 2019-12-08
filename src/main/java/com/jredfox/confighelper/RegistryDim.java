@@ -1,7 +1,5 @@
 package com.jredfox.confighelper;
 
-import com.jredfox.confighelper.Registry.DataType;
-
 import net.minecraftforge.common.DimensionManager;
 
 public class RegistryDim extends Registry{

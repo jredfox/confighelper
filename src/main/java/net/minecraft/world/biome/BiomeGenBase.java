@@ -1,16 +1,19 @@
 package net.minecraft.world.biome;
 
-import com.google.common.collect.Sets;
-import com.jredfox.confighelper.RegistryConfig;
-import com.jredfox.confighelper.RegistryTracker;
-
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import com.google.common.collect.Sets;
+import com.jredfox.confighelper.RegistryTracker;
+
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFlower;
 import net.minecraft.block.material.Material;
@@ -42,11 +45,9 @@ import net.minecraft.world.gen.feature.WorldGenSwamp;
 import net.minecraft.world.gen.feature.WorldGenTallGrass;
 import net.minecraft.world.gen.feature.WorldGenTrees;
 import net.minecraft.world.gen.feature.WorldGenerator;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import net.minecraftforge.common.*;
-import net.minecraftforge.event.terraingen.*;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.terraingen.BiomeEvent;
+import net.minecraftforge.event.terraingen.DeferredBiomeDecorator;
 
 public abstract class BiomeGenBase
 {

@@ -1,25 +1,16 @@
 package com.jredfox.confighelper;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import cpw.mods.fml.common.Loader;
-import cpw.mods.fml.common.ModContainer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.enchantment.Enchantment;
-import net.minecraft.entity.DataWatcher;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.potion.Potion;
-import net.minecraft.world.WorldProvider;
 import net.minecraft.world.biome.BiomeGenBase;
-import net.minecraftforge.common.DimensionManager;
 
 public class Registry {
 	
@@ -185,14 +176,19 @@ public class Registry {
     	
     	public void setName(String str)
     	{
-    		if(!this.dupe)
+    		this.setName(str, false);
+    	}
+    	
+    	public void setName(String str, boolean force)
+    	{
+    		if(!this.dupe || force)
     			this.name = str;
     	}
     	
     	@Override
     	public String toString()
     	{
-    		return "{name:" + this.name + ",newId:" + this.newId + ",class:" + this.clazz.getName() + "}";
+    		return "(name:" + this.name + ",newId:" + this.newId + ",class:" + this.clazz.getName() + ")";
     	}
     	
     	public String getDisplay()
