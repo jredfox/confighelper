@@ -15,15 +15,10 @@ public class RegistryConfig {
 	public static int entities = 255;
 	public static int dataWatchersLimit = 254;
 	
-	//mod config
-	public static boolean autoConfig = true;
-	
 	static
 	{
 		Configuration cfg = new Configuration(new File("./config/confighelper/main.cfg"));
 		cfg.load();
-		autoConfig = cfg.get("general", "autoConfig", autoConfig).getBoolean();
-		
 		cfg.addCustomCategoryComment("limit", "changing these will not increase/decrease the limit of the ids. This is just so If a mod does extend the ids you can change them");
 		biomeLimit = cfg.get("limit", "biome", biomeLimit).getInt();
 		searchDimUper = cfg.get("limit", "searchDimUper", searchDimUper).getInt();

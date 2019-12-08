@@ -29,12 +29,12 @@ public class RegistryTracker {
 	public static boolean hasConflicts;
 	public static boolean startup = true;
 	
-	public static Registry biomes = new Registry(!RegistryConfig.autoConfig, DataType.BIOME);
-	public static Registry enchantments = new Registry(!RegistryConfig.autoConfig, DataType.ENCHANTMENT);
-	public static Registry potions = new Registry(!RegistryConfig.autoConfig, DataType.POTION);
-	public static Registry dimensions = new RegistryDim(!RegistryConfig.autoConfig, DataType.DIMENSION);
-	public static Registry providers = new RegistryDim(!RegistryConfig.autoConfig, DataType.PROVIDER);
-	public static Registry entities = new Registry(!RegistryConfig.autoConfig, DataType.ENTITY);
+	public static Registry biomes = new Registry(DataType.BIOME);
+	public static Registry enchantments = new Registry(DataType.ENCHANTMENT);
+	public static Registry potions = new Registry(DataType.POTION);
+	public static Registry dimensions = new RegistryDim(DataType.DIMENSION);
+	public static Registry providers = new RegistryDim(DataType.PROVIDER);
+	public static Registry entities = new Registry(DataType.ENTITY);
 	/**
 	 * the last EntityPlayer data watcher object list
 	 */
@@ -119,9 +119,9 @@ public class RegistryTracker {
 	
 	private static void grabNames()
 	{
-		addNames(biomes, BiomeGenBase.biomeList);
-		addNames(enchantments, Enchantment.enchantmentsList);
-		addNames(potions, Potion.potionTypes);
+		addNames(biomes);
+		addNames(enchantments);
+		addNames(potions);
 		
 		for(List<Registry.Entry> li : providers.reg.values())
 		{
@@ -135,7 +135,7 @@ public class RegistryTracker {
 		{
 			for(Registry.Entry entry : li)
 			{
-				entry.setName(RegistryDim.isVanillaId(entry.newId) && !entry.dupe ? "vanilla" : "modded", true);
+				entry.setName(RegistryDim.isVanillaId(entry.newId) ? "vanilla" : "modded");
 			}
 		}
 		
@@ -152,7 +152,7 @@ public class RegistryTracker {
 		{
 			for(Registry.Entry entry : li)
 			{
-				entry.setName(RegistryDataWatcher.isVanillaId(entry.newId)  && !entry.dupe ? "vanilla" : "modded", true);
+				entry.setName(RegistryDataWatcher.isVanillaId(entry.newId) ? "vanilla" : "modded");
 			}
 		}
 	}
@@ -171,8 +171,9 @@ public class RegistryTracker {
 		return null;
 	}
 
-	private static void addNames(Registry reg, Object[] arr) 
+	private static void addNames(Registry reg) 
 	{
+		Object[] arr = reg.getStaticArr();
 		for(List<Registry.Entry> li : reg.reg.values())
 		{
 			for(Registry.Entry entry : li)
@@ -248,8 +249,6 @@ public class RegistryTracker {
 		
 		for(Registry.Entry e : entries)
 		{
-			if(e.dupe)
-				continue;
 			if(reg.dataType == DataType.DATAWATCHER)
 				writer.write(e.newId + " (" + e.name  + ")\r\n");
 			else

@@ -5,43 +5,21 @@ import java.util.List;
 import net.minecraft.entity.DataWatcher;
 
 public class RegistryDataWatcher extends Registry{
-
-	public static final int[] ids = {0,1,6,7,8,9,16,17,18};
+	
 	public DataWatcher watcher;
 
-	public RegistryDataWatcher(boolean strict, DataWatcher watcher)
+	public RegistryDataWatcher(DataWatcher watcher)
 	{
-		super(strict, DataType.DATAWATCHER);
+		super(DataType.DATAWATCHER);
 		this.watcher = watcher;
 	}
 	
 	@Override
-	public int reg(Object obj, int org)
-	{
-		return super.reg(obj, org);
-	}
-	
-	@Override
-	public boolean canAuto(Object obj, int org)
-	{
-		if(isVanillaId(org))
-			return RegistryConfig.autoConfig && this.containsId(org);//if vanilla id is already registered it can be auto configurable
-		return RegistryConfig.autoConfig;
-	}
-	
-	private boolean containsId(int org) 
+	public boolean containsId(int org) 
 	{
 		return this.watcher.containsId(org);
 	}
-
-	public static boolean isVanillaId(int org) 
-	{
-		for(int v : ids)
-			if(v == org)
-				return true;
-		return false;
-	}
-
+	
 	@Override
 	public boolean canCrash()
 	{
@@ -75,5 +53,14 @@ public class RegistryDataWatcher extends Registry{
     	builder.append(']');
     	return builder.toString();
     }
+	
+	public static final int[] ids = {0,1,6,7,8,9,16,17,18};
+	public static boolean isVanillaId(int org) 
+	{
+		for(int v : ids)
+			if(v == org)
+				return true;
+		return false;
+	}
 
 }

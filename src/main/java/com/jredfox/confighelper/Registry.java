@@ -20,34 +20,30 @@ public class Registry {
 	 * an automated integer
 	 */
 	public int id;
-	public boolean strict;
 	public DataType dataType;
 	/**
-	 * derp id
+	 * turn this on to auto crash at the first sign of conflict
 	 */
-	public static final int megaTaigaHills = 161;
-	public static final int megaTaiga = 160;
+	public boolean strict;
 	
-	public Registry(boolean strict, DataType dataType)
+	public Registry(DataType dataType)
 	{
-		this.strict = strict;
 		this.dataType = dataType;
 	}
 	
 	public int reg(Object obj, int id)
 	{
-		int newId = this.canAuto(obj, id) ? this.getFreeId(id) : id;
 		List<Entry> list = this.getEntry(id);
 		if(list == null)
 		{
 			list = new ArrayList<Entry>();
 			this.reg.put(id, list);
 		}
-		Entry entry = new Entry(getClass(obj), newId, id);
+		Entry entry = new Entry(getClass(obj), id);
 		list.add(entry);
 		if(list.size() > 1)
 		{
-			entry.dupe = newId == id;//is this a straight up conflict?
+			entry.newId = this.getFreeId(id);//if it's a duplicate id transform it into a newId
 			RegistryTracker.hasConflicts = true;
 			if(this.canCrash())
 			{
@@ -58,7 +54,7 @@ public class Registry {
 		        Minecraft.getMinecraft().displayCrashReport(Minecraft.getMinecraft().addGraphicsAndWorldToCrashReport(crashreport));
 			}
 		}
-		return newId;
+		return entry.newId;
 	}
 	
 	/**
@@ -75,27 +71,22 @@ public class Registry {
 	 */
 	protected int getFreeId(int org) 
 	{
-		Object[] arr = this.getStaticArr();
-		if(arr != null)
-		{
-			for(int i=this.id;i<arr.length;i++)
-			{
-				if(arr[i] == null)
-				{
-					this.id = i;
-					return this.id;
-				}
-			}
-		}
 		if(this.dataType == DataType.ENTITY)
 		{
-			while(true)
+			for(int i=this.id;i<EntityList.IDtoClassMapping.size();i++)
 			{
 				if(EntityList.getClassFromID(this.id) == null)
-				{
 					return this.id;
-				}
 				this.id++;
+			}
+		}
+		Object[] arr = this.getStaticArr();
+		for(int i=this.id;i<arr.length;i++)
+		{
+			if(arr[i] == null)
+			{
+				this.id = i;
+				return this.id;
 			}
 		}
 		return -1;
@@ -113,18 +104,13 @@ public class Registry {
 	}
 	
 	/**
-	 * is this mod allowed to auto configure the ids based on data type and/or mode
+	 * not used in the root class of Registry
 	 */
-	public boolean canAuto(Object obj, int org) 
+	public boolean containsId(int org)
 	{
-		if(isVanillaObj(obj))
-			return false;
-		return RegistryConfig.autoConfig;
-	}
-	
-	public static boolean isVanillaObj(Object obj)
-	{
-		return getClass(obj).getName().startsWith("net.minecraft.");
+		if(this.dataType == DataType.ENTITY)
+			return EntityList.IDtoClassMapping.containsKey(org);
+		return this.getStaticArr()[org] != null;
 	}
 	
 	public static Class getClass(Object entry)
@@ -162,26 +148,16 @@ public class Registry {
     	public int newId;
     	public Class clazz;
     	public String name;
-    	/**
-    	 * is this entry a duplicate (newId == org) && there is more then one in the registry
-    	 */
-    	public boolean dupe;
     	
-    	public Entry(Class c, int newId, int org)
+    	public Entry(Class c, int org)
     	{
     		this.clazz = c;
-    		this.newId = newId;
     		this.org = org;
+    		this.newId = org;
     	}
     	
     	public void setName(String str)
     	{
-    		this.setName(str, false);
-    	}
-    	
-    	public void setName(String str, boolean force)
-    	{
-    		if(!this.dupe || force)
     			this.name = str;
     	}
     	

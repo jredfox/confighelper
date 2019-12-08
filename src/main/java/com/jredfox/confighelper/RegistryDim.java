@@ -4,13 +4,12 @@ import net.minecraftforge.common.DimensionManager;
 
 public class RegistryDim extends Registry{
 	
-	public static final int[] dimIds = new int[]{-1,0,1};
 	public int upper = 2;
 	public int lower = -2;
 	
-	public RegistryDim(boolean strict, DataType type)
+	public RegistryDim(DataType type)
 	{
-		super(strict, vallidDataType(type));
+		super(vallidDataType(type));
 	}
 	
 	private static DataType vallidDataType(DataType type) {
@@ -18,26 +17,6 @@ public class RegistryDim extends Registry{
 			throw new IllegalArgumentException("DataType for RegistryDim must be DIMENSION or PROVIDER Data types");
 		return type;
 	}
-	
-	public static boolean isVanillaId(int org)
-	{
-		for(int v : dimIds)
-			if(v == org)
-				return true;
-		return false;
-	}
-	
-	/**
-	 * prevent vanilla ids from getting automated
-	 */
-	@Override
-	public boolean canAuto(Object obj, int org)
-	{
-		if(isVanillaId(org))
-			return RegistryConfig.autoConfig && this.containsId(org);
-		return RegistryConfig.autoConfig;
-	}
-
 
 	@Override
 	protected int getFreeId(int org) 
@@ -67,11 +46,21 @@ public class RegistryDim extends Registry{
 		return org;
 	}
 	
+	@Override
 	public boolean containsId(int id)
 	{
 		if(this.dataType == DataType.PROVIDER)
 			return DimensionManager.providers.containsKey(id);
 		return DimensionManager.dimensions.containsKey(id);
+	}
+
+	public static final int[] dimIds = new int[]{-1,0,1};
+	public static boolean isVanillaId(int org) 
+	{
+		for(int v : dimIds)
+			if(v == org)
+				return true;
+		return false;
 	}
 
 }
