@@ -12,8 +12,8 @@ public class RegistryDim extends Registry{
 	public int lower = -2;
 	
 	//the virtual suggested ids
-	public int lowerV = -2;
 	public int upperV = 2;
+	public int lowerV = -2;
 	
 	public RegistryDim(DataType type)
 	{
@@ -66,16 +66,15 @@ public class RegistryDim extends Registry{
 	@Override
 	protected int getSuggestedId(Object obj, int org) 
 	{
-		if(this.dataType == DataType.PROVIDER && this.isVanillaObj(obj)
-			|| this.isVanillaId(org) && !this.vIds.contains(org))	
+		if(this.isVanillaId(org) && !this.vIds.contains(org))	
 		{
 			this.vIds.add(org);
 			return org;
 		}
-		
+
 		if(org >= 0)
 		{
-			for(int i=this.upperV;i<=RegistryConfig.searchDimUper;i++)
+			for(int i = this.upperV; i <= RegistryConfig.searchDimUper; i++)
 			{
 				if(!this.isVanillaId(this.upperV))
 				{
@@ -86,7 +85,7 @@ public class RegistryDim extends Registry{
 		}
 		else
 		{
-			for(int i=this.lowerV;i>=RegistryConfig.searchDimLower;i--)
+			for(int i = this.lowerV; i >= RegistryConfig.searchDimLower; i--)
 			{
 				if(!this.isVanillaId(this.lowerV))
 				{
