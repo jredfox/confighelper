@@ -249,6 +249,8 @@ public class RegistryTracker {
 		
 		for(Registry.Entry e : entries)
 		{
+			if(!RegistryConfig.showVanillaIds && reg.isVanillaId(e.suggested))
+				continue;
 			if(reg.dataType == DataType.DATAWATCHER)
 				writer.write(e.suggested + " (" + e.name  + ")\r\n");
 			else

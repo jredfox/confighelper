@@ -38,7 +38,7 @@ public class Registry {
 		this.limit = getLimit();
 	}
 	
-	private int getLimit()
+	protected int getLimit()
 	{
 		if(dataType == DataType.BIOME)
 			return RegistryConfig.biomeLimit;
@@ -55,7 +55,7 @@ public class Registry {
 		return -1;
 	}
 	
-	private Set<Integer> getVanillaIds()
+	protected Set<Integer> getVanillaIds()
 	{
 		if(dataType == DataType.BIOME)
 			return RegistryIds.biomes;
