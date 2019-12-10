@@ -1,5 +1,7 @@
 package com.jredfox.confighelper;
 
+import com.evilnotch.lib.util.JavaUtil;
+
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.event.FMLLoadCompleteEvent;
@@ -31,12 +33,19 @@ public class ConfigHelperMod
     public void loadComplete(FMLLoadCompleteEvent event)
     {	
     	RegistryTracker.startup = false;
-		RegistryTracker.output();
+		
 		if(RegistryTracker.hasConflicts)
 		{
+			RegistryTracker.output();
 			CrashReport crashreport = CrashReport.makeCrashReport(new RuntimeException("Id Conflicts have been detected! Reconfigure your modpack"), "Load Complete");
 			crashreport.makeCategory("Load Complete");
 			Minecraft.getMinecraft().displayCrashReport(Minecraft.getMinecraft().addGraphicsAndWorldToCrashReport(crashreport));
+		}
+		else if(RegistryConfig.configMode)
+		{
+			long time = System.currentTimeMillis();
+			RegistryTracker.output();
+			JavaUtil.printTime(time, "Done Outputing files: ");
 		}
     }
 }
