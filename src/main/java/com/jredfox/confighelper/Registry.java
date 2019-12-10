@@ -47,9 +47,9 @@ public class Registry {
 		else if(dataType == DataType.ENCHANTMENT)
 			return RegistryConfig.enchantmentsLimit;
 		else if(dataType == DataType.PROVIDER || dataType == DataType.DIMENSION)
-			return Integer.MAX_VALUE;
+			return RegistryConfig.dimensionLimit;
 		else if(dataType == DataType.ENTITY)
-			return RegistryConfig.enchantmentsLimit;
+			return RegistryConfig.entities;
 		else if(dataType == DataType.DATAWATCHER)
 			return RegistryConfig.dataWatchersLimit;
 		return -1;

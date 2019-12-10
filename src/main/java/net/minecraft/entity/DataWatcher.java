@@ -58,7 +58,7 @@ public class DataWatcher
     	if(this.field_151511_a instanceof EntityPlayer)
     	{	
     		RegistryTracker.datawatchers = this.reg;
-    		id = RegistryTracker.registerDataWatcher(this.field_151511_a.getClass(), id, reg);
+    		id = RegistryTracker.registerDataWatcher(this.field_151511_a.getClass(), id, this.reg);
     	}
         Integer integer = (Integer)dataTypes.get(obj.getClass());
 

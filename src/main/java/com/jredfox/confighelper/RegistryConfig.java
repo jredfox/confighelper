@@ -14,6 +14,7 @@ public class RegistryConfig {
 	public static int searchDimUper = 300;
 	public static int entities = 255;
 	public static int dataWatchersLimit = 254;
+	public static int dimensionLimit = Integer.MAX_VALUE;
 	
 	static
 	{
