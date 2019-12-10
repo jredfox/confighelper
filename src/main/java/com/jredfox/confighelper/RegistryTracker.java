@@ -112,11 +112,75 @@ public class RegistryTracker {
 	public static void output() 
 	{
 		RegistryTracker.grabNames();
-		RegistryTracker.outputConfigIds();
+		RegistryTracker.outputSuggestions();
 		RegistryTracker.outputConflictedIds();
 		RegistryTracker.outputFreeIds();
+		RegistryTracker.outputDatawatcher();
 	}
 	
+	public static void outputDatawatcher()
+	{
+		if(datawatchers == null)
+			return;
+		grabNamesWatcher();
+		outputWatcherSuggestions();
+		outputWatcherConflicts();
+		outputWatcherFreeIds();
+	}
+	
+	private static void grabNamesWatcher()
+	{
+		for(List<Registry.Entry> li : datawatchers.reg.values())
+		{
+			for(Registry.Entry entry : li)
+			{
+				entry.setName(datawatchers.isVanillaId(entry.newId) ? "vanilla" : "modded");
+			}
+		}
+	}
+	
+	private static void outputWatcherSuggestions() 
+	{
+		try
+		{
+			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(dirDatawatchers, "suggested.txt")));
+			writeSuggested(writer, datawatchers);
+			writer.close();
+		}
+		catch(Throwable t)
+		{
+			t.printStackTrace();
+		}
+	}
+	
+	private static void outputWatcherConflicts()
+	{
+		try
+		{
+			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(dirDatawatchers,"conflicts.json")));
+			writeConflicts(writer, datawatchers);
+			writer.close();
+		}
+		catch(Throwable t)
+		{
+			t.printStackTrace();
+		}
+	}
+	
+	private static void outputWatcherFreeIds()
+	{
+		try
+		{
+			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(dirDatawatchers, "freeids.txt")));
+			writeFreeIds(writer, RegistryConfig.dataWatchersLimit, datawatchers);
+			writer.close();
+		}
+		catch(Throwable t)
+		{
+			t.printStackTrace();
+		}
+	}
+
 	private static void grabNames()
 	{
 		addNames(biomes);
@@ -144,15 +208,6 @@ public class RegistryTracker {
 			for(Registry.Entry entry : li)
 			{
 				entry.setName(EntityList.getStringFromID(entry.newId));
-			}
-		}
-		
-		if(datawatchers != null)
-		for(List<Registry.Entry> li : datawatchers.reg.values())
-		{
-			for(Registry.Entry entry : li)
-			{
-				entry.setName(datawatchers.isVanillaId(entry.newId) ? "vanilla" : "modded");
 			}
 		}
 	}
@@ -194,7 +249,7 @@ public class RegistryTracker {
 		return null;
 	}
 
-	public static void outputConfigIds()
+	public static void outputSuggestions()
 	{
 		try
 		{
@@ -214,13 +269,6 @@ public class RegistryTracker {
 		writer = new BufferedWriter(new FileWriter(new File(dirEntities, "suggested.txt")));
 		writeSuggested(writer, entities);
 		writer.close();
-		
-		if(datawatchers != null)
-		{
-			writer = new BufferedWriter(new FileWriter(new File(dirDatawatchers, "suggested.txt")));
-			writeSuggested(writer, datawatchers);
-			writer.close();
-		}
 		
 		}
 		catch(Throwable t)
@@ -285,13 +333,6 @@ public class RegistryTracker {
 		writer = new BufferedWriter(new FileWriter(new File(dirEnchantments,"conflicts.json")));
 		writeConflicts(writer, enchantments);
 		writer.close();
-		
-		if(datawatchers != null)
-		{
-			writer = new BufferedWriter(new FileWriter(new File(dirDatawatchers,"conflicts.json")));
-			writeConflicts(writer, datawatchers);
-			writer.close();
-		}
 		}
 		catch(Throwable t)
 		{
@@ -349,13 +390,6 @@ public class RegistryTracker {
 			writer = new BufferedWriter(new FileWriter(new File(dirEntities, "freeids.txt")));
 			writeFreeIds(writer, RegistryConfig.entities, entities);
 			writer.close();
-			
-			if(datawatchers != null)
-			{
-				writer = new BufferedWriter(new FileWriter(new File(dirDatawatchers, "freeids.txt")));
-				writeFreeIds(writer, RegistryConfig.dataWatchersLimit, datawatchers);
-				writer.close();
-			}
 		}
 		catch(Throwable t)
 		{

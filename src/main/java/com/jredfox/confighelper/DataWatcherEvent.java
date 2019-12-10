@@ -22,6 +22,10 @@ public class DatawatcherEvent {
 				crashreport.makeCategory("Load Complete");
 				Minecraft.getMinecraft().displayCrashReport(Minecraft.getMinecraft().addGraphicsAndWorldToCrashReport(crashreport));
 			}
+			else
+			{
+				RegistryTracker.outputDatawatcher();
+			}
 		}
 	}
 }
