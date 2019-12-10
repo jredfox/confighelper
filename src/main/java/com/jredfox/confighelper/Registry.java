@@ -104,7 +104,7 @@ public class Registry {
 	 */
 	protected int getSuggestedId(Object obj, int org) 
 	{
-		if(this.isVanillaObj(obj, org))
+		if(this.isVanillaObj(obj))
 			return org;
 		for(int i=this.suggestedId;i<=this.limit;i++)
 		{
@@ -117,14 +117,14 @@ public class Registry {
 		return -1;
 	}
 	
-	public boolean isVanillaObj(Object obj, int id)
+	public boolean isVanillaObj(Object obj)
 	{
 		return getClass(obj).getName().startsWith("net.minecraft.");
 	}
 
 	public boolean isVanillaId(int id) 
 	{
-		return this.vanillaIds.contains((Integer)id);
+		return this.vanillaIds.contains(id);
 	}
 
 	/**
