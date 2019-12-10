@@ -135,7 +135,7 @@ public class RegistryTracker {
 		{
 			for(Registry.Entry entry : li)
 			{
-				entry.setName(RegistryDim.isVanillaId(entry.newId) ? "vanilla" : "modded");
+				entry.setName(dimensions.isVanillaId(entry.newId) ? "vanilla" : "modded");
 			}
 		}
 		
@@ -152,7 +152,7 @@ public class RegistryTracker {
 		{
 			for(Registry.Entry entry : li)
 			{
-				entry.setName(RegistryDataWatcher.isVanillaId(entry.newId) ? "vanilla" : "modded");
+				entry.setName(datawatchers.isVanillaId(entry.newId) ? "vanilla" : "modded");
 			}
 		}
 	}
@@ -173,7 +173,7 @@ public class RegistryTracker {
 
 	private static void addNames(Registry reg) 
 	{
-		Object[] arr = reg.getStaticArr();
+		Object[] arr = reg.getStaticReg();
 		for(List<Registry.Entry> li : reg.reg.values())
 		{
 			for(Registry.Entry entry : li)
@@ -241,8 +241,8 @@ public class RegistryTracker {
 			@Override
 			public int compare(Object arg0, Object arg1) 
 			{
-				Integer i1 = ((Registry.Entry)arg0).newId;
-				Integer i2 = ((Registry.Entry)arg1).newId;
+				Integer i1 = ((Registry.Entry)arg0).suggested;
+				Integer i2 = ((Registry.Entry)arg1).suggested;
 				return i1.compareTo(i2);
 			}
 		});
@@ -250,9 +250,9 @@ public class RegistryTracker {
 		for(Registry.Entry e : entries)
 		{
 			if(reg.dataType == DataType.DATAWATCHER)
-				writer.write(e.newId + " (" + e.name  + ")\r\n");
+				writer.write(e.suggested + " (" + e.name  + ")\r\n");
 			else
-				writer.write(e.newId + " " + e.getDisplay() + "\r\n");
+				writer.write(e.suggested + " " + e.getDisplay() + "\r\n");
 		}
 	}
 
@@ -264,8 +264,11 @@ public class RegistryTracker {
 		writeConflicts(writer, biomes);
 		writer.close();
 		
-		writer = new BufferedWriter(new FileWriter(new File(dirDimensions,"conflicts.json")));
+		writer = new BufferedWriter(new FileWriter(new File(dirDimensions,"conflicts-providers.json")));
 		writeConflicts(writer, providers);
+		writer.close();
+		
+		writer = new BufferedWriter(new FileWriter(new File(dirDimensions,"conflicts-dimensions.json")));
 		writeConflicts(writer, dimensions);
 		writer.close();
 		

@@ -1,11 +1,19 @@
 package com.jredfox.confighelper;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import net.minecraftforge.common.DimensionManager;
 
 public class RegistryDim extends Registry{
 	
+	//the actual id index counters
 	public int upper = 2;
 	public int lower = -2;
+	
+	//the virtual suggested ids
+	public int lowerV = -2;
+	public int upperV = 2;
 	
 	public RegistryDim(DataType type)
 	{
@@ -19,7 +27,7 @@ public class RegistryDim extends Registry{
 	}
 
 	@Override
-	protected int getFreeId(int org) 
+	public int getFreeId(int org) 
 	{
 		if(org >= 0)
 		{
@@ -53,14 +61,41 @@ public class RegistryDim extends Registry{
 			return DimensionManager.providers.containsKey(id);
 		return DimensionManager.dimensions.containsKey(id);
 	}
-
-	public static final int[] dimIds = new int[]{-1,0,1};
-	public static boolean isVanillaId(int org) 
+	
+	public Set<Integer> vIds = new HashSet();
+	@Override
+	protected int getSuggestedId(Object obj, int org) 
 	{
-		for(int v : dimIds)
-			if(v == org)
-				return true;
-		return false;
+		if(this.isVanillaId(org) && !this.vIds.contains(org))
+		{
+			this.vIds.add(org);
+			return org;
+		}
+		
+		if(org >= 0)
+		{
+			for(int i=this.upperV;i<=RegistryConfig.searchDimUper;i++)
+			{
+				if(!this.vIds.contains(this.upperV) && !this.isVanillaId(this.upperV))
+				{
+					this.vIds.add(this.upperV);
+					return this.upperV;
+				}
+				this.upperV++;
+			}
+		}
+		else
+		{
+			for(int i=this.lowerV;i>=RegistryConfig.searchDimLower;i--)
+			{
+				if(!this.vIds.contains(this.lowerV) && !this.isVanillaId(this.lowerV))
+				{
+					this.vIds.add(this.lowerV);
+					return this.lowerV;
+				}
+				this.lowerV--;
+			}
+		}
+		return -1;
 	}
-
 }

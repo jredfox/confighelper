@@ -1,23 +1,19 @@
 package com.jredfox.confighelper;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import net.minecraft.entity.DataWatcher;
 
-public class RegistryDataWatcher extends Registry{
+public class RegistryDatawatcher extends Registry{
 	
 	public DataWatcher watcher;
 
-	public RegistryDataWatcher(DataWatcher watcher)
+	public RegistryDatawatcher(DataWatcher watcher)
 	{
 		super(DataType.DATAWATCHER);
 		this.watcher = watcher;
-	}
-	
-	@Override
-	public boolean containsId(int org) 
-	{
-		return this.watcher.containsId(org);
 	}
 	
 	@Override
@@ -27,17 +23,9 @@ public class RegistryDataWatcher extends Registry{
 	}
 	
 	@Override
-	public int getFreeId(int org)
+	public boolean containsId(int id)
 	{
-		for(int i=this.id; i <= RegistryConfig.dataWatchersLimit; i++)
-		{
-			if(!this.watcher.containsId(this.id))
-			{
-				return this.id;
-			}
-			this.id++;
-		}
-		return -1;
+		return this.watcher.containsId(id);
 	}
 	
 	@Override
@@ -54,13 +42,24 @@ public class RegistryDataWatcher extends Registry{
     	return builder.toString();
     }
 	
-	public static final int[] ids = {0,1,6,7,8,9,16,17,18};
-	public static boolean isVanillaId(int org) 
+	public Set<Integer> vIds = new HashSet();
+	@Override
+	protected int getSuggestedId(Object obj, int org) 
 	{
-		for(int v : ids)
-			if(v == org)
-				return true;
-		return false;
+		if(this.isVanillaId(org) && !this.vIds.contains(org))
+		{
+			this.vIds.add(org);
+			return org;
+		}
+		for(int i=this.suggestedId;i<=this.limit;i++)
+		{
+			if(!this.isVanillaId(this.suggestedId))
+			{
+				return this.suggestedId++;
+			}
+			this.suggestedId++;
+		}
+		return -1;
 	}
 
 }

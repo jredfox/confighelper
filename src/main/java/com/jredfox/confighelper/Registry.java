@@ -1,9 +1,11 @@
 package com.jredfox.confighelper;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.crash.CrashReport;
@@ -15,11 +17,14 @@ import net.minecraft.world.biome.BiomeGenBase;
 public class Registry {
 	
 	public Map<Integer,List<Registry.Entry>> reg = new LinkedHashMap<Integer,List<Registry.Entry>>();
+	public Set<Integer> vanillaIds = new HashSet();
+	public int suggestedId;//the suggestedId index
+	public int limit;
 	
 	/**
 	 * an automated integer
 	 */
-	public int id;
+	public int freeId;
 	public DataType dataType;
 	/**
 	 * turn this on to auto crash at the first sign of conflict
@@ -29,8 +34,44 @@ public class Registry {
 	public Registry(DataType dataType)
 	{
 		this.dataType = dataType;
+		this.vanillaIds = getVanillaIds();
+		this.limit = getLimit();
 	}
 	
+	private int getLimit()
+	{
+		if(dataType == DataType.BIOME)
+			return RegistryConfig.biomeLimit;
+		else if(dataType == DataType.POTION)
+			return RegistryConfig.potionsLimit;
+		else if(dataType == DataType.ENCHANTMENT)
+			return RegistryConfig.enchantmentsLimit;
+		else if(dataType == DataType.PROVIDER || dataType == DataType.DIMENSION)
+			return Integer.MAX_VALUE;
+		else if(dataType == DataType.ENTITY)
+			return RegistryConfig.enchantmentsLimit;
+		else if(dataType == DataType.DATAWATCHER)
+			return RegistryConfig.dataWatchersLimit;
+		return -1;
+	}
+	
+	private Set<Integer> getVanillaIds()
+	{
+		if(dataType == DataType.BIOME)
+			return RegistryIds.biomes;
+		else if(dataType == DataType.POTION)
+			return RegistryIds.potions;
+		else if(dataType == DataType.ENCHANTMENT)
+			return RegistryIds.enchantments;
+		else if(dataType == DataType.PROVIDER || dataType == DataType.DIMENSION)
+			return RegistryIds.dimensions;
+		else if(dataType == DataType.ENTITY)
+			return RegistryIds.entities;
+		else if(dataType == DataType.DATAWATCHER)
+			return RegistryIds.datawatchers;
+		return null;
+	}
+
 	public int reg(Object obj, int id)
 	{
 		List<Entry> list = this.getEntry(id);
@@ -39,7 +80,8 @@ public class Registry {
 			list = new ArrayList<Entry>();
 			this.reg.put(id, list);
 		}
-		Entry entry = new Entry(getClass(obj), id);
+		int suggested = this.getSuggestedId(obj, id);
+		Entry entry = new Entry(getClass(obj), id, suggested);
 		list.add(entry);
 		if(list.size() > 1)
 		{
@@ -58,6 +100,34 @@ public class Registry {
 	}
 	
 	/**
+	 * get the next virtual free id if you were going to write your modpack from scratch
+	 */
+	protected int getSuggestedId(Object obj, int org) 
+	{
+		if(this.isVanillaObj(obj, org))
+			return org;
+		for(int i=this.suggestedId;i<=this.limit;i++)
+		{
+			if(!this.isVanillaId(this.suggestedId))
+			{
+				return this.suggestedId++;
+			}
+			this.suggestedId++;
+		}
+		return -1;
+	}
+	
+	public boolean isVanillaObj(Object obj, int id)
+	{
+		return getClass(obj).getName().startsWith("net.minecraft.");
+	}
+
+	public boolean isVanillaId(int id) 
+	{
+		return this.vanillaIds.contains((Integer)id);
+	}
+
+	/**
 	 * returns whether or not it should crash on the first sign of conflict
 	 */
 	public boolean canCrash()
@@ -66,33 +136,33 @@ public class Registry {
 	}
 
 	/**
-	 * grabs the next automatic id that works around vanilla ids usually
-	 * warning this will automatically set your id counter and return the next free id
+	 * a live look to grab the next free id
 	 */
-	protected int getFreeId(int org) 
+	public int getFreeId(int org)
 	{
-		if(this.dataType == DataType.ENTITY)
+		for(int i=this.freeId; i <= this.limit; i++)
 		{
-			for(int i=this.id;i<EntityList.IDtoClassMapping.size();i++)
+			if(!this.containsId(this.freeId))
 			{
-				if(EntityList.getClassFromID(this.id) == null)
-					return this.id;
-				this.id++;
+				return this.freeId;
 			}
-		}
-		Object[] arr = this.getStaticArr();
-		for(int i=this.id;i<arr.length;i++)
-		{
-			if(arr[i] == null)
-			{
-				this.id = i;
-				return this.id;
-			}
+			this.freeId++;
 		}
 		return -1;
 	}
 	
-	protected Object[] getStaticArr() 
+	/**
+	 * not used in the root class of Registry
+	 * doesn't support data watchers or dimensions use the designated registries for them
+	 */
+	public boolean containsId(int org)
+	{
+		if(this.dataType == DataType.ENTITY)
+			return EntityList.IDtoClassMapping.containsKey(org);
+		return this.getStaticReg()[org] != null;
+	}
+	
+	protected Object[] getStaticReg() 
 	{
 		if(this.dataType == DataType.BIOME)
 			return BiomeGenBase.biomeList;
@@ -101,16 +171,6 @@ public class Registry {
 		if(this.dataType == DataType.ENCHANTMENT)
 			return Enchantment.enchantmentsList;
 		return null;
-	}
-	
-	/**
-	 * not used in the root class of Registry
-	 */
-	public boolean containsId(int org)
-	{
-		if(this.dataType == DataType.ENTITY)
-			return EntityList.IDtoClassMapping.containsKey(org);
-		return this.getStaticArr()[org] != null;
 	}
 	
 	public static Class getClass(Object entry)
@@ -144,21 +204,23 @@ public class Registry {
     
     public static class Entry
     {
-    	public int org;
-    	public int newId;
+    	public int org;//the original id
+    	public int newId;//the id in memory
+    	public int suggested;//the suggested id for the modpack creator to use
     	public Class clazz;
     	public String name;
     	
-    	public Entry(Class c, int org)
+    	public Entry(Class c, int org, int suggestedId)
     	{
     		this.clazz = c;
     		this.org = org;
     		this.newId = org;
+    		this.suggested = suggestedId;
     	}
     	
     	public void setName(String str)
     	{
-    			this.name = str;
+    		this.name = str;
     	}
     	
     	@Override

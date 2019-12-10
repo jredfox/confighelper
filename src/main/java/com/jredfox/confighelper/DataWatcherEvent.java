@@ -7,7 +7,7 @@ import net.minecraft.crash.CrashReport;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.event.entity.EntityEvent.EntityConstructing;
 
-public class DataWatcherEvent {
+public class DatawatcherEvent {
 	
 	@SubscribeEvent(priority=EventPriority.LOWEST)
 	public void checkReg(EntityConstructing event)

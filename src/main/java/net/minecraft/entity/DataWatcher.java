@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -13,7 +14,7 @@ import org.apache.commons.lang3.ObjectUtils;
 
 import com.jredfox.confighelper.Registry;
 import com.jredfox.confighelper.RegistryConfig;
-import com.jredfox.confighelper.RegistryDataWatcher;
+import com.jredfox.confighelper.RegistryDatawatcher;
 import com.jredfox.confighelper.RegistryTracker;
 
 import cpw.mods.fml.relauncher.Side;
@@ -44,7 +45,7 @@ public class DataWatcher
         this.field_151511_a = e;
         if(e instanceof EntityPlayer)
         {
-        	this.reg = new RegistryDataWatcher(this);
+        	this.reg = new RegistryDatawatcher(this);
         }
     }
 
@@ -164,6 +165,11 @@ public class DataWatcher
     public boolean containsId(int id)
     {
     	return this.watchedObjects.containsKey(id);
+    }
+    
+    public Set<Integer> getIds()
+    {
+    	return this.watchedObjects.keySet();
     }
 
     /**
