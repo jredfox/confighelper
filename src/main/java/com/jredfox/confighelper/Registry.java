@@ -189,6 +189,11 @@ public class Registry {
 	{
 		return this.reg.get(org);
 	}
+	
+   	public String getDisplay(Registry.Entry e)
+	{
+		return "(name:" + e.name + ", " + e.clazz.getName() + ")";
+	}
     
     public static enum DataType{
     	BIOME(),
@@ -229,11 +234,6 @@ public class Registry {
     		return "(name:" + this.name + ",newId:" + this.newId + ",class:" + this.clazz.getName() + ")";
     	}
     	
-    	public String getDisplay()
-    	{
-    		return "(name:" + this.name + ", " + this.clazz.getName() + ")";
-    	}
-    	
     	@Override
     	public boolean equals(Object obj)
     	{
@@ -253,19 +253,6 @@ public class Registry {
     public String toString()
     {
     	return this.reg.toString();
-    }
-    
-    public String getDisplay(int id)
-    {
-    	StringBuilder builder = new StringBuilder();
-    	builder.append('[');
-    	List<Entry> list = this.reg.get(id);
-    	for(Entry e : list)
-    	{
-    		builder.append(e.getDisplay() + ", ");
-    	}
-    	builder.append(']');
-    	return builder.toString();
     }
 
 }

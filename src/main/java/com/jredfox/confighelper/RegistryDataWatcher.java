@@ -29,18 +29,10 @@ public class RegistryDatawatcher extends Registry{
 	}
 	
 	@Override
-    public String getDisplay(int id)
-    {
-    	StringBuilder builder = new StringBuilder();
-    	builder.append('[');
-    	List<Entry> list = this.reg.get(id);
-    	for(Entry e : list)
-    	{
-    		builder.append("(name:" + e.name + "), ");
-    	}
-    	builder.append(']');
-    	return builder.toString();
-    }
+   	public String getDisplay(Registry.Entry e)
+	{
+   		return "(" + e.name + ")";
+	}
 	
 	public Set<Integer> vIds = new HashSet();
 	@Override

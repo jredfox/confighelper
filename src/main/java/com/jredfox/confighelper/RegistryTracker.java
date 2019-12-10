@@ -299,10 +299,7 @@ public class RegistryTracker {
 		{
 			if(!RegistryConfig.showVanillaIds && reg.isVanillaId(e.suggested))
 				continue;
-			if(reg.dataType == DataType.DATAWATCHER)
-				writer.write(e.suggested + " (" + e.name  + ")\r\n");
-			else
-				writer.write(e.suggested + " " + e.getDisplay() + "\r\n");
+			writer.write(e.suggested + " " + reg.getDisplay(e) + "\r\n");
 		}
 	}
 
