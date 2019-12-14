@@ -241,6 +241,7 @@ public class Registry {
     		this.clazz = c;
     		this.org = org;
     		this.newId = org;
+    		this.suggested = suggestedId;
     	}
     	
     	public void setName(String str)

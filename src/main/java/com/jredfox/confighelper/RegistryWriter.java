@@ -188,7 +188,7 @@ public class RegistryWriter {
 		
 		for(Registry.Entry e : entries)
 		{
-			if(!RegistryConfig.showVanillaIds && reg.isVanillaId(e.suggested))
+			if(!RegistryConfig.showVanillaIds && reg.isVanillaId(e.suggested) || e.replaced)
 				continue;
 			writer.write(e.suggested + " " + reg.getDisplay(e) + "\r\n");
 		}
