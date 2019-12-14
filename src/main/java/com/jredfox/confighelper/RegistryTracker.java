@@ -240,12 +240,19 @@ public class RegistryTracker {
 	
 	private static String getName(Object obj)
 	{
-		if(obj instanceof BiomeGenBase)
-			return ((BiomeGenBase)obj).biomeName;
-		else if(obj instanceof Enchantment)
-			return ((Enchantment)obj).getName();
-		else if(obj instanceof Potion)
-			return ((Potion)obj).getName();
+		try
+		{
+			if(obj instanceof BiomeGenBase)
+				return ((BiomeGenBase)obj).biomeName;
+			else if(obj instanceof Enchantment)
+				return ((Enchantment)obj).getName();
+			else if(obj instanceof Potion)
+				return ((Potion)obj).getName();
+		}
+		catch(Throwable t)
+		{
+			t.printStackTrace();
+		}
 		return null;
 	}
 
