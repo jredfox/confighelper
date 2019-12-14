@@ -110,6 +110,22 @@ public class Registry {
 		}
 		return true;
 	}
+	
+	/**
+	 * a live look to grab the next free id
+	 */
+	public int getFreeId(int org)
+	{
+		for(int i=this.freeId; i <= this.limit; i++)
+		{
+			if(!this.containsId(this.freeId))
+			{
+				return this.freeId;
+			}
+			this.freeId++;
+		}
+		return -1;
+	}
 
 	/**
 	 * get the next virtual free id if you were going to write your modpack from scratch
@@ -145,22 +161,6 @@ public class Registry {
 	public boolean canCrash()
 	{
 		return !RegistryTracker.startup || this.strict;
-	}
-
-	/**
-	 * a live look to grab the next free id
-	 */
-	public int getFreeId(int org)
-	{
-		for(int i=this.freeId; i <= this.limit; i++)
-		{
-			if(!this.containsId(this.freeId))
-			{
-				return this.freeId;
-			}
-			this.freeId++;
-		}
-		return -1;
 	}
 	
 	/**

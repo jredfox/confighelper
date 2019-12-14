@@ -6,7 +6,7 @@ import java.util.Set;
 
 import net.minecraft.entity.DataWatcher;
 
-public class RegistryDatawatcher extends Registry{
+public class RegistryDatawatcher extends RegistryInt{
 	
 	public DataWatcher watcher;
 
@@ -17,14 +17,9 @@ public class RegistryDatawatcher extends Registry{
 	}
 	
 	@Override
-	public boolean canConflict(Class clazz, int id) 
+	public boolean containsId(int id)
 	{
-		for(Integer i : RegistryConfig.passableIds)
-		{
-			if(id == i)
-				return false;
-		}
-		return true;
+		return this.watcher.containsId(id);
 	}
 	
 	@Override
@@ -32,37 +27,4 @@ public class RegistryDatawatcher extends Registry{
 	{
 		return this.strict;
 	}
-	
-	@Override
-	public boolean containsId(int id)
-	{
-		return this.watcher.containsId(id);
-	}
-	
-	@Override
-   	public String getDisplay(Registry.Entry e)
-	{
-   		return "(" + e.name + ")";
-	}
-	
-	public Set<Integer> vIds = new HashSet();
-	@Override
-	protected int getSuggestedId(Object obj, int org) 
-	{
-		if(this.isVanillaId(org) && !this.vIds.contains(org))
-		{
-			this.vIds.add(org);
-			return org;
-		}
-		for(int i=this.suggestedId;i<=this.limit;i++)
-		{
-			if(!this.isVanillaId(this.suggestedId))
-			{
-				return this.suggestedId++;
-			}
-			this.suggestedId++;
-		}
-		return -1;
-	}
-
 }

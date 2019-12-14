@@ -7,10 +7,12 @@ import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.event.entity.EntityEvent.EntityConstructing;
 
 public class DatawatcherEvent {
 	
+	private static boolean outputted;
 	@SubscribeEvent(priority=EventPriority.LOWEST)
 	public void checkReg(EntityConstructing event)
 	{
@@ -24,8 +26,9 @@ public class DatawatcherEvent {
 				crashreport.makeCategory("Load Complete");
 				Minecraft.getMinecraft().displayCrashReport(Minecraft.getMinecraft().addGraphicsAndWorldToCrashReport(crashreport));
 			}
-			else if(RegistryConfig.configMode)
+			else if(RegistryConfig.configMode && !outputted)
 			{
+				outputted = true;
 				long time = System.currentTimeMillis();
 				RegistryTracker.outputDatawatcher();
 				JavaUtil.printTime(time, "Done Outputing datawatchers: ");

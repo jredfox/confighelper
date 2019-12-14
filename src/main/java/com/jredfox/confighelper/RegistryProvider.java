@@ -1,11 +1,14 @@
 package com.jredfox.confighelper;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import com.jredfox.confighelper.Registry.DataType;
 
 import net.minecraftforge.common.DimensionManager;
 
-public class RegistryDim extends RegistryInt{
-
+public class RegistryProvider extends Registry{
+	
 	//the actual id index counters
 	public int upper = 2;
 	public int lower = -2;
@@ -13,18 +16,18 @@ public class RegistryDim extends RegistryInt{
 	//the virtual suggested ids
 	public int upperV = 2;
 	public int lowerV = -2;
-	
-	public RegistryDim()
+
+	public RegistryProvider() 
 	{
-		super(DataType.DIMENSION);
+		super(DataType.PROVIDER);
 	}
 	
 	@Override
 	public boolean containsId(int id)
 	{
-		return DimensionManager.dimensions.containsKey(id);
+		return DimensionManager.providers.containsKey(id);
 	}
-
+	
 	@Override
 	public int getFreeId(int org) 
 	{
@@ -53,14 +56,15 @@ public class RegistryDim extends RegistryInt{
 		return org;
 	}
 	
+	/**
+	 * checked vanilla ids
+	 */
+	protected Set<Integer> cvids = new HashSet();
 	@Override
 	protected int getSuggestedId(Object obj, int org) 
 	{
-		if(this.isVanillaId(org) && !this.cvids.contains(org))	
-		{
-			this.cvids.add(org);
+		if(this.isVanillaObj(obj))
 			return org;
-		}
 
 		if(org >= 0)
 		{

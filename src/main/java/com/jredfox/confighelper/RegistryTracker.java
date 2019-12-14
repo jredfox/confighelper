@@ -32,8 +32,8 @@ public class RegistryTracker {
 	public static Registry biomes = new Registry(DataType.BIOME);
 	public static Registry enchantments = new Registry(DataType.ENCHANTMENT);
 	public static Registry potions = new Registry(DataType.POTION);
-	public static Registry dimensions = new RegistryDim(DataType.DIMENSION);
-	public static Registry providers = new RegistryDim(DataType.PROVIDER);
+	public static Registry dimensions = new RegistryDim();
+	public static Registry providers = new RegistryProvider();
 	public static Registry entities = new Registry(DataType.ENTITY);
 	/**
 	 * the last EntityPlayer data watcher object list
