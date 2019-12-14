@@ -73,7 +73,7 @@ public class DataWatcher
         }
         else if (this.containsId(Integer.valueOf(id)))
         {
-//            throw new IllegalArgumentException("Duplicate DataWatcher id:" + id + "!");
+            throw new IllegalArgumentException("Duplicate DataWatcher id:" + id + "!");
         }
         else
         {

@@ -18,14 +18,14 @@ public abstract class RegistryInt extends Registry{
 	public abstract Set<Integer> getPassableIds();
 	
 	@Override
-	public boolean canConflict(Class clazz, int id) 
+	public boolean shouldReplace(Class clazz, int id) 
 	{
 		for(Integer i : this.getPassableIds())
 		{
 			if(id == i)
-				return false;
+				return true;
 		}
-		return true;
+		return false;
 	}
 	
 	@Override

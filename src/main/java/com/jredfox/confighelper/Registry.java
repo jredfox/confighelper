@@ -80,11 +80,14 @@ public class Registry {
 			list = new ArrayList<Entry>();
 			this.reg.put(id, list);
 		}
+		
 		int suggested = this.getSuggestedId(obj, id);
 		Class clazz = getClass(obj);
 		Entry entry = new Entry(clazz, id, suggested);
 		list.add(entry);
-		if(list.size() > 1 && this.canConflict(clazz, id))
+		boolean conflicting = list.size() > 1;
+		
+		if(conflicting && !this.shouldReplace(clazz, id))
 		{
 			entry.newId = this.getFreeId(id);//if it's a duplicate id transform it into a newId
 			RegistryTracker.hasConflicts = true;
@@ -97,18 +100,22 @@ public class Registry {
 		        Minecraft.getMinecraft().displayCrashReport(Minecraft.getMinecraft().addGraphicsAndWorldToCrashReport(crashreport));
 			}
 		}
+		else if(conflicting)
+		{
+			entry.replaced = true;
+		}
 		return entry.newId;
 	}
 	
-	public boolean canConflict(Class clazz, int id) 
+	public boolean shouldReplace(Class clazz, int id) 
 	{
 		String name = clazz.getName();
 		for(String s : RegistryConfig.passable)
 		{
 			if(name.equals(s))
-				return false;
+				return true;
 		}
-		return true;
+		return false;
 	}
 	
 	/**
@@ -224,6 +231,7 @@ public class Registry {
     	public int org;//the original id
     	public int newId;//the id in memory
     	public int suggested;//the suggested id for the modpack creator to use
+    	public boolean replaced;
     	public Class clazz;
     	public String name;
     	
@@ -232,7 +240,6 @@ public class Registry {
     		this.clazz = c;
     		this.org = org;
     		this.newId = org;
-    		this.suggested = suggestedId;
     	}
     	
     	public void setName(String str)

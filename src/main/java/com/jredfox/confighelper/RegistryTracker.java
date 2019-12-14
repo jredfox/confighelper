@@ -351,6 +351,10 @@ public class RegistryTracker {
 				{
 					JSONObject json = new JSONObject();
 					arr.add(json);
+					if(entry.replaced)
+					{
+						json.put("replaced", true);
+					}
 					json.put("newId", entry.newId);
 					json.put("name", entry.name);
 					json.put("class", entry.clazz.getName());
