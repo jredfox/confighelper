@@ -28,7 +28,7 @@ public class DatawatcherEvent {
 			{
 				long time = System.currentTimeMillis();
 				RegistryTracker.outputDatawatcher();
-				JavaUtil.printTime(time, "Done Outputing files: ");
+				JavaUtil.printTime(time, "Done Outputing datawatchers: ");
 			}
 		}
 	}

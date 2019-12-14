@@ -17,6 +17,17 @@ public class RegistryDatawatcher extends Registry{
 	}
 	
 	@Override
+	public boolean canConflict(Class clazz, int id) 
+	{
+		for(Integer i : RegistryConfig.passableIds)
+		{
+			if(id == i)
+				return false;
+		}
+		return true;
+	}
+	
+	@Override
 	public boolean canCrash()
 	{
 		return this.strict;

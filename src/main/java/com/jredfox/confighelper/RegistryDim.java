@@ -20,10 +20,24 @@ public class RegistryDim extends Registry{
 		super(vallidDataType(type));
 	}
 	
-	private static DataType vallidDataType(DataType type) {
+	protected static DataType vallidDataType(DataType type) {
 		if(type != type.DIMENSION && type != type.PROVIDER)
 			throw new IllegalArgumentException("DataType for RegistryDim must be DIMENSION or PROVIDER Data types");
 		return type;
+	}
+	
+	@Override
+	public boolean canConflict(Class clazz, int id) 
+	{
+		if(this.dataType == DataType.PROVIDER)
+			return super.canConflict(clazz, id);
+		
+		for(Integer i : RegistryConfig.passableIds)
+		{
+			if(id == i)
+				return false;
+		}
+		return true;
 	}
 
 	@Override
@@ -52,6 +66,14 @@ public class RegistryDim extends Registry{
 			}
 		}
 		return org;
+	}
+	
+	@Override
+   	public String getDisplay(Registry.Entry e)
+	{
+		if(this.dataType == DataType.PROVIDER)
+			return super.getDisplay(e);
+   		return "(" + e.name + ")";
 	}
 	
 	@Override
@@ -96,4 +118,5 @@ public class RegistryDim extends Registry{
 		}
 		return -1;
 	}
+	
 }

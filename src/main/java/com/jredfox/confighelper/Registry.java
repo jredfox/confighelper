@@ -81,9 +81,10 @@ public class Registry {
 			this.reg.put(id, list);
 		}
 		int suggested = this.getSuggestedId(obj, id);
-		Entry entry = new Entry(getClass(obj), id, suggested);
+		Class clazz = getClass(obj);
+		Entry entry = new Entry(clazz, id, suggested);
 		list.add(entry);
-		if(list.size() > 1)
+		if(list.size() > 1 && this.canConflict(clazz, id))
 		{
 			entry.newId = this.getFreeId(id);//if it's a duplicate id transform it into a newId
 			RegistryTracker.hasConflicts = true;
@@ -99,6 +100,17 @@ public class Registry {
 		return entry.newId;
 	}
 	
+	public boolean canConflict(Class clazz, int id) 
+	{
+		String name = clazz.getName();
+		for(String s : RegistryConfig.passable)
+		{
+			if(name.equals(s))
+				return false;
+		}
+		return true;
+	}
+
 	/**
 	 * get the next virtual free id if you were going to write your modpack from scratch
 	 */
