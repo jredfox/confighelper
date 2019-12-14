@@ -18,10 +18,10 @@ public class DatawatcherEvent {
 	{
 		if(event.entity instanceof EntityPlayer)
 		{
-			RegistryTracker.datawatchers.strict = true;//make sure it crashes after entity.init if a new data watcher id gets registered on the fly
-			if(RegistryTracker.hasConflicts)
+			Registries.datawatchers.strict = true;//make sure it crashes after entity.init if a new data watcher id gets registered on the fly
+			if(Registries.hasConflicts)
 			{
-				RegistryTracker.outputDatawatcher();
+				Registries.outputWatcher();
 				CrashReport crashreport = CrashReport.makeCrashReport(new RuntimeException("DataWatcher Id Conflicts have been detected! Reconfigure your modpack"), "Load Complete");
 				crashreport.makeCategory("Load Complete");
 				Minecraft.getMinecraft().displayCrashReport(Minecraft.getMinecraft().addGraphicsAndWorldToCrashReport(crashreport));
@@ -30,7 +30,7 @@ public class DatawatcherEvent {
 			{
 				outputted = true;
 				long time = System.currentTimeMillis();
-				RegistryTracker.outputDatawatcher();
+				Registries.outputWatcher();
 				JavaUtil.printTime(time, "Done Outputing datawatchers: ");
 			}
 		}

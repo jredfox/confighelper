@@ -90,11 +90,11 @@ public class Registry {
 		if(conflicting && !this.shouldReplace(clazz, id))
 		{
 			entry.newId = this.getFreeId(id);//if it's a duplicate id transform it into a newId
-			RegistryTracker.hasConflicts = true;
+			Registries.hasConflicts = true;
 			if(this.canCrash())
 			{
-				RegistryTracker.output();
-				String inGame = !RegistryTracker.startup ? "In Game" : "Loading";
+				Registries.output();
+				String inGame = !Registries.startup ? "In Game" : "Loading";
 				CrashReport crashreport = CrashReport.makeCrashReport(new RuntimeException(this.dataType + " Id conflict during " +  inGame + " id:" + id + "=" + list.toString()), inGame);
 				crashreport.makeCategory(inGame);
 		        Minecraft.getMinecraft().displayCrashReport(Minecraft.getMinecraft().addGraphicsAndWorldToCrashReport(crashreport));
@@ -167,7 +167,7 @@ public class Registry {
 	 */
 	public boolean canCrash()
 	{
-		return !RegistryTracker.startup || this.strict;
+		return !Registries.startup || this.strict;
 	}
 	
 	/**
@@ -223,7 +223,8 @@ public class Registry {
     	ENTITY(),
     	DATAWATCHER(),
     	ITEM(),
-    	BLOCK();
+    	BLOCK(),
+    	TILEENTITY();
     }
     
     public static class Entry

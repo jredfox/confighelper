@@ -6,7 +6,7 @@ import java.util.Map.Entry;
 import java.util.UUID;
 
 import com.google.common.collect.Maps;
-import com.jredfox.confighelper.RegistryTracker;
+import com.jredfox.confighelper.Registries;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -83,7 +83,7 @@ public class Potion
 
     protected Potion(int p_i1573_1_, boolean p_i1573_2_, int p_i1573_3_)
     {
-    	p_i1573_1_ = RegistryTracker.registerPotion(this, p_i1573_1_);
+    	p_i1573_1_ = Registries.registerPotion(this, p_i1573_1_);
         this.id = p_i1573_1_;
         potionTypes[p_i1573_1_] = this;
         this.isBadEffect = p_i1573_2_;

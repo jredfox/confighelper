@@ -10,7 +10,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.google.common.collect.Sets;
-import com.jredfox.confighelper.RegistryTracker;
+import com.jredfox.confighelper.Registries;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -172,7 +172,7 @@ public abstract class BiomeGenBase
     }
     public BiomeGenBase(int id, boolean register)
     {
-    	id = RegistryTracker.registerBiome(this, id);
+    	id = Registries.registerBiome(this, id);
         this.topBlock = Blocks.grass;
         this.field_150604_aj = 0;
         this.fillerBlock = Blocks.dirt;

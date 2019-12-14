@@ -15,7 +15,7 @@ import org.apache.commons.lang3.ObjectUtils;
 import com.jredfox.confighelper.Registry;
 import com.jredfox.confighelper.RegistryConfig;
 import com.jredfox.confighelper.RegistryDatawatcher;
-import com.jredfox.confighelper.RegistryTracker;
+import com.jredfox.confighelper.Registries;
 
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.relauncher.Side;
@@ -58,8 +58,8 @@ public class DataWatcher
     {
     	if(this.field_151511_a instanceof EntityPlayer)
     	{	
-    		RegistryTracker.datawatchers = this.reg;
-    		id = RegistryTracker.registerDataWatcher(this.field_151511_a.getClass(), id, this.reg);
+    		Registries.datawatchers = this.reg;
+    		id = Registries.registerDataWatcher(this.field_151511_a.getClass(), id, this.reg);
     	}
         Integer integer = (Integer)dataTypes.get(obj.getClass());
 

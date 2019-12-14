@@ -17,7 +17,7 @@ import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Lists;
 import com.google.common.collect.MapMaker;
 import com.google.common.collect.Multiset;
-import com.jredfox.confighelper.RegistryTracker;
+import com.jredfox.confighelper.Registries;
 
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.FMLLog;
@@ -52,7 +52,7 @@ public class DimensionManager
 
     public static boolean registerProviderType(int id, Class<? extends WorldProvider> provider, boolean keepLoaded)
     {
-    	id = RegistryTracker.registerProvider(provider, id);
+    	id = Registries.registerProvider(provider, id);
         if (providers.containsKey(id))
         {
             return false;
@@ -113,8 +113,8 @@ public class DimensionManager
 
     public static void registerDimension(int id, int providerId)
     {
-    	id = RegistryTracker.registerDimension(id);
-    	providerId = RegistryTracker.providers.getEntry(providerId).get(0).newId;//best guess for the new provider id although it will be wrong if conflicts are found
+    	id = Registries.registerDimension(id);
+    	providerId = Registries.providers.getEntry(providerId).get(0).newId;//best guess for the new provider id although it will be wrong if conflicts are found
       	
         if (dimensions.containsKey(id))
         {

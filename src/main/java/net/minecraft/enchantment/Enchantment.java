@@ -2,7 +2,7 @@ package net.minecraft.enchantment;
 
 import java.util.ArrayList;
 
-import com.jredfox.confighelper.RegistryTracker;
+import com.jredfox.confighelper.Registries;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -77,7 +77,7 @@ public abstract class Enchantment
 
     protected Enchantment(int p_i1926_1_, int p_i1926_2_, EnumEnchantmentType p_i1926_3_)
     {
-    	p_i1926_1_ = RegistryTracker.registerEnchantment(this, p_i1926_1_);
+    	p_i1926_1_ = Registries.registerEnchantment(this, p_i1926_1_);
         this.effectId = p_i1926_1_;
         this.weight = p_i1926_2_;
         this.type = p_i1926_3_;

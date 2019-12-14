@@ -32,11 +32,11 @@ public class ConfigHelperMod
     @EventHandler
     public void loadComplete(FMLLoadCompleteEvent event)
     {	
-    	RegistryTracker.startup = false;
+    	Registries.startup = false;
 		
-		if(RegistryTracker.hasConflicts)
+		if(Registries.hasConflicts)
 		{
-			RegistryTracker.output();
+			Registries.output();
 			CrashReport crashreport = CrashReport.makeCrashReport(new RuntimeException("Id Conflicts have been detected! Reconfigure your modpack"), "Load Complete");
 			crashreport.makeCategory("Load Complete");
 			Minecraft.getMinecraft().displayCrashReport(Minecraft.getMinecraft().addGraphicsAndWorldToCrashReport(crashreport));
@@ -44,7 +44,7 @@ public class ConfigHelperMod
 		else if(RegistryConfig.configMode)
 		{
 			long time = System.currentTimeMillis();
-			RegistryTracker.output();
+			Registries.output();
 			JavaUtil.printTime(time, "Done Outputing files: ");
 		}
     }

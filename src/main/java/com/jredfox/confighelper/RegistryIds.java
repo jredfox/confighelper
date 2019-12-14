@@ -24,9 +24,9 @@ public class RegistryIds {
 	{
     	try
     	{
-    		System.out.println("biomes:" + getIntArray(RegistryTracker.biomes.getStaticReg()));
-    		System.out.println("potions:" + getIntArray(RegistryTracker.potions.getStaticReg()));
-    		System.out.println("enchantments:" + getIntArray(RegistryTracker.enchantments.getStaticReg()));
+    		System.out.println("biomes:" + getIntArray(Registries.biomes.getStaticReg()));
+    		System.out.println("potions:" + getIntArray(Registries.potions.getStaticReg()));
+    		System.out.println("enchantments:" + getIntArray(Registries.enchantments.getStaticReg()));
     		System.out.println("dimensions:" + getDims());
     		System.out.println("entities:" + getEnts());
     	}
