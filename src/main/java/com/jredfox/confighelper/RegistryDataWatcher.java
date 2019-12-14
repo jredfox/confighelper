@@ -23,6 +23,12 @@ public class RegistryDatawatcher extends RegistryInt{
 	}
 	
 	@Override
+	public Set<Integer> getPassableIds()
+	{
+		return RegistryConfig.passableWatcherIds;
+	}
+	
+	@Override
 	public boolean canCrash()
 	{
 		return this.strict;

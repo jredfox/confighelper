@@ -13,9 +13,14 @@ public abstract class RegistryInt extends Registry{
 	}
 	
 	@Override
+	public abstract boolean containsId(int id);
+	
+	public abstract Set<Integer> getPassableIds();
+	
+	@Override
 	public boolean canConflict(Class clazz, int id) 
 	{
-		for(Integer i : RegistryConfig.passableIds)
+		for(Integer i : this.getPassableIds())
 		{
 			if(id == i)
 				return false;
@@ -48,8 +53,5 @@ public abstract class RegistryInt extends Registry{
 		}
 		return -1;
 	}
-	
-	@Override
-	public abstract boolean containsId(int id);
 
 }

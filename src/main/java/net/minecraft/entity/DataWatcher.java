@@ -67,13 +67,13 @@ public class DataWatcher
         {
             throw new IllegalArgumentException("Unknown data type: " + obj.getClass());
         }
-        else if(id > 254 || id < 0)
+        else if(id < 0 || id > RegistryConfig.dataWatchersLimit)
         {
-        	throw new IllegalArgumentException("Ids must be between (0-254)");
+        	throw new IllegalArgumentException("Ids must be between (0-" + RegistryConfig.dataWatchersLimit + ")");
         }
         else if (this.containsId(Integer.valueOf(id)))
         {
-            throw new IllegalArgumentException("Duplicate DataWatcher id:" + id + "!");
+//            throw new IllegalArgumentException("Duplicate DataWatcher id:" + id + "!");
         }
         else
         {

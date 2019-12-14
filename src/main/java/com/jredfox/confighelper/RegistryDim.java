@@ -1,5 +1,7 @@
 package com.jredfox.confighelper;
 
+import java.util.Set;
+
 import com.jredfox.confighelper.Registry.DataType;
 
 import net.minecraftforge.common.DimensionManager;
@@ -23,6 +25,12 @@ public class RegistryDim extends RegistryInt{
 	public boolean containsId(int id)
 	{
 		return DimensionManager.dimensions.containsKey(id);
+	}
+	
+	@Override
+	public Set<Integer> getPassableIds()
+	{
+		return RegistryConfig.passableDimIds;
 	}
 
 	@Override

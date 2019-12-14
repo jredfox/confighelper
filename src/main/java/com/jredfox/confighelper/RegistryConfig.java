@@ -23,7 +23,8 @@ public class RegistryConfig {
 	public static boolean showVanillaIds;
 	public static boolean configMode = true;
 	public static String[] passable = new String[0];
-	public static Set<Integer> passableIds;
+	public static Set<Integer> passableDimIds;
+	public static Set<Integer> passableWatcherIds;
 	
 	static
 	{
@@ -31,8 +32,9 @@ public class RegistryConfig {
 		cfg.load();
 		showVanillaIds = cfg.getBoolean("showVanillaIds", "general", showVanillaIds, "disable this to only show modded ids in suggestion files");
 		configMode = cfg.getBoolean("configMode", "general", configMode, "disable this when your modpack has been configured properly so it runs faster");
-		passable = cfg.getStringList("conflictExceptions", "general", passable, "add a list of classes that it's acceptible to conflict with the registry");
-		passableIds = getPassableIds(cfg);
+		passable = cfg.getStringList("conflicts", "passable", passable, "passable Classes that are allowed to conflict(replace) a registry object");
+		passableDimIds = getPassableIds(cfg, "passableDimIds", "passable Dim ids(Not Provider) that are allowed to conflict. Only use if inputting the provider conflict class wasn't enough");
+		passableWatcherIds = getPassableIds(cfg, "passableWatcherIds", "passable ids that data watchers are allowed to conflict with");
 		cfg.addCustomCategoryComment("limit", "changing these will not increase/decrease the limit of the ids. This is just so If a mod does extend the ids you can change them");
 		biomeLimit = cfg.get("limit", "biome", biomeLimit).getInt();
 		searchDimUper = cfg.get("limit", "searchDimUper", searchDimUper).getInt();
@@ -44,22 +46,22 @@ public class RegistryConfig {
 		cfg.save();
 	}
 
-	private static Set<Integer> getPassableIds(Configuration cfg) 
+	private static Set<Integer> getPassableIds(Configuration cfg, String name, String comment) 
 	{
-		String[] list = cfg.getStringList("conflictIdExceptions", "general", new String[0], "Used for dimension/datawatcher ids. Do not input ids here unless you know what you are doing");
-		passableIds = new HashSet();
+		String[] list = cfg.getStringList(name, "passable", new String[0], comment);
+		Set<Integer> passable = new HashSet();
 		for(int i=0;i<list.length;i++)
 		{
 			try
 			{
-				passableIds.add(Integer.parseInt(list[i]));
+				passable.add(Integer.parseInt(list[i]));
 			}
 			catch(Exception e)
 			{
 				e.printStackTrace();
 			}
 		}
-		return passableIds;
+		return passable;
 	}
 
 }
