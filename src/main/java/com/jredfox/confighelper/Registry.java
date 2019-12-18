@@ -17,19 +17,12 @@ import net.minecraft.world.biome.BiomeGenBase;
 public class Registry {
 	
 	public Map<Integer,List<Registry.Entry>> reg = new LinkedHashMap<Integer,List<Registry.Entry>>();
-	public Set<Integer> vanillaIds = new HashSet();
-	public int suggestedId;//the suggestedId index
-	public int limit;
-	
-	/**
-	 * an automated integer
-	 */
-	public int freeId;
-	public DataType dataType;
-	/**
-	 * turn this on to auto crash at the first sign of conflict
-	 */
-	public boolean strict;
+	public Set<Integer> vanillaIds = new HashSet();//the full list of vanilla ids per Registry
+	public int suggestedId;//the virtual suggested id index
+	public int freeId;//the free id index
+	public int limit;//the registry limit
+	public DataType dataType;//the data type this registry is for
+	public boolean strict;//turn this on to automatically crash on the first sign of conflict
 	
 	public Registry(DataType dataType)
 	{
@@ -81,13 +74,14 @@ public class Registry {
 			this.reg.put(id, list);
 		}
 		
-		int suggested = this.getSuggestedId(obj, id);
 		Class clazz = getClass(obj);
-		Entry entry = new Entry(clazz, id, suggested);
+		boolean replaced = this.shouldReplace(clazz, id);
+		boolean conflicting = !list.isEmpty();
+		int suggested = conflicting && replaced ? id : this.getSuggestedId(obj, id);
+		Entry entry = new Entry(clazz, id, suggested, replaced);
 		list.add(entry);
-		boolean conflicting = list.size() > 1;
 		
-		if(conflicting && !this.shouldReplace(clazz, id))
+		if(conflicting && !replaced)
 		{
 			entry.newId = this.getFreeId(id);//if it's a duplicate id transform it into a newId
 			Registries.hasConflicts = true;
@@ -97,12 +91,8 @@ public class Registry {
 				String inGame = !Registries.startup ? "In Game" : "Loading";
 				CrashReport crashreport = CrashReport.makeCrashReport(new RuntimeException(this.dataType + " Id conflict during " +  inGame + " id:" + id + "=" + list.toString()), inGame);
 				crashreport.makeCategory(inGame);
-		        Minecraft.getMinecraft().displayCrashReport(Minecraft.getMinecraft().addGraphicsAndWorldToCrashReport(crashreport));
+				Minecraft.getMinecraft().displayCrashReport(Minecraft.getMinecraft().addGraphicsAndWorldToCrashReport(crashreport));
 			}
-		}
-		else if(conflicting)
-		{
-			entry.replaced = true;
 		}
 		return entry.newId;
 	}
@@ -236,12 +226,13 @@ public class Registry {
     	public Class clazz;
     	public String name;
     	
-    	public Entry(Class c, int org, int suggestedId)
+    	public Entry(Class c, int org, int suggested, boolean shouldReplace)
     	{
     		this.clazz = c;
     		this.org = org;
     		this.newId = org;
-    		this.suggested = suggestedId;
+    		this.suggested = suggested;
+    		this.replaced = shouldReplace;
     	}
     	
     	public void setName(String str)

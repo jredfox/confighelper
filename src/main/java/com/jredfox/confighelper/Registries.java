@@ -85,6 +85,21 @@ public class Registries {
 		return reg.reg(obj, id);
 	}
 	
+	public static int registerBlock(Object obj, int id)
+	{
+		throw new RuntimeException("Blocks are already Automated Ids");
+	}
+	
+	public static int registerItem(Object obj, int id)
+	{
+		throw new RuntimeException("Items are already Automated Ids");
+	}
+	
+	public static int registerTileEntity(Object obj, int id)
+	{
+		throw new RuntimeException("Tile Entitities are already Automated Ids");
+	}
+	
 	public static void output()
 	{
 		RegistryWriter.output();
