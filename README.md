@@ -1,8 +1,8 @@
 # confighelper
 make modpacks with ease
 
-#setup asm
- for loading in deob `-Dfml.coreMods.load=com.jredfox.confighelper.asm.Plugin`
+# setup asm
+for loading in deob `-Dfml.coreMods.load=com.jredfox.confighelper.asm.Plugin`
  for compiling input this into your build.gradle
 ```
 jar {
