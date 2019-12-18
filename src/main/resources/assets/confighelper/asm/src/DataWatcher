@@ -30,16 +30,16 @@ import net.minecraft.util.ReportedException;
 
 public class DataWatcher
 {
-	public final Entity field_151511_a;
+    private final Entity field_151511_a;
     /** When isBlank is true the DataWatcher is not watching any objects */
-	public boolean isBlank = true;
-	public static final HashMap dataTypes = new HashMap();
-	public final Map watchedObjects = new HashMap();
+    private boolean isBlank = true;
+    private static final HashMap dataTypes = new HashMap();
+    private final Map watchedObjects = new HashMap();
     /** true if one or more object was changed */
-	public boolean objectChanged;
-    public ReadWriteLock lock = new ReentrantReadWriteLock();
-    public static final String __OBFID = "CL_00001559";
-    private Registry reg;
+    private boolean objectChanged;
+    private ReadWriteLock lock = new ReentrantReadWriteLock();
+    private static final String __OBFID = "CL_00001559";
+    public Registry reg;
     
     public DataWatcher(Entity e)
     {

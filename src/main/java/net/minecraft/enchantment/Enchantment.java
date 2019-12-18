@@ -17,34 +17,34 @@ public abstract class Enchantment
     /** The list of enchantments applicable by the anvil from a book */
     public static final Enchantment[] enchantmentsBookList;
     /** Converts environmental damage to armour damage */
-    public static final Enchantment protection = new EnchantmentProtection(0, 10, 0);
+    public static Enchantment protection = new EnchantmentProtection(0, 10, 0);
     /** Protection against fire */
-    public static final Enchantment fireProtection = new EnchantmentProtection(1, 5, 1);
+    public static Enchantment fireProtection = new EnchantmentProtection(1, 5, 1);
     /** Less fall damage */
-    public static final Enchantment featherFalling = new EnchantmentProtection(2, 5, 2);
+    public static Enchantment featherFalling = new EnchantmentProtection(2, 5, 2);
     /** Protection against explosions */
-    public static final Enchantment blastProtection = new EnchantmentProtection(3, 2, 3);
+    public static Enchantment blastProtection = new EnchantmentProtection(3, 2, 3);
     /** Protection against projectile entities (e.g. arrows) */
-    public static final Enchantment projectileProtection = new EnchantmentProtection(4, 5, 4);
+    public static Enchantment projectileProtection = new EnchantmentProtection(4, 5, 4);
     /** Decreases the rate of air loss underwater; increases time between damage while suffocating */
-    public static final Enchantment respiration = new EnchantmentOxygen(5, 2);
+    public static Enchantment respiration = new EnchantmentOxygen(5, 2);
     /** Increases underwater mining rate */
-    public static final Enchantment aquaAffinity = new EnchantmentWaterWorker(6, 2);
-    public static final Enchantment thorns = new EnchantmentThorns(7, 1);
+    public static Enchantment aquaAffinity = new EnchantmentWaterWorker(6, 2);
+    public static Enchantment thorns = new EnchantmentThorns(7, 1);
     /** Extra damage to mobs */
-    public static final Enchantment sharpness = new EnchantmentDamage(16, 10, 0);
+    public static Enchantment sharpness = new EnchantmentDamage(16, 10, 0);
     /** Extra damage to zombies, zombie pigmen and skeletons */
-    public static final Enchantment smite = new EnchantmentDamage(17, 5, 1);
+    public static Enchantment smite = new EnchantmentDamage(17, 5, 1);
     /** Extra damage to spiders, cave spiders and silverfish */
-    public static final Enchantment baneOfArthropods = new EnchantmentDamage(18, 5, 2);
+    public static Enchantment baneOfArthropods = new EnchantmentDamage(18, 5, 2);
     /** Knocks mob and players backwards upon hit */
-    public static final Enchantment knockback = new EnchantmentKnockback(19, 5);
+    public static Enchantment knockback = new EnchantmentKnockback(19, 5);
     /** Lights mobs on fire */
-    public static final Enchantment fireAspect = new EnchantmentFireAspect(20, 2);
+    public static Enchantment fireAspect = new EnchantmentFireAspect(20, 2);
     /** Mobs have a chance to drop more loot */
-    public static final Enchantment looting = new EnchantmentLootBonus(21, 2, EnumEnchantmentType.weapon);
+    public static Enchantment looting = new EnchantmentLootBonus(21, 2, EnumEnchantmentType.weapon);
     /** Faster resource gathering while in use */
-    public static final Enchantment efficiency = new EnchantmentDigging(32, 10);
+    public static Enchantment efficiency = new EnchantmentDigging(32, 10);
     /**
      * Blocks mined will drop themselves, even if it should drop something else (e.g. stone will drop stone, not
      * cobblestone)
@@ -68,12 +68,12 @@ public abstract class Enchantment
     public static final Enchantment field_151370_z = new EnchantmentLootBonus(61, 2, EnumEnchantmentType.fishing_rod);
     public static final Enchantment field_151369_A = new EnchantmentFishingSpeed(62, 2, EnumEnchantmentType.fishing_rod);
     public final int effectId;
-    private final int weight;
+    public final int weight;
     /** The EnumEnchantmentType given to this Enchantment. */
     public EnumEnchantmentType type;
     /** Used in localisation and stats. */
-    protected String name;
-    private static final String __OBFID = "CL_00000105";
+    public String name;
+    public static final String __OBFID = "CL_00000105";
 
     protected Enchantment(int p_i1926_1_, int p_i1926_2_, EnumEnchantmentType p_i1926_3_)
     {

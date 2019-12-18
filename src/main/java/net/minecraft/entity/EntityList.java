@@ -74,20 +74,20 @@ import net.minecraft.world.World;
 
 public class EntityList
 {
-    private static final Logger logger = LogManager.getLogger();
+	public static final Logger logger = LogManager.getLogger();
     /** Provides a mapping between entity classes and a string */
-    public static Map stringToClassMapping = new HashMap();
+	public static Map stringToClassMapping = new HashMap();
     /** Provides a mapping between a string and an entity classes */
     public static Map classToStringMapping = new HashMap();
     /** provides a mapping between an entityID and an Entity Class */
     public static Map<Integer,Class> IDtoClassMapping = new HashMap();
     /** provides a mapping between an Entity Class and an entity ID */
-    private static Map classToIDMapping = new HashMap();
+    public static Map classToIDMapping = new HashMap();
     /** Maps entity names to their numeric identifiers */
-    private static Map stringToIDMapping = new HashMap();
+    public static Map stringToIDMapping = new HashMap();
     /** This is a HashMap of the Creative Entity Eggs/Spawners. */
     public static HashMap entityEggs = new LinkedHashMap();
-    private static final String __OBFID = "CL_00001538";
+    public static final String __OBFID = "CL_00001538";
 
     /**
      * adds a mapping between Entity classes and both a string representation and an ID

@@ -42,13 +42,13 @@ public class DimensionManager
     public static Hashtable<Integer, Class<? extends WorldProvider>> providers = new Hashtable<Integer, Class<? extends WorldProvider>>();
     public static Hashtable<Integer, Integer> dimensions = new Hashtable<Integer, Integer>();
     
-    private static Hashtable<Integer, Boolean> spawnSettings = new Hashtable<Integer, Boolean>();
-    private static Hashtable<Integer, WorldServer> worlds = new Hashtable<Integer, WorldServer>();
-    private static boolean hasInit = false;
-    private static ArrayList<Integer> unloadQueue = new ArrayList<Integer>();
-    private static BitSet dimensionMap = new BitSet(Long.SIZE << 4);
-    private static ConcurrentMap<World, World> weakWorldMap = new MapMaker().weakKeys().weakValues().<World,World>makeMap();
-    private static Multiset<Integer> leakedWorlds = HashMultiset.create();
+    public static Hashtable<Integer, Boolean> spawnSettings = new Hashtable<Integer, Boolean>();
+    public static Hashtable<Integer, WorldServer> worlds = new Hashtable<Integer, WorldServer>();
+    public static boolean hasInit = false;
+    public static ArrayList<Integer> unloadQueue = new ArrayList<Integer>();
+    public static BitSet dimensionMap = new BitSet(Long.SIZE << 4);
+    public static ConcurrentMap<World, World> weakWorldMap = new MapMaker().weakKeys().weakValues().<World,World>makeMap();
+    public static Multiset<Integer> leakedWorlds = HashMultiset.create();
 
     public static boolean registerProviderType(int id, Class<? extends WorldProvider> provider, boolean keepLoaded)
     {

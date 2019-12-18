@@ -36,7 +36,7 @@ public class RegistryIds {
     	}
 	}
 	
-	private static List asList(int[] arr) 
+	public static List asList(int[] arr) 
 	{
 		List<Integer> ints = new ArrayList(arr.length);
 		for(int i : arr)
@@ -96,5 +96,12 @@ public class RegistryIds {
 		}
 		b.append(']');
 		return b.toString();
+	}
+
+	public static List asList(Object[] li) {
+		ArrayList list = new ArrayList(li.length);
+		for(Object obj : li)
+			list.add(obj);
+		return list;
 	}
 }
