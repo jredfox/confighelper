@@ -1,28 +1,13 @@
 package com.jredfox.confighelper;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map.Entry;
-
-import org.ralleytn.simple.json.JSONArray;
-import org.ralleytn.simple.json.JSONObject;
-import org.ralleytn.simple.json.JSONParseException;
-
-import com.evilnotch.lib.util.JavaUtil;
 import com.jredfox.confighelper.Registry.DataType;
+import com.jredfox.confighelper.proxy.ClientProxy;
+import com.jredfox.confighelper.proxy.ServerProxy;
 
 import net.minecraft.enchantment.Enchantment;
-import net.minecraft.entity.EntityList;
 import net.minecraft.potion.Potion;
-import net.minecraft.world.WorldProvider;
+import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.world.biome.BiomeGenBase;
-import net.minecraftforge.common.DimensionManager;
 
 /**
  * The central Registry system for all data types to be used upon
@@ -108,6 +93,27 @@ public class Registries {
 	public static void outputWatcher()
 	{
 		RegistryWriter.outputWatcher();
+	}
+	
+	public static void makeCrashReport(String cat, String msg) 
+	{
+		boolean isClient = false;
+		try
+		{
+			Class c = DedicatedServer.class;
+		}
+		catch(Throwable t)
+		{
+			isClient = true;
+		}
+		if(isClient)
+		{
+			ClientProxy.makeCrashReport(cat, msg);
+		}
+		else
+		{
+			ServerProxy.makeCrashReport(cat, msg);
+		}
 	}
 
 }

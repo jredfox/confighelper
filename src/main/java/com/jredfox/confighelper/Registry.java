@@ -1,5 +1,6 @@
 package com.jredfox.confighelper;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -7,10 +8,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.jredfox.confighelper.proxy.ClientProxy;
+import com.jredfox.confighelper.proxy.ServerProxy;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.EntityList;
+import net.minecraft.launchwrapper.Launch;
 import net.minecraft.potion.Potion;
 import net.minecraft.world.biome.BiomeGenBase;
 
@@ -88,10 +93,8 @@ public class Registry {
 			if(this.canCrash())
 			{
 				Registries.output();
-				String inGame = !Registries.startup ? "In Game" : "Loading";
-				CrashReport crashreport = CrashReport.makeCrashReport(new RuntimeException(this.dataType + " Id conflict during " +  inGame + " id:" + id + "=" + list.toString()), inGame);
-				crashreport.makeCategory(inGame);
-				Minecraft.getMinecraft().displayCrashReport(Minecraft.getMinecraft().addGraphicsAndWorldToCrashReport(crashreport));
+				String cat = !Registries.startup ? "In Game" : "Loading";
+				Registries.makeCrashReport(cat, this.dataType + " Id conflict during " +  cat + " id:" + id + "=" + list.toString());
 			}
 		}
 		return entry.newId;

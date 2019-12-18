@@ -22,9 +22,7 @@ public class DatawatcherEvent {
 			if(Registries.hasConflicts)
 			{
 				Registries.outputWatcher();
-				CrashReport crashreport = CrashReport.makeCrashReport(new RuntimeException("DataWatcher Id Conflicts have been detected! Reconfigure your modpack"), "Load Complete");
-				crashreport.makeCategory("Load Complete");
-				Minecraft.getMinecraft().displayCrashReport(Minecraft.getMinecraft().addGraphicsAndWorldToCrashReport(crashreport));
+				Registries.makeCrashReport("Load Complete", "DataWatcher Id Conflicts have been detected! Reconfigure your modpack");
 			}
 			else if(RegistryConfig.configMode && !outputted)
 			{
