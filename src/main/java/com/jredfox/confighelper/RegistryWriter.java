@@ -296,7 +296,7 @@ public class RegistryWriter {
 	{
 		for(int i=0;i<=limit;i++)
 		{
-			if(reg.getEntry(i) == null)
+			if(reg.getEntry(i) == null && !reg.isVanillaId(i))
 				writer.write(i + "\r\n");
 		}
 	}
@@ -305,7 +305,7 @@ public class RegistryWriter {
 	{
 		for(int i=RegistryConfig.searchDimLower;i<=RegistryConfig.searchDimUper;i++)
 		{
-			if(Registries.dimensions.getEntry(i) == null && Registries.providers.getEntry(i) == null)
+			if(Registries.dimensions.getEntry(i) == null && Registries.providers.getEntry(i) == null && !Registries.providers.isVanillaId(i))
 				writer.write(i + "\r\n");
 		}
 	}

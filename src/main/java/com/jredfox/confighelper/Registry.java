@@ -81,14 +81,14 @@ public class Registry {
 		
 		Class clazz = getClass(obj);
 		boolean replaced = this.shouldReplace(clazz, id);
-		boolean conflicting = !list.isEmpty();
+		boolean conflicting = !list.isEmpty() || this.containsId(id);//needs to look at the live ids because of the newIds automation
 		int suggested = conflicting && replaced ? id : this.getSuggestedId(obj, id);
 		Entry entry = new Entry(clazz, id, suggested, replaced);
 		list.add(entry);
 		
 		if(conflicting && !replaced)
 		{
-			entry.newId = this.getFreeId(id);//if it's a duplicate id transform it into a newId
+			entry.newId = this.getFreeId(id);
 			Registries.hasConflicts = true;
 			if(this.canCrash())
 			{
@@ -164,14 +164,13 @@ public class Registry {
 	}
 	
 	/**
-	 * not used in the root class of Registry
-	 * doesn't support data watchers or dimensions use the designated registries for them
+	 * a live look to see if the id is in memory
 	 */
-	public boolean containsId(int org)
+	public boolean containsId(int id)
 	{
 		if(this.dataType == DataType.ENTITY)
-			return EntityList.IDtoClassMapping.containsKey(org);
-		return this.getStaticReg()[org] != null;
+			return EntityList.IDtoClassMapping.containsKey(id);
+		return this.getStaticReg()[id] != null;
 	}
 	
 	protected Object[] getStaticReg() 

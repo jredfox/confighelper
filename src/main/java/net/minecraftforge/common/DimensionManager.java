@@ -115,7 +115,7 @@ public class DimensionManager
     {
     	id = Registries.registerDimension(id);
     	providerId = Registries.providers.getEntry(providerId).get(0).newId;//best guess for the new provider id although it will be wrong if conflicts are found
-      	
+       	     	
         if (dimensions.containsKey(id))
         {
             throw new IllegalArgumentException(String.format("Failed to register dimension for id %d, One is already registered", id));
