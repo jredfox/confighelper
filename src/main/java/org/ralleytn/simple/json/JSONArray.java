@@ -54,10 +54,10 @@ public class JSONArray extends JSONArrayList {
 	 * @param array the array
 	 * @since 1.0.0
 	 */
-	public JSONArray(byte[] array) {
-		
-		for(byte element : array) {
-			
+	public JSONArray(byte[] array) 
+	{
+		for(byte element : array) 
+		{
 			this.add(element);
 		}
 	}

@@ -312,7 +312,7 @@ public class JSONParser {
 				
 				statusStack.pop();
 				valueStack.pop();
-				this.status = (int)statusStack.peek();
+				this.status = (Integer)statusStack.peek();
 				
 			} else {
 				
@@ -334,7 +334,7 @@ public class JSONParser {
 			String key = (String)valueStack.pop();
 			Map<Object, Object> parent = (Map<Object, Object>)valueStack.peek();
 			parent.put(key, this.token.value);
-			this.status = (int)statusStack.peek();
+			this.status = (Integer)statusStack.peek();
 			
 		} else if(this.token.type == Yytoken.TYPE_LEFT_SQUARE) {
 			
@@ -378,7 +378,7 @@ public class JSONParser {
 				
 				statusStack.pop();
 				valueStack.pop();
-				this.status = (int)statusStack.peek();
+				this.status = (Integer)statusStack.peek();
 			
 			} else {
 				
@@ -471,15 +471,16 @@ public class JSONParser {
 	 * @throws JSONParseException if the JSON is invalid
 	 * @since 1.0.0
 	 */
-	public Object parse(String json) throws JSONParseException {
-		
-		try(StringReader reader = new StringReader(json)) {
-			
-			return this.parse(reader);
-			
-		} catch(IOException exception) {
-			
-			// WILL NEVER HAPPEN!
+	public Object parse(String json) throws JSONParseException 
+	{
+		StringReader reader = new StringReader(json);
+		try 
+		{	
+			return this.parse(reader);	
+		} 
+		catch(IOException exception) 
+		{
+			exception.printStackTrace();
 			throw new RuntimeException(exception);
 		}
 	}
@@ -507,8 +508,8 @@ public class JSONParser {
 		// ====
 		
 		this.reset(reader);
-		Stack<Object> statusStack = new Stack<>();
-		Stack<Object> valueStack = new Stack<>();
+		Stack<Object> statusStack = new Stack<Object>();
+		Stack<Object> valueStack = new Stack<Object>();
 
 		do {
 			
@@ -551,14 +552,15 @@ public class JSONParser {
 	 * @throws JSONParseException if the JSON is invalid or the {@linkplain JSONContentHandler} throws it
 	 * @since 1.0.0
 	 */
-	public void parse(String string, JSONContentHandler contentHandler, boolean resume) throws JSONParseException {
-
-		try(StringReader reader = new StringReader(string != null ? string.trim() : null)) {
-			
+	public void parse(String string, JSONContentHandler contentHandler, boolean resume) throws JSONParseException 
+	{
+		StringReader reader = new StringReader(string != null ? string.trim() : null);
+		try 
+		{	
 			this.parse(reader, contentHandler, resume);
-		
-		} catch(IOException exception){
-
+		} 
+		catch(IOException exception)
+		{
 			throw new JSONParseException(-1, JSONParseException.ERROR_UNEXPECTED_EXCEPTION, exception);
 		}
 	}
@@ -591,12 +593,12 @@ public class JSONParser {
 		if(!resume) {
 			
 			this.reset(reader);
-			this.handlerStatusStack = new Stack<>();
+			this.handlerStatusStack = new Stack<Object>();
 		
 		} else if(this.handlerStatusStack == null) {
 				
 			this.reset(reader);
-			this.handlerStatusStack = new Stack<>();
+			this.handlerStatusStack = new Stack<Object>();
 		}
 		
 		Stack<Object> statusStack = this.handlerStatusStack;	
@@ -687,7 +689,7 @@ public class JSONParser {
 						if(statusStack.size() > 1) {
 							
 							statusStack.pop();
-							this.status = (int)statusStack.peek();
+							this.status = (Integer)statusStack.peek();
 							
 						} else {
 							
@@ -711,7 +713,7 @@ public class JSONParser {
 					if(this.token.type == Yytoken.TYPE_VALUE) {
 						
 						statusStack.pop();
-						this.status = (int)statusStack.peek();
+						this.status = (Integer)statusStack.peek();
 						
 						if(!contentHandler.primitive(this.token.value) || !contentHandler.endObjectEntry()) {
 							
@@ -750,7 +752,7 @@ public class JSONParser {
 				} else if(this.status == JSONParser.S_IN_PAIR_VALUE) {
 					
 					statusStack.pop();
-					this.status = (int)statusStack.peek();
+					this.status = (Integer)statusStack.peek();
 					
 					if(!contentHandler.endObjectEntry()) {
 						
@@ -773,7 +775,7 @@ public class JSONParser {
 						if(statusStack.size() > 1) {
 							
 							statusStack.pop();
-							this.status = (int)statusStack.peek();
+							this.status = (Integer)statusStack.peek();
 							
 						} else {
 							
@@ -822,8 +824,20 @@ public class JSONParser {
 				
 			} while(this.token.type != Yytoken.TYPE_EOF);
 		
-		} catch(IOException | JSONParseException | RuntimeException | Error exception) {
-			
+		} 
+		catch(IOException exception) {
+			this.status = JSONParser.S_IN_ERROR;
+			throw exception;
+		}
+		catch(JSONParseException exception) {
+			this.status = JSONParser.S_IN_ERROR;
+			throw exception;
+		}
+		catch(RuntimeException exception) {
+			this.status = JSONParser.S_IN_ERROR;
+			throw exception;
+		}
+		catch(Error exception) {
 			this.status = JSONParser.S_IN_ERROR;
 			throw exception;
 		}

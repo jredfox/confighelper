@@ -1100,7 +1100,8 @@ public class JavaUtil {
 
 	public static void saveJSON(JSONObject json, File file, boolean utf8) 
 	{
-		JavaUtil.saveFileLines(JavaUtil.asArray(new String[]{toPrettyFormat(json.toString())} ), file, utf8);
+		ArrayList<String> arr = JavaUtil.asArray(new String[]{toPrettyFormat(json.toString())}) ;
+		JavaUtil.saveFileLines(arr, file, utf8);
 	}
 	
     /**
@@ -1380,7 +1381,7 @@ public class JavaUtil {
 		{
 			return (JSONObject) jsonParser.parse(new FileReader(armor));
 		} 
-		catch (IOException | JSONParseException e) 
+		catch (Exception e) 
 		{
 			e.printStackTrace();
 		}

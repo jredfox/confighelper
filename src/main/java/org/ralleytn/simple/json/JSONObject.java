@@ -80,14 +80,15 @@ public class JSONObject extends JSONMap {
 	public JSONObject compact() {
 		
 		JSONObject object = new JSONObject();
-		
-		this.forEach((key, value) -> {
-			
-			if(value != null) {
-				
+		for(Map.Entry<Object, Object> map : this.entrySet())
+		{
+			Object key = map.getKey();
+			Object value = map.getValue();
+			if(value != null)
+			{
 				object.put(key, value);
 			}
-		});
+		}
 		
 		return object;
 	}
@@ -97,15 +98,17 @@ public class JSONObject extends JSONMap {
 	 * @since 1.0.0
 	 */
 	@Override
-	public String toString() {
-		
-		try(StringWriter writer = new StringWriter()) {
-			
+	public String toString() 
+	{
+		StringWriter writer = new StringWriter();
+		try 
+		{
 			Util.write(this, writer);
 			return writer.toString();
 			
-		} catch(IOException exception) {
-
+		} 
+		catch(IOException exception) 
+		{
 			exception.printStackTrace();
 		}
 		
@@ -151,17 +154,20 @@ public class JSONObject extends JSONMap {
 	 * @return this JSON Object in XML
 	 * @since 1.1.0
 	 */
-	public String toXML(String rootName) {
-		
+	public String toXML(String rootName) 
+	{
 		StringBuilder builder = new StringBuilder();
 		
 		builder.append('<');
 		builder.append(rootName);
 		builder.append('>');
 		
-		this.forEach((key, value) -> {
+		for(Map.Entry<Object, Object> map : this.entrySet())
+		{
+			Object key = map.getKey();
+			Object value = map.getValue();
 			
-			       if(value instanceof JSONObject) {builder.append(((JSONObject)value).toXML(key.toString()));
+			if(value instanceof JSONObject) {builder.append(((JSONObject)value).toXML(key.toString()));
 			} else if(value instanceof JSONArray)  {builder.append(((JSONArray)value).toXML(key.toString()));
 			} else {
 				
@@ -178,7 +184,7 @@ public class JSONObject extends JSONMap {
 				builder.append(key);
 				builder.append('>');
 			}
-		});
+		}
 		
 		builder.append("</");
 		builder.append(rootName);
