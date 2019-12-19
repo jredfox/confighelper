@@ -89,6 +89,14 @@ public class Registry {
 		if(conflicting && !replaced)
 		{
 			entry.newId = this.getFreeId(id);
+			if(list.size() > 1)
+			{
+				System.out.println(this.dataType + " conflcit found for id:" + entry.org + "=" + list);
+			}
+			else
+			{
+				System.out.println("id re-assigment:" + entry.org + ">" + entry.newId);
+			}
 			Registries.hasConflicts = true;
 			if(this.canCrash())
 			{
@@ -166,11 +174,15 @@ public class Registry {
 	/**
 	 * a live look to see if the id is in memory
 	 */
-	public boolean containsId(int id)
+	public boolean containsId(int newId)
 	{
-		if(this.dataType == DataType.ENTITY)
-			return EntityList.IDtoClassMapping.containsKey(id);
-		return this.getStaticReg()[id] != null;
+		for(List<Registry.Entry> li : this.reg.values())
+		for(Registry.Entry entry : li)
+		{
+			if(entry.newId == newId)
+				return true;
+		}
+		return false;
 	}
 	
 	protected Object[] getStaticReg() 
@@ -191,6 +203,9 @@ public class Registry {
 		return entry.getClass();
 	}
 	
+	/**
+	 * is the original requested id conflicting with another original conflicted id
+	 */
 	public boolean isConflicting(int org)
 	{
 		return this.getEntry(org).size() > 1;

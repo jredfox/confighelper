@@ -22,12 +22,6 @@ public class RegistryDim extends RegistryInt{
 	}
 	
 	@Override
-	public boolean containsId(int id)
-	{
-		return DimensionManager.dimensions.containsKey(id);
-	}
-	
-	@Override
 	public Set<Integer> getPassableIds()
 	{
 		return RegistryConfig.passableDimIds;

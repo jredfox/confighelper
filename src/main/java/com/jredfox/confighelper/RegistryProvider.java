@@ -23,12 +23,6 @@ public class RegistryProvider extends Registry{
 	}
 	
 	@Override
-	public boolean containsId(int id)
-	{
-		return DimensionManager.providers.containsKey(id);
-	}
-	
-	@Override
 	public int getFreeId(int org) 
 	{
 		if(org >= 0)

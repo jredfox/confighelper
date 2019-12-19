@@ -12,9 +12,6 @@ public abstract class RegistryInt extends Registry{
 		super(dataType);
 	}
 	
-	@Override
-	public abstract boolean containsId(int id);
-	
 	public abstract Set<Integer> getPassableIds();
 	
 	@Override

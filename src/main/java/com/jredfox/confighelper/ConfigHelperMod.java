@@ -24,6 +24,7 @@ public class ConfigHelperMod
     public void preinit(FMLPreInitializationEvent event)
     {
     	MinecraftForge.EVENT_BUS.register(new DatawatcherEvent());
+    	Registries.registerBiome(BiomeGenBase.biomeList[161], 161);//fix vanilla
     }
     
     /**

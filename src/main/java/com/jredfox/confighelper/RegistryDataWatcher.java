@@ -17,12 +17,6 @@ public class RegistryDatawatcher extends RegistryInt{
 	}
 	
 	@Override
-	public boolean containsId(int id)
-	{
-		return this.watcher.containsId(id);
-	}
-	
-	@Override
 	public Set<Integer> getPassableIds()
 	{
 		return RegistryConfig.passableWatcherIds;
