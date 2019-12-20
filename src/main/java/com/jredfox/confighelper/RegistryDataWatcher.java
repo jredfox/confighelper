@@ -7,13 +7,10 @@ import java.util.Set;
 import net.minecraft.entity.DataWatcher;
 
 public class RegistryDatawatcher extends RegistryInt{
-	
-	public DataWatcher watcher;
 
-	public RegistryDatawatcher(DataWatcher watcher)
+	public RegistryDatawatcher()
 	{
 		super(DataType.DATAWATCHER);
-		this.watcher = watcher;
 	}
 	
 	@Override

@@ -245,12 +245,12 @@ public class RegistryWriter {
 				{
 					JSONObject json = new JSONObject();
 					arr.add(json);
-					if(entry.replaced)
-					{
-						json.put("replaced", true);
-					}
-					json.put("newId", entry.newId);
 					json.put("name", entry.name);
+					if(entry.replaced)
+						json.put("replaced", true);
+					if(entry.newId != entry.org)
+						json.put("freeId", reg.getNextFreeId(entry.org));
+					json.put("memoryIndex", entry.newId);
 					json.put("class", entry.clazz.getName());
 				}
 			}
@@ -296,7 +296,7 @@ public class RegistryWriter {
 	{
 		for(int i=0;i<=limit;i++)
 		{
-			if(reg.getEntry(i) == null && !reg.isVanillaId(i))
+			if(!reg.containsOrg(i))
 				writer.write(i + "\r\n");
 		}
 	}
@@ -305,7 +305,7 @@ public class RegistryWriter {
 	{
 		for(int i=RegistryConfig.searchDimLower;i<=RegistryConfig.searchDimUper;i++)
 		{
-			if(Registries.dimensions.getEntry(i) == null && Registries.providers.getEntry(i) == null && !Registries.providers.isVanillaId(i))
+			if(!Registries.dimensions.containsOrg(i) && !Registries.providers.containsOrg(i))
 				writer.write(i + "\r\n");
 		}
 	}

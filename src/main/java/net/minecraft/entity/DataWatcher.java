@@ -46,7 +46,7 @@ public class DataWatcher
         this.field_151511_a = e;
         if(e instanceof EntityPlayer)
         {
-        	this.reg = new RegistryDatawatcher(this);
+        	this.reg = new RegistryDatawatcher();
         }
     }
 

@@ -8,13 +8,9 @@ import net.minecraftforge.common.DimensionManager;
 
 public class RegistryDim extends RegistryInt{
 
-	//the actual id index counters
-	public int upper = 2;
-	public int lower = -2;
-	
-	//the virtual suggested ids
-	public int upperV = 2;
-	public int lowerV = -2;
+	public int lower = -2;//lower newId index
+	public int lowerV = -2;//lower suggestedId index
+	public int lowerFreeId = -2;
 	
 	public RegistryDim()
 	{
@@ -26,21 +22,38 @@ public class RegistryDim extends RegistryInt{
 	{
 		return RegistryConfig.passableDimIds;
 	}
-
+	
 	@Override
-	public int getFreeId(int org) 
+	public int getNextFreeId(int id)
 	{
-		if(org >= 0)
+		if(id >= 0)
+			return super.getNextFreeId(id);
+		else
 		{
-			for(int i=this.upper;i<=RegistryConfig.searchDimUper;i++)
+			for(int i=this.lowerFreeId;i>=RegistryConfig.searchDimLower;i--)
 			{
-				if(!this.containsId(this.upper))
+				if(!this.containsOrg(this.lowerFreeId))
 				{
-					return this.upper;
+					return lowerFreeId--;
 				}
-				this.upper++;
+				lowerFreeId--;
 			}
 		}
+		return -1;
+	}
+	
+	@Override
+	public void resetFreeIds()
+	{
+		super.resetFreeIds();
+		this.lowerFreeId = -2;
+	}
+
+	@Override
+	public int getNewId(int org) 
+	{
+		if(org >= 0)
+			return super.getNewId(org);
 		else
 		{
 			for(int i=this.lower;i>=RegistryConfig.searchDimLower;i--)
@@ -52,31 +65,21 @@ public class RegistryDim extends RegistryInt{
 				this.lower--;
 			}
 		}
-		return org;
+		return -1;
 	}
 	
 	@Override
 	protected int getSuggestedId(Object obj, int org) 
 	{
-		if(this.isVanillaId(org) && !this.cvids.contains(org))	
-		{
-			this.cvids.add(org);
-			return org;
-		}
-
 		if(org >= 0)
-		{
-			for(int i = this.upperV; i <= RegistryConfig.searchDimUper; i++)
-			{
-				if(!this.isVanillaId(this.upperV))
-				{
-					return this.upperV++;
-				}
-				this.upperV++;
-			}
-		}
+			return super.getSuggestedId(obj, org);
 		else
 		{
+			if(this.isVanillaId(org) && !this.cvids.contains(org))	
+			{
+				this.cvids.add(org);
+				return org;
+			}
 			for(int i = this.lowerV; i >= RegistryConfig.searchDimLower; i--)
 			{
 				if(!this.isVanillaId(this.lowerV))

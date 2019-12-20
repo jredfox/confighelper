@@ -12,6 +12,10 @@ public abstract class RegistryInt extends Registry{
 		super(dataType);
 	}
 	
+	/**
+	 * a list of integer passable ids that are acceptible to conflict with
+	 * WARNGING THIS ALLOWS FOR NOT JUST REPLACEMENT CONFLICTS BUT, ACTUAL CONFLICTS PROCEDE WITH CAUTION
+	 */
 	public abstract Set<Integer> getPassableIds();
 	
 	@Override

@@ -24,7 +24,7 @@ public class Registry {
 	public Map<Integer,List<Registry.Entry>> reg = new LinkedHashMap<Integer,List<Registry.Entry>>();
 	public Set<Integer> vanillaIds = new HashSet();//the full list of vanilla ids per Registry
 	public int suggestedId;//the virtual suggested id index
-	public int freeId;//the free id index
+	public int newId;//the newId(semi-auto) index
 	public int limit;//the registry limit
 	public DataType dataType;//the data type this registry is for
 	public boolean strict;//turn this on to automatically crash on the first sign of conflict
@@ -88,7 +88,7 @@ public class Registry {
 		
 		if(conflicting && !replaced)
 		{
-			entry.newId = this.getFreeId(id);
+			entry.newId = this.getNewId(id);
 			if(list.size() > 1)
 			{
 				System.out.println(this.dataType + " conflcit found for id:" + entry.org + "=" + list);
@@ -120,19 +120,47 @@ public class Registry {
 	}
 	
 	/**
-	 * a live look to grab the next free id
+	 * get the next newId in case the original id is conflicting
 	 */
-	public int getFreeId(int org)
+	public int getNewId(int org)
+	{
+		for(int i=this.newId; i <= this.limit; i++)
+		{
+			if(!this.containsId(this.newId))
+			{
+				return this.newId;
+			}
+			this.newId++;
+		}
+		return -1;
+	}
+	
+	public int freeId;
+	/**
+	 * returns the next free id for users to use in the config
+	 * WARNING DO NOT CALL TILL AFTER THE REGISTRIES ARE DONE
+	 */
+	public int getNextFreeId(int id)
 	{
 		for(int i=this.freeId; i <= this.limit; i++)
 		{
-			if(!this.containsId(this.freeId))
+			if(!this.containsOrg(this.freeId))
 			{
-				return this.freeId;
+				return this.freeId++;
 			}
 			this.freeId++;
 		}
 		return -1;
+	}
+	
+	public void resetFreeIds()
+	{
+		this.freeId = 0;
+	}
+	
+	public boolean containsOrg(int org)
+	{
+		return this.reg.containsKey(org);
 	}
 
 	/**
