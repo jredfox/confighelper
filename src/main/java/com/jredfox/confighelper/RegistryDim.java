@@ -58,7 +58,7 @@ public class RegistryDim extends RegistryInt{
 		{
 			for(int i=this.lower;i>=RegistryConfig.searchDimLower;i--)
 			{
-				if(!this.containsId(this.lower))
+				if(!this.containsId(this.lower) && !this.isVanillaId(this.lower))
 				{
 					return this.lower;
 				}

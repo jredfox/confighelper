@@ -126,7 +126,7 @@ public class Registry {
 	{
 		for(int i=this.newId; i <= this.limit; i++)
 		{
-			if(!this.containsId(this.newId))
+			if(!this.containsId(this.newId) && !this.isVanillaId(this.newId))
 			{
 				return this.newId;
 			}
@@ -176,11 +176,6 @@ public class Registry {
 	public boolean containsOrg(int org)
 	{
 		return this.reg.containsKey(org);
-	}
-	
-	public boolean isVanillaObj(Object obj)
-	{
-		return getClass(obj).getName().startsWith("net.minecraft.");
 	}
 
 	public boolean isVanillaId(int id) 
@@ -243,7 +238,7 @@ public class Registry {
 	
    	public String getDisplay(Registry.Entry e)
 	{
-		return "(name:" + e.name + ", " + (e.modName != null ? "mod:" + e.modName + ", " : "") + e.clazz.getName() + ")";
+		return "(name:" + e.name + ", " + (e.modName != null ? "mod:" + e.modName + ", " : "") + e.clazz.getName() + ", orgId:" + e.org + ")";
 	}
     
     public static enum DataType{
