@@ -1,0 +1,16 @@
+TODO:
+enchantments not writing suggestions and throwing a null point exception
+suggested ids are displaying minecraft for modded biome gen mutated
+if multiple mods exist in one jar and one is example mod it will display example mod
+logic for net.minecraft. is flawed fix it
+re-format suggested file to be more friendly
+
+After beta-1.1 test:
+clean up RegistryWriter more
+cachedClasses > dummy map
+resourceCache > dummy map
+packageManifests > dummy map
+Replace LaunchClassLoader.class by using the Launch.class to not use getClassBytes() twice
+implement id chunks(example:40-118) for writing free ids
+since id chunks redo integer max and min value searches for dimensions/providers
+convert to asm
