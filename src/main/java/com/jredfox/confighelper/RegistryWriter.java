@@ -15,8 +15,13 @@ import org.ralleytn.simple.json.JSONObject;
 import org.ralleytn.simple.json.JSONParseException;
 
 import com.evilnotch.lib.util.JavaUtil;
+import com.google.common.collect.ListMultimap;
 import com.jredfox.confighelper.Registry.DataType;
 
+import cpw.mods.fml.common.LoadController;
+import cpw.mods.fml.common.Loader;
+import cpw.mods.fml.common.ModContainer;
+import cpw.mods.fml.relauncher.ReflectionHelper;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.EntityList;
 import net.minecraft.potion.Potion;
@@ -231,8 +236,8 @@ public class RegistryWriter {
 		}
 	}
 	
-	public static void writeConflicts(BufferedWriter writer, Registry reg) throws IOException, JSONParseException
-	{
+	public static void writeConflicts(BufferedWriter writer, Registry reg) throws IOException, JSONParseException, IllegalArgumentException, IllegalAccessException
+	{	
 		JSONObject filejson = new JSONObject();
 		for(Map.Entry<Integer, List<Registry.Entry>> map : reg.reg.entrySet())
 		{
@@ -246,6 +251,8 @@ public class RegistryWriter {
 					JSONObject json = new JSONObject();
 					arr.add(json);
 					json.put("name", entry.name);
+					if(entry.modName != null && !entry.modName.equals("Minecraft"))
+						json.put("mod", entry.modName);
 					if(entry.replaced)
 						json.put("replaced", true);
 					if(entry.newId != entry.org)

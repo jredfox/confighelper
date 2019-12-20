@@ -1,9 +1,15 @@
 package com.jredfox.confighelper;
 
+import com.evilnotch.lib.util.JavaUtil;
+import com.google.common.collect.ListMultimap;
 import com.jredfox.confighelper.Registry.DataType;
 import com.jredfox.confighelper.proxy.ClientProxy;
 import com.jredfox.confighelper.proxy.ServerProxy;
 
+import cpw.mods.fml.common.LoadController;
+import cpw.mods.fml.common.Loader;
+import cpw.mods.fml.common.ModContainer;
+import cpw.mods.fml.relauncher.ReflectionHelper;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.potion.Potion;
 import net.minecraft.server.dedicated.DedicatedServer;
@@ -114,6 +120,37 @@ public class Registries {
 		{
 			ServerProxy.makeCrashReport(cat, msg);
 		}
+	}
+	
+	public static LoadController loadController;
+	public static ListMultimap<String, ModContainer> packageOwners;
+	
+	public static String getModName(Class clazz)
+	{
+		if(clazz.getName().startsWith("net.minecraft."))
+			return "Minecraft";
+		if(loadController == null || packageOwners == null)
+		{
+			try 
+			{
+				loadController = (LoadController) ReflectionHelper.findField(Loader.class, "modController").get(Loader.instance());
+				packageOwners = (ListMultimap<String, ModContainer>) ReflectionHelper.findField(LoadController.class, "packageOwners").get(loadController);
+			} 
+			catch (Throwable t)
+			{
+				t.printStackTrace();
+			}
+			if(packageOwners == null)
+				return null;
+		}
+		String name = clazz.getName();
+		String pakage = name.substring(0,JavaUtil.findLastChar(name, '.'));
+		if(packageOwners.containsKey(pakage))
+		{
+			ModContainer mod = (ModContainer) packageOwners.get(pakage).get(0);
+			return mod.getName();
+		}
+		return null;
 	}
 
 }

@@ -67,29 +67,5 @@ public class RegistryDim extends RegistryInt{
 		}
 		return -1;
 	}
-	
-	@Override
-	protected int getSuggestedId(Object obj, int org) 
-	{
-		if(org >= 0)
-			return super.getSuggestedId(obj, org);
-		else
-		{
-			if(this.isVanillaId(org) && !this.cvids.contains(org))	
-			{
-				this.cvids.add(org);
-				return org;
-			}
-			for(int i = this.lowerV; i >= RegistryConfig.searchDimLower; i--)
-			{
-				if(!this.isVanillaId(this.lowerV))
-				{
-					return this.lowerV--;
-				}
-				this.lowerV--;
-			}
-		}
-		return -1;
-	}
 
 }

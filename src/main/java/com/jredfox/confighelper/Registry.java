@@ -11,6 +11,7 @@ import java.util.Set;
 import com.jredfox.confighelper.proxy.ClientProxy;
 import com.jredfox.confighelper.proxy.ServerProxy;
 
+import cpw.mods.fml.common.Loader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.enchantment.Enchantment;
@@ -82,8 +83,7 @@ public class Registry {
 		Class clazz = getClass(obj);
 		boolean replaced = this.shouldReplace(clazz, id);
 		boolean conflicting = !list.isEmpty() || this.containsId(id);//needs to look at the live ids because of the newIds automation
-		int suggested = conflicting && replaced ? id : this.getSuggestedId(obj, id);
-		Entry entry = new Entry(clazz, id, suggested, replaced);
+		Entry entry = new Entry(clazz, id, replaced);
 		list.add(entry);
 		
 		if(conflicting && !replaced)
@@ -162,24 +162,6 @@ public class Registry {
 	{
 		return this.reg.containsKey(org);
 	}
-
-	/**
-	 * get the next virtual free id if you were going to write your modpack from scratch
-	 */
-	protected int getSuggestedId(Object obj, int org) 
-	{
-		if(this.isVanillaObj(obj))
-			return org;
-		for(int i=this.suggestedId;i<=this.limit;i++)
-		{
-			if(!this.isVanillaId(this.suggestedId))
-			{
-				return this.suggestedId++;
-			}
-			this.suggestedId++;
-		}
-		return -1;
-	}
 	
 	public boolean isVanillaObj(Object obj)
 	{
@@ -246,7 +228,7 @@ public class Registry {
 	
    	public String getDisplay(Registry.Entry e)
 	{
-		return "(name:" + e.name + ", " + e.clazz.getName() + ")";
+		return "(name:" + e.name + ", " + (e.modName != null ? "mod:" + e.modName + ", " : "") + e.clazz.getName() + ")";
 	}
     
     public static enum DataType{
@@ -266,17 +248,17 @@ public class Registry {
     {
     	public int org;//the original id
     	public int newId;//the id in memory
-    	public int suggested;//the suggested id for the modpack creator to use
     	public boolean replaced;
     	public Class clazz;
     	public String name;
+    	public String modName;
     	
-    	public Entry(Class c, int org, int suggested, boolean shouldReplace)
+    	public Entry(Class c, int org, boolean shouldReplace)
     	{
     		this.clazz = c;
+    		this.modName = Registries.getModName(c);
     		this.org = org;
     		this.newId = org;
-    		this.suggested = suggested;
     		this.replaced = shouldReplace;
     	}
     	

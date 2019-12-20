@@ -34,25 +34,5 @@ public abstract class RegistryInt extends Registry{
 	{
    		return "(" + e.name + ")";
 	}
-	
-	protected Set<Integer> cvids = new HashSet();
-	@Override
-	protected int getSuggestedId(Object obj, int org) 
-	{
-		if(this.isVanillaId(org) && !this.cvids.contains(org))
-		{
-			this.cvids.add(org);
-			return org;
-		}
-		for(int i=this.suggestedId;i<=this.limit;i++)
-		{
-			if(!this.isVanillaId(this.suggestedId))
-			{
-				return this.suggestedId++;
-			}
-			this.suggestedId++;
-		}
-		return -1;
-	}
 
 }
