@@ -65,5 +65,26 @@ public class RegistryProvider extends Registry{
 		}
 		return -1;
 	}
+	
+	@Override
+	public int getNextSuggestedId(int newId)
+	{
+		if(this.vanillaIds.contains(newId))
+			return newId;
+		if(newId >= 0)
+			return super.getNextSuggestedId(newId);
+		else
+		{
+			for(int i=this.lowerV;i>=RegistryConfig.searchDimLower;i--)
+			{
+				if(!this.isVanillaId(this.lowerV))
+				{
+					return this.lowerV--;
+				}
+				this.lowerV--;
+			}
+		}
+		return -1;
+	}
 
 }

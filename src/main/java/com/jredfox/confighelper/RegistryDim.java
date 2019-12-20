@@ -24,10 +24,10 @@ public class RegistryDim extends RegistryInt{
 	}
 	
 	@Override
-	public int getNextFreeId(int id)
+	public int getNextFreeId(int newId)
 	{
-		if(id >= 0)
-			return super.getNextFreeId(id);
+		if(newId >= 0)
+			return super.getNextFreeId(newId);
 		else
 		{
 			for(int i=this.lowerFreeId;i>=RegistryConfig.searchDimLower;i--)
@@ -63,6 +63,27 @@ public class RegistryDim extends RegistryInt{
 					return this.lower;
 				}
 				this.lower--;
+			}
+		}
+		return -1;
+	}
+	
+	@Override
+	public int getNextSuggestedId(int newId)
+	{
+		if(this.vanillaIds.contains(newId))
+			return newId;
+		if(newId >= 0)
+			return super.getNextSuggestedId(newId);
+		else
+		{
+			for(int i=this.lowerV;i>=RegistryConfig.searchDimLower;i--)
+			{
+				if(!this.isVanillaId(this.lowerV))
+				{
+					return this.lowerV--;
+				}
+				this.lowerV--;
 			}
 		}
 		return -1;

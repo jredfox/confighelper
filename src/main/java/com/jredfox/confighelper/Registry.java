@@ -140,7 +140,7 @@ public class Registry {
 	 * returns the next free id for users to use in the config
 	 * WARNING DO NOT CALL TILL AFTER THE REGISTRIES ARE DONE
 	 */
-	public int getNextFreeId(int id)
+	public int getNextFreeId(int newId)
 	{
 		for(int i=this.freeId; i <= this.limit; i++)
 		{
@@ -149,6 +149,21 @@ public class Registry {
 				return this.freeId++;
 			}
 			this.freeId++;
+		}
+		return -1;
+	}
+	
+	public int getNextSuggestedId(int newId)
+	{
+		if(this.vanillaIds.contains(newId))
+			return newId;
+		for(int i=this.suggestedId; i <= this.limit; i++)
+		{
+			if(!this.isVanillaId(this.suggestedId))
+			{
+				return this.suggestedId++;
+			}
+			this.suggestedId++;
 		}
 		return -1;
 	}
@@ -264,7 +279,7 @@ public class Registry {
     	
     	public void setName(String str)
     	{
-    		this.name = str;
+    		this.name = "" + str;
     	}
     	
     	@Override

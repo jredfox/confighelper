@@ -129,7 +129,7 @@ public class Registries {
 	{
 		if(clazz.getName().startsWith("net.minecraft."))
 			return "Minecraft";
-		if(loadController == null || packageOwners == null)
+		if(packageOwners == null)
 		{
 			try 
 			{

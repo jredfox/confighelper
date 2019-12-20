@@ -7,8 +7,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.ralleytn.simple.json.JSONArray;
 import org.ralleytn.simple.json.JSONObject;
@@ -175,29 +178,50 @@ public class RegistryWriter {
 	
 	private static void writeSuggested(BufferedWriter writer, Registry reg) throws IOException
 	{
-		List<Registry.Entry> entries = new ArrayList();
+		Map<String,List<Registry.Entry>> entries = new TreeMap();//modname, list of entries
+		//sort the entries based on mod
 		for(List<Registry.Entry> list : reg.reg.values())
 		{
-			entries.addAll(list);
-		}
-		Collections.sort(entries, new Comparator()
-		{
-			@Override
-			public int compare(Object arg0, Object arg1) 
+			for(Registry.Entry entry : list)
 			{
-				Integer i1 = ((Registry.Entry)arg0).suggested;
-				Integer i2 = ((Registry.Entry)arg1).suggested;
-				return i1.compareTo(i2);
+				String modname = entry.modName;
+				List<Registry.Entry> map = entries.get(modname);
+				if(map == null)
+				{
+					map = new ArrayList<Registry.Entry>();
+					entries.put(modname, map);
+				}
+				map.add(entry);
 			}
-		});
-		
-		for(Registry.Entry e : entries)
+		}
+		//sort the list of mod entries by name
+		for(List<Registry.Entry> list : entries.values())
 		{
-			if(e.replaced)
-				System.out.println("Passable Id Conflict for: " + reg.dataType + ", id:" + e.org + ", " + e.clazz.getName());
-			if(!RegistryConfig.showVanillaIds && reg.isVanillaId(e.suggested) || e.replaced)
-				continue;
-			writer.write(e.suggested + " " + reg.getDisplay(e) + "\r\n");
+			Collections.sort(list, new Comparator()
+			{
+				@Override
+				public int compare(Object arg0, Object arg1) 
+				{
+					String i1 = ((Registry.Entry)arg0).name;
+					String i2 = ((Registry.Entry)arg1).name;
+					return i1.compareTo(i2);
+				}
+			});
+		}
+		
+		for(Map.Entry<String, List<Registry.Entry>> map : entries.entrySet())
+		{
+			String modName = map.getKey();
+			List<Registry.Entry> list = map.getValue();
+			for(Registry.Entry e : list)
+			{
+				if(e.replaced)
+					System.out.println("Passable Id Conflict for: " + reg.dataType + ", id:" + e.org + ", " + e.clazz.getName());
+				if(!RegistryConfig.showVanillaIds && reg.isVanillaId(e.newId) || e.replaced)
+					continue;
+				
+				writer.write(reg.getNextSuggestedId(e.newId) + " " + reg.getDisplay(e) + "\r\n");
+			}
 		}
 	}
 
@@ -256,7 +280,7 @@ public class RegistryWriter {
 					if(entry.replaced)
 						json.put("replaced", true);
 					if(entry.newId != entry.org)
-						json.put("freeId", reg.getNextFreeId(entry.org));
+						json.put("freeId", reg.getNextFreeId(entry.newId));
 					json.put("memoryIndex", entry.newId);
 					json.put("class", entry.clazz.getName());
 				}
