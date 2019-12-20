@@ -7,10 +7,6 @@ import com.jredfox.confighelper.Registry.DataType;
 import net.minecraftforge.common.DimensionManager;
 
 public class RegistryDim extends RegistryInt{
-
-	public int lower = -2;//lower newId index
-	public int lowerV = -2;//lower suggestedId index
-	public int lowerFreeId = -2;
 	
 	public RegistryDim()
 	{
@@ -23,6 +19,27 @@ public class RegistryDim extends RegistryInt{
 		return RegistryConfig.passableDimIds;
 	}
 	
+	public int lower = -2;//lower newId index
+	@Override
+	public int getNewId(int org) 
+	{
+		if(org >= 0)
+			return super.getNewId(org);
+		else
+		{
+			for(int i=this.lower;i>=RegistryConfig.searchDimLower;i--)
+			{
+				if(!this.containsId(this.lower) && !this.isVanillaId(this.lower))
+				{
+					return this.lower;
+				}
+				this.lower--;
+			}
+		}
+		return -1;
+	}
+	
+	public int lowerFreeId = -2;
 	@Override
 	public int getNextFreeId(int newId)
 	{
@@ -45,29 +62,11 @@ public class RegistryDim extends RegistryInt{
 	@Override
 	public void resetFreeIds()
 	{
-		super.resetFreeIds();
+		this.freeId = 2;
 		this.lowerFreeId = -2;
 	}
-
-	@Override
-	public int getNewId(int org) 
-	{
-		if(org >= 0)
-			return super.getNewId(org);
-		else
-		{
-			for(int i=this.lower;i>=RegistryConfig.searchDimLower;i--)
-			{
-				if(!this.containsId(this.lower) && !this.isVanillaId(this.lower))
-				{
-					return this.lower;
-				}
-				this.lower--;
-			}
-		}
-		return -1;
-	}
 	
+	public int lowerV = -2;//lower suggestedId index
 	@Override
 	public int getNextSuggestedId(int newId)
 	{

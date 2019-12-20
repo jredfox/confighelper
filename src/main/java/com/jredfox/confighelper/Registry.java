@@ -24,8 +24,6 @@ public class Registry {
 	
 	public Map<Integer,List<Registry.Entry>> reg = new LinkedHashMap<Integer,List<Registry.Entry>>();
 	public Set<Integer> vanillaIds = new HashSet();//the full list of vanilla ids per Registry
-	public int suggestedId;//the virtual suggested id index
-	public int newId;//the newId(semi-auto) index
 	public int limit;//the registry limit
 	public DataType dataType;//the data type this registry is for
 	public boolean strict;//turn this on to automatically crash on the first sign of conflict
@@ -119,6 +117,7 @@ public class Registry {
 		return false;
 	}
 	
+	public int newId;//the newId(semi-auto) index
 	/**
 	 * get the next newId in case the original id is conflicting
 	 */
@@ -153,6 +152,7 @@ public class Registry {
 		return -1;
 	}
 	
+	public int suggestedId;//the virtual suggested id index
 	public int getNextSuggestedId(int newId)
 	{
 		if(this.vanillaIds.contains(newId))
