@@ -1,6 +1,5 @@
 package com.jredfox.confighelper;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -8,17 +7,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.jredfox.confighelper.proxy.ClientProxy;
-import com.jredfox.confighelper.proxy.ServerProxy;
-
 import cpw.mods.fml.common.Loader;
-import net.minecraft.client.Minecraft;
-import net.minecraft.crash.CrashReport;
 import net.minecraft.enchantment.Enchantment;
-import net.minecraft.entity.EntityList;
-import net.minecraft.launchwrapper.Launch;
 import net.minecraft.potion.Potion;
 import net.minecraft.world.biome.BiomeGenBase;
+import net.minecraft.world.biome.BiomeGenMutated;
 
 public class Registry {
 	
@@ -89,11 +82,11 @@ public class Registry {
 			entry.newId = this.getNewId(id);
 			if(list.size() > 1)
 			{
-				System.out.println(this.dataType + " conflcit found for id:" + entry.org + "=" + list);
+//				System.out.println(this.dataType + " conflcit found for id:" + entry.org + "=" + list);
 			}
 			else
 			{
-				System.out.println("id re-assigment:" + entry.org + ">" + entry.newId);
+				System.out.println("id re-assigment:" + entry.org + " > " + entry.newId);
 			}
 			Registries.hasConflicts = true;
 			if(this.canCrash())
@@ -266,7 +259,6 @@ public class Registry {
     	public Entry(Class c, int org, boolean shouldReplace)
     	{
     		this.clazz = c;
-    		this.modName = Registries.getModName(c);
     		this.org = org;
     		this.newId = org;
     		this.replaced = shouldReplace;
@@ -296,6 +288,11 @@ public class Registry {
     	{
     		return ((Integer)this.newId).hashCode();
     	}
+
+		public void setModName()
+		{
+			this.modName = Registries.getModName(this.clazz);
+		}
     }
     
     @Override

@@ -126,7 +126,7 @@ public class Registries {
 	public static ListMultimap<String, ModContainer> packageOwners;
 	
 	public static String getModName(Class clazz)
-	{
+	{		
 		if(clazz.getName().startsWith("net.minecraft."))
 			return "Minecraft";
 		if(packageOwners == null)
@@ -141,16 +141,26 @@ public class Registries {
 				t.printStackTrace();
 			}
 			if(packageOwners == null)
-				return null;
+				return "packageOwners-" + null;
 		}
 		String name = clazz.getName();
 		String pakage = name.substring(0,JavaUtil.findLastChar(name, '.'));
 		if(packageOwners.containsKey(pakage))
 		{
-			ModContainer mod = (ModContainer) packageOwners.get(pakage).get(0);
-			return mod.getName();
+			ModContainer mod = packageOwners.get(pakage).get(0);
+			if(mod.getModId().equals("examplemod"))
+			{
+				for(ModContainer c : packageOwners.get(pakage))
+				{
+					if(!c.getModId().equals("examplemod") && !c.getModId().equals("minecraft"))
+					{
+						return c.getName();
+					}
+				}
+			}
+			return "" + mod.getName();
 		}
-		return null;
+		return "" + null;
 	}
 
 }

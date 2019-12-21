@@ -30,6 +30,7 @@ import net.minecraft.entity.EntityList;
 import net.minecraft.potion.Potion;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.biome.BiomeGenBase;
+import net.minecraft.world.biome.BiomeGenMutated;
 import net.minecraftforge.common.DimensionManager;
 
 public class RegistryWriter {
@@ -104,6 +105,16 @@ public class RegistryWriter {
 			for(Registry.Entry entry : li)
 			{
 				entry.setName(grabName(reg.dataType, entry.newId));
+				if(reg.dataType == DataType.BIOME)
+				{
+					BiomeGenBase biome = BiomeGenBase.biomeList[entry.newId];
+					Class c = biome != null ? biome.getBiomeClass() : entry.clazz;//for biomes that are not registered such as jungles but, are in my registry
+					entry.modName = Registries.getModName(c);
+				}
+				else
+				{
+					entry.setModName();
+				}
 			}
 		}
 	}
@@ -348,6 +359,7 @@ public class RegistryWriter {
 			for(Registry.Entry entry : li)
 			{
 				entry.setName(Registries.datawatchers.isVanillaId(entry.newId) ? "vanilla" : "modded");
+				entry.setModName();
 			}
 		}
 	}
