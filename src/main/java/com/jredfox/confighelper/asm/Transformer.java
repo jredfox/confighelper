@@ -36,11 +36,11 @@ public class Transformer implements IClassTransformer{
 			System.out.println("finding:" + fileClass + ", stream valid:" + (stream != null) );
 			try 
 			{
-				return IOUtils.toByteArray(stream);
+//				return IOUtils.toByteArray(stream);
 			}
-			catch (IOException e) 
+			catch (Throwable t) 
 			{
-				e.printStackTrace();
+				t.printStackTrace();
 			}
 		}
 		return bytes;

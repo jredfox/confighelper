@@ -36,9 +36,14 @@ public class Registries {
 	 */
 	public static Registry datawatchers;
 	
-	public static int registerBiome(BiomeGenBase biome, int id)
+	public static int registerBiome(BiomeGenBase biome, int id, boolean reg)
 	{
-		return register(biome, id, biomes);
+		if(reg || !reg && RegistryConfig.regUnregBiomes)
+		{
+			return register(biome, id, biomes);
+		}
+		System.out.println("Returning Original Biome Id as it's flagged to not be registered:" + id);
+		return id;
 	}
 	
 	public static int registerProvider(Class providerObj, int providerId)

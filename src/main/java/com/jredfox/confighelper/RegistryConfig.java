@@ -22,6 +22,7 @@ public class RegistryConfig {
 	
 	public static boolean showVanillaIds;
 	public static boolean configMode = true;
+	public static boolean regUnregBiomes = true;
 	public static String[] passable = new String[0];
 	public static Set<Integer> passableDimIds;
 	public static Set<Integer> passableWatcherIds;
@@ -30,6 +31,7 @@ public class RegistryConfig {
 	{
 		Configuration cfg = new Configuration(new File("./config/confighelper/main.cfg"));
 		cfg.load();
+		regUnregBiomes = cfg.getBoolean("regUnregBiomes", "general", regUnregBiomes, "will prevent future biome conflicts if un registerd biomes get registerd later");
 		showVanillaIds = cfg.getBoolean("showVanillaIds", "general", showVanillaIds, "disable this to only show modded ids in suggestion files");
 		configMode = cfg.getBoolean("configMode", "general", configMode, "disable this when your modpack has been configured properly so it runs faster");
 		passable = cfg.getStringList("conflicts", "passable", passable, "passable Classes that are allowed to conflict(replace) a registry object");

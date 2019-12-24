@@ -223,6 +223,7 @@ public class RegistryWriter {
 		for(Map.Entry<String, List<Registry.Entry>> map : entries.entrySet())
 		{
 			String modName = map.getKey();
+			writer.write(modName + "\r\n");
 			List<Registry.Entry> list = map.getValue();
 			for(Registry.Entry e : list)
 			{
@@ -233,6 +234,7 @@ public class RegistryWriter {
 				
 				writer.write(reg.getNextSuggestedId(e.newId) + " " + reg.getDisplay(e) + "\r\n");
 			}
+			writer.write("\r\n");
 		}
 	}
 

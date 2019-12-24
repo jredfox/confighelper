@@ -172,7 +172,7 @@ public abstract class BiomeGenBase
     }
     public BiomeGenBase(int id, boolean register)
     {
-    	id = Registries.registerBiome(this, id);
+    	id = Registries.registerBiome(this, id, register);
         this.topBlock = Blocks.grass;
         this.field_150604_aj = 0;
         this.fillerBlock = Blocks.dirt;

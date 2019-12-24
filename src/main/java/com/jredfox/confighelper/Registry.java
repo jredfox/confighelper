@@ -82,7 +82,7 @@ public class Registry {
 			entry.newId = this.getNewId(id);
 			if(list.size() > 1)
 			{
-//				System.out.println(this.dataType + " conflcit found for id:" + entry.org + "=" + list);
+				System.out.println(this.dataType + " conflcit found for id:" + entry.org + "=" + list);
 			}
 			else
 			{
@@ -231,7 +231,7 @@ public class Registry {
 	
    	public String getDisplay(Registry.Entry e)
 	{
-		return "(name:" + e.name + ", " + (e.modName != null ? "mod:" + e.modName + ", " : "") + e.clazz.getName() + ", orgId:" + e.org + ")";
+		return "(name:" + e.name + ", " + e.clazz.getName() + ", orgId:" + e.org + ")";
 	}
     
     public static enum DataType{
@@ -280,7 +280,8 @@ public class Registry {
     	{
     		if(!(obj instanceof Entry))
     			return false;
-    		return this.newId == ((Entry)obj).newId;
+    		Entry e = (Entry)obj;
+    		return this.org == e.org && this.clazz.equals(e.clazz) && this.replaced == e.replaced;
     	}
     	
     	@Override
