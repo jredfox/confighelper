@@ -128,60 +128,10 @@ public class RegistryWriter {
 		{
 			for(Registry.Entry entry : li)
 			{
-				entry.setName(grabName(reg.dataType, entry.newId));
-				if(reg.dataType == DataType.BIOME)
-				{
-					BiomeGenBase biome = BiomeGenBase.biomeList[entry.newId];
-					Class c = biome != null ? biome.getBiomeClass() : entry.clazz;//for biomes that are not registered such as jungles but, are in my registry
-					entry.modName = Registries.getModName(c);
-				}
-				else
-				{
-					entry.setModName();
-				}
+				reg.setName(entry);
+				reg.setModName(entry);
 			}
 		}
-	}
-	
-	private static String grabName(DataType dataType, int newId)
-	{
-		try
-		{
-			if(dataType == DataType.BIOME)
-			{
-				return BiomeGenBase.biomeList[newId].biomeName;
-			}
-			else if(dataType == DataType.POTION)
-			{
-				return Potion.potionTypes[newId].getName();
-			}
-			else if(dataType == DataType.ENCHANTMENT)
-			{
-				return Enchantment.enchantmentsList[newId].getName();
-			}
-			else if(dataType == DataType.PROVIDER)
-			{
-				WorldProvider provider = DimensionManager.providers.get(newId).newInstance();
-				return provider.getDimensionName();
-			}
-			else if(dataType == DataType.DIMENSION)
-			{
-				return Registries.dimensions.isVanillaId(newId) ? "vanilla" : "modded";
-			}
-			else if(dataType == DataType.ENTITY)
-			{
-				return EntityList.getStringFromID(newId);
-			}
-			else if(dataType == DataType.DATAWATCHER)
-			{
-				return Registries.datawatchers.isVanillaId(newId) ? "vanilla" : "modded";
-			}
-		}
-		catch(Throwable t)
-		{
-			t.printStackTrace();
-		}
-		return null;
 	}
 
 	public static void outputSuggestions()
@@ -380,14 +330,7 @@ public class RegistryWriter {
 	
 	private static void grabWatcherNames()
 	{
-		for(List<Registry.Entry> li : Registries.datawatchers.reg.values())
-		{
-			for(Registry.Entry entry : li)
-			{
-				entry.setName(Registries.datawatchers.isVanillaId(entry.newId) ? "vanilla" : "modded");
-				entry.setModName();
-			}
-		}
+		grabNames(Registries.datawatchers);
 	}
 	
 	private static void outputWatcherSuggestions() 

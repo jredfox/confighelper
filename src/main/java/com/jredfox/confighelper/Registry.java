@@ -8,10 +8,13 @@ import java.util.Map;
 import java.util.Set;
 
 import com.evilnotch.lib.util.JavaUtil;
+import com.jredfox.confighelper.Registry.DataType;
 
 import cpw.mods.fml.common.Loader;
 import net.minecraft.enchantment.Enchantment;
+import net.minecraft.entity.EntityList;
 import net.minecraft.potion.Potion;
+import net.minecraft.world.WorldProvider;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraft.world.biome.BiomeGenMutated;
 
@@ -75,7 +78,7 @@ public class Registry {
 		
 		Class clazz = getClass(obj);
 		boolean conflicting = this.containsId(id);
-		Entry entry = new Entry(clazz, id);
+		Entry entry = new Entry(obj, clazz, id);
 		if(this.isPassableSelf(clazz) && list.contains(entry))
 		{
 			Registry.Entry old = list.get(list.indexOf(entry));
@@ -238,6 +241,57 @@ public class Registry {
 	{
 		return "(name:" + e.name + ", " + e.clazz.getName() + ", orgId:" + e.org + ")";
 	}
+   	
+   	public void setName(Registry.Entry e)
+   	{
+   		e.setName(grabName(e));
+   	}
+   	
+   	public void setModName(Registry.Entry e)
+   	{
+   		e.setModName();
+   	}
+   	
+	private String grabName(Registry.Entry e)
+	{
+		try
+		{
+			if(this.dataType == DataType.BIOME)
+			{
+				return ((BiomeGenBase)e.obj).biomeName;
+			}
+			else if(this.dataType == DataType.POTION)
+			{
+				return ((Potion)e.obj).getName();
+			}
+			else if(this.dataType == DataType.ENCHANTMENT)
+			{
+				return ((Enchantment)e.obj).getName();
+			}
+			else if(this.dataType == DataType.PROVIDER)
+			{
+				WorldProvider provider = (WorldProvider) ((Class)e.obj).newInstance();
+				return provider.getDimensionName();
+			}
+			else if(this.dataType == DataType.DIMENSION)
+			{
+				return Registries.dimensions.isVanillaId(e.newId) ? "vanilla" : "modded";
+			}
+			else if(this.dataType == DataType.ENTITY)
+			{
+				return EntityList.getStringFromID(e.newId);
+			}
+			else if(this.dataType == DataType.DATAWATCHER)
+			{
+				return Registries.datawatchers.isVanillaId(e.newId) ? "vanilla" : "modded";
+			}
+		}
+		catch(Throwable t)
+		{
+			t.printStackTrace();
+		}
+		return null;
+	}
     
     public static enum DataType{
     	BIOME(),
@@ -256,13 +310,15 @@ public class Registry {
     {
     	public int org;//the original id
     	public int newId;//the id in memory
-    	public boolean replaced;
-    	public Class clazz;
+    	public boolean replaced;//if it replaces an index in memory
+    	public Class clazz;// the class of the object may be wrong if it's a wrapper class
     	public String name;
     	public String modName;
+    	public Object obj;
     	
-    	public Entry(Class c, int org)
+    	public Entry(Object obj, Class c, int org)
     	{
+    		this.obj = obj;
     		this.clazz = c;
     		this.org = org;
     		this.newId = org;
@@ -273,7 +329,21 @@ public class Registry {
     		this.name = "" + str;
     	}
     	
-    	@Override
+		public void setModName()
+		{
+			this.modName = Registries.getModName(this.getDataTypeClass());
+		}
+    	
+    	public Class getDataTypeClass() 
+    	{
+			if(this.obj instanceof BiomeGenBase)
+			{
+				return ((BiomeGenBase)this.obj).getBiomeClass();
+			}
+			return this.clazz;
+		}
+
+		@Override
     	public String toString()
     	{
     		return "(name:" + this.name + ",newId:" + this.newId + ",class:" + this.clazz.getName() + ")";
@@ -293,11 +363,6 @@ public class Registry {
     	{
     		return ((Integer)this.newId).hashCode();
     	}
-
-		public void setModName()
-		{
-			this.modName = Registries.getModName(this.clazz);
-		}
     }
     
     @Override
