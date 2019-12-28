@@ -20,6 +20,7 @@ import org.ralleytn.simple.json.JSONParseException;
 import com.evilnotch.lib.util.JavaUtil;
 import com.google.common.collect.ListMultimap;
 import com.jredfox.confighelper.Registry.DataType;
+import com.jredfox.confighelper.Registry.Entry;
 
 import cpw.mods.fml.common.LoadController;
 import cpw.mods.fml.common.Loader;
@@ -162,19 +163,35 @@ public class RegistryWriter {
 		for(Map.Entry<String, List<Registry.Entry>> map : entries.entrySet())
 		{
 			String modName = map.getKey();
-			writer.write(modName + "\r\n");
 			List<Registry.Entry> list = map.getValue();
+			if(!canSuggestList(reg, list))
+				continue;
+			writer.write(modName + "\r\n");
 			for(Registry.Entry e : list)
 			{
-				if(e.replaced)
-					System.out.println("Passable Id Conflict for: " + reg.dataType + ", id:" + e.org + ", " + e.clazz.getName());
-				if(!RegistryConfig.showVanillaIds && reg.isVanillaId(e.newId) || e.replaced)
+				if(!canSuggest(reg, e))
 					continue;
-				
 				writer.write(reg.getNextSuggestedId(e.newId) + " " + reg.getDisplay(e) + "\r\n");
 			}
 			writer.write("\r\n");
 		}
+	}
+
+	public static boolean canSuggestList(Registry reg, List<Registry.Entry> list) 
+	{
+		for(Registry.Entry e : list)
+		{
+			if(canSuggest(reg, e))
+				return true;
+		}
+		return false;
+	}
+
+	private static boolean canSuggest(Registry reg, Entry e) 
+	{
+		if(e.replaced)
+			return false;
+		return RegistryConfig.showVanillaIds || !reg.isVanillaId(e.newId);
 	}
 
 	public static void outputConflictedIds()
