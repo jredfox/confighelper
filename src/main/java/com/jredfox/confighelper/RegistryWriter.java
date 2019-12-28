@@ -78,29 +78,6 @@ public class RegistryWriter {
 			t.printStackTrace();
 		}
 	}
-	
-	/**
-	 * outputs DimensionRegistry providers with keepLoaded boolean
-	 */
-	private static void outputProvider() 
-	{
-		try 
-		{
-			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(dirDimensions, "providers-keeploaded.txt")));
-			for(Map.Entry<Integer, Class<? extends WorldProvider>> map : DimensionManager.providers.entrySet())
-			{
-				int providerId = map.getKey();
-				Class c = map.getValue();
-				boolean keepLoaded = DimensionManager.spawnSettings.get(providerId);
-				writer.write(c.getName() + "<" + providerId + ">" + "=" +  keepLoaded + "\r\n");
-			}
-			writer.close();
-		}
-		catch (Throwable t) 
-		{
-			t.printStackTrace();
-		}
-	}
 
 	public static void outputWatcher()
 	{
@@ -313,6 +290,29 @@ public class RegistryWriter {
 		{
 			if(!Registries.dimensions.containsOrg(i) && !Registries.providers.containsOrg(i))
 				writer.write(i + "\r\n");
+		}
+	}
+	
+	/**
+	 * outputs DimensionRegistry providers with keepLoaded boolean
+	 */
+	private static void outputProvider() 
+	{
+		try 
+		{
+			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(dirDimensions, "providers-keeploaded.txt")));
+			for(Map.Entry<Integer, Class<? extends WorldProvider>> map : DimensionManager.providers.entrySet())
+			{
+				int providerId = map.getKey();
+				Class c = map.getValue();
+				boolean keepLoaded = DimensionManager.spawnSettings.get(providerId);
+				writer.write(c.getName() + "<" + providerId + ">" + "=" +  keepLoaded + "\r\n");
+			}
+			writer.close();
+		}
+		catch (Throwable t) 
+		{
+			t.printStackTrace();
 		}
 	}
 	

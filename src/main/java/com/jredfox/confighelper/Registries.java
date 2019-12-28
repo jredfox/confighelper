@@ -10,10 +10,14 @@ import cpw.mods.fml.common.LoadController;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.ModContainer;
 import cpw.mods.fml.relauncher.ReflectionHelper;
+import net.minecraft.block.Block;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.Entity;
+import net.minecraft.item.Item;
 import net.minecraft.potion.Potion;
 import net.minecraft.server.dedicated.DedicatedServer;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.WorldProvider;
 import net.minecraft.world.biome.BiomeGenBase;
 
 /**
@@ -47,16 +51,6 @@ public class Registries {
 		return id;
 	}
 	
-	public static int registerProvider(Class providerObj, int providerId)
-	{
-		return register(providerObj, providerId, providers);
-	}
-	
-	public static int registerDimension(int dimId)
-	{
-		return register(Integer.class, dimId, dimensions);
-	}
-	
 	public static int registerPotion(Potion p, int id)
 	{
 		return register(p, id, potions);
@@ -65,6 +59,16 @@ public class Registries {
 	public static int registerEnchantment(Enchantment ench, int id)
 	{
 		return register(ench, id, enchantments);
+	}
+	
+	public static int registerProvider(Class<? extends WorldProvider> providerObj, int providerId)
+	{
+		return register(providerObj, providerId, providers);
+	}
+	
+	public static int registerDimension(int dimId)
+	{
+		return register(Integer.class, dimId, dimensions);
 	}
 	
 	public static int registerEntity(Class<? extends Entity> entity, String entityName, int id) 
@@ -82,17 +86,17 @@ public class Registries {
 		return reg.reg(obj, id);
 	}
 	
-	public static int registerBlock(Object obj, int id)
+	public static int registerBlock(Block obj, int id)
 	{
 		throw new RuntimeException("Blocks are already Automated Ids");
 	}
 	
-	public static int registerItem(Object obj, int id)
+	public static int registerItem(Item obj, int id)
 	{
 		throw new RuntimeException("Items are already Automated Ids");
 	}
 	
-	public static int registerTileEntity(Object obj, int id)
+	public static int registerTileEntity(TileEntity obj, int id)
 	{
 		throw new RuntimeException("Tile Entitities are already Automated Ids");
 	}
@@ -130,7 +134,9 @@ public class Registries {
 	
 	public static LoadController loadController;
 	public static ListMultimap<String, ModContainer> packageOwners;
-	
+	/**
+	 * get a modname from a class object is pretty expensive use with caution
+	 */
 	public static String getModName(Class clazz)
 	{		
 		if(clazz.getName().startsWith("net.minecraft."))
