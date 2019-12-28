@@ -114,24 +114,12 @@ public class RegistryWriter {
 	
 	private static void grabNames()
 	{
-		grabNames(Registries.biomes);
-		grabNames(Registries.potions);
-		grabNames(Registries.enchantments);
-		grabNames(Registries.dimensions);
-		grabNames(Registries.providers);
-		grabNames(Registries.entities);
-	}
-	
-	private static void grabNames(Registry reg)
-	{
-		for(List<Registry.Entry> li : reg.reg.values())
-		{
-			for(Registry.Entry entry : li)
-			{
-				reg.setName(entry);
-				reg.setModName(entry);
-			}
-		}
+		Registries.biomes.grabNames();
+		Registries.potions.grabNames();
+		Registries.enchantments.grabNames();
+		Registries.dimensions.grabNames();
+		Registries.providers.grabNames();
+		Registries.entities.grabNames();
 	}
 
 	public static void outputSuggestions()
@@ -330,7 +318,7 @@ public class RegistryWriter {
 	
 	private static void grabWatcherNames()
 	{
-		grabNames(Registries.datawatchers);
+		Registries.datawatchers.grabNames();
 	}
 	
 	private static void outputWatcherSuggestions() 

@@ -244,6 +244,15 @@ public class Registry {
 		return "(name:" + e.name + ", " + e.clazz.getName() + ", orgId:" + e.org + ")";
 	}
    	
+   	/**
+   	 * grabs the registry names and mod names of the Registry.Entry objects
+   	 */
+   	public void grabNames()
+   	{
+   		this.setNames();
+   		this.setModNames();
+   	}
+   	
    	public void setNames()
    	{
    		for(List<Registry.Entry> li : this.reg.values())
