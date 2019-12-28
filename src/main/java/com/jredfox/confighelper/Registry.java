@@ -78,7 +78,7 @@ public class Registry {
 		
 		Class clazz = getClass(obj);
 		boolean conflicting = this.containsId(id);
-		Entry entry = new Entry(obj, clazz, id);
+		Entry entry = new Entry(this.dataType, obj, clazz, id);
 		if(this.isPassableSelf(clazz) && list.contains(entry))
 		{
 			Registry.Entry old = list.get(list.indexOf(entry));
@@ -219,6 +219,8 @@ public class Registry {
 	
 	public static Class getClass(Object entry)
 	{
+		if(entry instanceof EntryEntity)
+			return ((EntryEntity)entry).clazz;
 		if(entry instanceof Class)
 			return (Class) entry;
 		return entry.getClass();
@@ -242,56 +244,19 @@ public class Registry {
 		return "(name:" + e.name + ", " + e.clazz.getName() + ", orgId:" + e.org + ")";
 	}
    	
-   	public void setName(Registry.Entry e)
+   	public void setNames()
    	{
-   		e.setName(grabName(e));
+   		for(List<Registry.Entry> li : this.reg.values())
+   			for(Registry.Entry e : li)
+   				e.setName();
    	}
    	
-   	public void setModName(Registry.Entry e)
+   	public void setModNames()
    	{
-   		e.setModName();
+   		for(List<Registry.Entry> li : this.reg.values())
+   			for(Registry.Entry e : li)
+   				e.setModName();
    	}
-   	
-	private String grabName(Registry.Entry e)
-	{
-		try
-		{
-			if(this.dataType == DataType.BIOME)
-			{
-				return ((BiomeGenBase)e.obj).biomeName;
-			}
-			else if(this.dataType == DataType.POTION)
-			{
-				return ((Potion)e.obj).getName();
-			}
-			else if(this.dataType == DataType.ENCHANTMENT)
-			{
-				return ((Enchantment)e.obj).getName();
-			}
-			else if(this.dataType == DataType.PROVIDER)
-			{
-				WorldProvider provider = (WorldProvider) ((Class)e.obj).newInstance();
-				return provider.getDimensionName();
-			}
-			else if(this.dataType == DataType.DIMENSION)
-			{
-				return Registries.dimensions.isVanillaId(e.newId) ? "vanilla" : "modded";
-			}
-			else if(this.dataType == DataType.ENTITY)
-			{
-				return EntityList.getStringFromID(e.newId);
-			}
-			else if(this.dataType == DataType.DATAWATCHER)
-			{
-				return Registries.datawatchers.isVanillaId(e.newId) ? "vanilla" : "modded";
-			}
-		}
-		catch(Throwable t)
-		{
-			t.printStackTrace();
-		}
-		return null;
-	}
     
     public static enum DataType{
     	BIOME(),
@@ -308,25 +273,68 @@ public class Registry {
     
     public static class Entry
     {
+    	public DataType dataType;//the dataType of the object
+    	public Object obj;//the object to register
     	public int org;//the original id
     	public int newId;//the id in memory
     	public boolean replaced;//if it replaces an index in memory
     	public Class clazz;// the class of the object may be wrong if it's a wrapper class
-    	public String name;
-    	public String modName;
-    	public Object obj;
+    	public String name;//display name
+    	public String modName;//display mod name
     	
-    	public Entry(Object obj, Class c, int org)
+    	public Entry(DataType type, Object obj, Class c, int org)
     	{
+       		this.dataType = type;
     		this.obj = obj;
     		this.clazz = c;
     		this.org = org;
     		this.newId = org;
     	}
     	
-    	public void setName(String str)
+    	public void setName()
     	{
-    		this.name = "" + str;
+    		this.name = "" + this.grabName();
+    	}
+    	
+    	private String grabName()
+    	{
+    		try
+    		{
+    			if(this.dataType == DataType.BIOME)
+    			{
+    				return ((BiomeGenBase)this.obj).biomeName;
+    			}
+    			else if(this.dataType == DataType.POTION)
+    			{
+    				return ((Potion)this.obj).getName();
+    			}
+    			else if(this.dataType == DataType.ENCHANTMENT)
+    			{
+    				return ((Enchantment)this.obj).getName();
+    			}
+    			else if(this.dataType == DataType.PROVIDER)
+    			{
+    				WorldProvider provider = (WorldProvider) ((Class)this.obj).newInstance();
+    				return provider.getDimensionName();
+    			}
+    			else if(this.dataType == DataType.DIMENSION)
+    			{
+    				return Registries.dimensions.isVanillaId(this.newId) ? "vanilla" : "modded";
+    			}
+    			else if(this.dataType == DataType.ENTITY)
+    			{
+    				return ((EntryEntity)this.obj).name;
+    			}
+    			else if(this.dataType == DataType.DATAWATCHER)
+    			{
+    				return Registries.datawatchers.isVanillaId(this.newId) ? "vanilla" : "modded";
+    			}
+    		}
+    		catch(Throwable t)
+    		{
+    			t.printStackTrace();
+    		}
+    		return null;
     	}
     	
 		public void setModName()

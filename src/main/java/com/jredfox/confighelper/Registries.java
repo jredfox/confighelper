@@ -11,6 +11,7 @@ import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.ModContainer;
 import cpw.mods.fml.relauncher.ReflectionHelper;
 import net.minecraft.enchantment.Enchantment;
+import net.minecraft.entity.Entity;
 import net.minecraft.potion.Potion;
 import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.world.biome.BiomeGenBase;
@@ -66,12 +67,12 @@ public class Registries {
 		return register(ench, id, enchantments);
 	}
 	
-	public static int registerEntity(Class entity, int id) 
+	public static int registerEntity(Class<? extends Entity> entity, String entityName, int id) 
 	{
-		return register(entity, id, entities);
+		return register(new EntryEntity(entity, entityName), id, entities);
 	}
 	
-	public static int registerDataWatcher(Class entityClass, int id, Registry reg)
+	public static int registerDataWatcher(Class<? extends Entity> entityClass, int id, Registry reg)
 	{
 		return register(entityClass, id, reg);
 	}

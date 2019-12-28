@@ -10,6 +10,7 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.jredfox.confighelper.EntryEntity;
 import com.jredfox.confighelper.Registries;
 
 import cpw.mods.fml.common.FMLLog;
@@ -94,7 +95,7 @@ public class EntityList
      */
     public static void addMapping(Class p_75618_0_, String p_75618_1_, int id)
     {
-    	id = Registries.registerEntity(p_75618_0_, id);
+    	id = Registries.registerEntity(p_75618_0_, p_75618_1_, id);
         if (id < 0 || id > 255) throw new IllegalArgumentException("Attempted to register a entity with invalid ID: " + id + " Name: " + p_75618_1_ + " Class: " + p_75618_0_);
         if (stringToClassMapping.containsKey(p_75618_1_))
         {
