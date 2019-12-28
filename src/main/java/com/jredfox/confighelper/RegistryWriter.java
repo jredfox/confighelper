@@ -71,6 +71,7 @@ public class RegistryWriter {
 			RegistryWriter.outputConflictedIds();
 			RegistryWriter.outputFreeIds();
 			RegistryWriter.outputWatcher();
+			RegistryWriter.outputProvider();
 		}
 		catch(Throwable t)
 		{
@@ -78,6 +79,29 @@ public class RegistryWriter {
 		}
 	}
 	
+	/**
+	 * outputs DimensionRegistry providers with keepLoaded boolean
+	 */
+	private static void outputProvider() 
+	{
+		try 
+		{
+			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(dirDimensions, "providers-keeploaded.txt")));
+			for(Map.Entry<Integer, Class<? extends WorldProvider>> map : DimensionManager.providers.entrySet())
+			{
+				int providerId = map.getKey();
+				Class c = map.getValue();
+				boolean keepLoaded = DimensionManager.spawnSettings.get(providerId);
+				writer.write(c.getName() + "<" + providerId + ">" + "=" +  keepLoaded + "\r\n");
+			}
+			writer.close();
+		}
+		catch (Throwable t) 
+		{
+			t.printStackTrace();
+		}
+	}
+
 	public static void outputWatcher()
 	{
 		if(Registries.datawatchers == null)

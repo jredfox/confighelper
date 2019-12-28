@@ -3,7 +3,6 @@ package net.minecraftforge.common;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.BitSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.ListIterator;
@@ -18,6 +17,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.MapMaker;
 import com.google.common.collect.Multiset;
 import com.jredfox.confighelper.Registries;
+import com.jredfox.confighelper.RegistryConfig;
 
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.FMLLog;
@@ -46,7 +46,6 @@ public class DimensionManager
     public static Hashtable<Integer, WorldServer> worlds = new Hashtable<Integer, WorldServer>();
     public static boolean hasInit = false;
     public static ArrayList<Integer> unloadQueue = new ArrayList<Integer>();
-    public static BitSet dimensionMap = new BitSet(Long.SIZE << 4);
     public static ConcurrentMap<World, World> weakWorldMap = new MapMaker().weakKeys().weakValues().<World,World>makeMap();
     public static Multiset<Integer> leakedWorlds = HashMultiset.create();
 
@@ -58,6 +57,8 @@ public class DimensionManager
             return false;
         }
         providers.put(id, provider);
+        keepLoaded = RegistryConfig.unloadedDims.contains(provider.getName()) ? false : keepLoaded;
+//        System.out.println("reg provider " + id + " with keepLoaded:" + keepLoaded);
         spawnSettings.put(id, keepLoaded);
         return true;
     }
@@ -121,10 +122,6 @@ public class DimensionManager
             throw new IllegalArgumentException(String.format("Failed to register dimension for id %d, One is already registered", id));
         }
         dimensions.put(id, providerId);
-        if (id >= 0)
-        {
-            dimensionMap.set(id);
-        }
     }
 
 	/**
@@ -348,63 +345,32 @@ public class DimensionManager
      * block of free ids. Always call for each individual ID you wish to get.
      * @return the next free dimension ID
      */
-    public static int getNextFreeDimId() {
-        int next = 0;
+    private static int next = Integer.MAX_VALUE;
+    public static int getNextFreeDimId() 
+    {
         while (true)
         {
-            next = dimensionMap.nextClearBit(next);
-            if (dimensions.containsKey(next))
+            if (!dimensions.containsKey(next))
             {
-                dimensionMap.set(next);
+               return next;
             }
-            else
-            {
-                return next;
-            }
+            next--;
         }
     }
 
     public static NBTTagCompound saveDimensionDataMap()
     {
-        int[] data = new int[(dimensionMap.length() + Integer.SIZE - 1 )/ Integer.SIZE];
-        NBTTagCompound dimMap = new NBTTagCompound();
-        for (int i = 0; i < data.length; i++)
-        {
-            int val = 0;
-            for (int j = 0; j < Integer.SIZE; j++)
-            {
-                val |= dimensionMap.get(i * Integer.SIZE + j) ? (1 << j) : 0;
-            }
-            data[i] = val;
-        }
-        dimMap.setIntArray("DimensionArray", data);
-        return dimMap;
+       NBTTagCompound dimMap = new NBTTagCompound();
+       dimMap.setIntArray("DimensionArray", new int[]{3});
+       dimMap.setInteger("dimIndex", next);
+       return dimMap;
     }
 
     public static void loadDimensionDataMap(NBTTagCompound compoundTag)
     {
-        dimensionMap.clear();
-        if (compoundTag == null)
-        {
-            for (Integer id : dimensions.keySet())
-            {
-                if (id >= 0)
-                {
-                    dimensionMap.set(id);
-                }
-            }
-        }
-        else
-        {
-            int[] intArray = compoundTag.getIntArray("DimensionArray");
-            for (int i = 0; i < intArray.length; i++)
-            {
-                for (int j = 0; j < Integer.SIZE; j++)
-                {
-                    dimensionMap.set(i * Integer.SIZE + j, (intArray[i] & (1 << j)) != 0);
-                }
-            }
-        }
+    	if(compoundTag == null)
+    		return;
+    	next = compoundTag.getInteger("dimIndex");
     }
 
     /**

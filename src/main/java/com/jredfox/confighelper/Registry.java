@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.evilnotch.lib.util.JavaUtil;
+
 import cpw.mods.fml.common.Loader;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.potion.Potion;
@@ -72,22 +74,25 @@ public class Registry {
 		}
 		
 		Class clazz = getClass(obj);
-		boolean replaced = this.shouldReplace(clazz, id);
-		boolean conflicting = !list.isEmpty() || this.containsId(id);//needs to look at the live ids because of the newIds automation
-		Entry entry = new Entry(clazz, id, replaced);
+		boolean conflicting = this.containsId(id);
+		Entry entry = new Entry(clazz, id);
+		if(this.isPassableSelf(clazz) && list.contains(entry))
+		{
+			Registry.Entry old = list.get(list.indexOf(entry));
+			System.out.println("Self Conflict Found:" + id + " class:" + old.clazz);
+			return old.newId;
+		}
 		list.add(entry);
 		
-		if(conflicting && !replaced)
+		if(conflicting)
 		{
+			if(this.isPassable(clazz, id))
+			{
+				System.out.println("replacing index:" + id + " class:" + clazz);
+				entry.replaced = true;
+				return entry.newId;
+			}
 			entry.newId = this.getNewId(id);
-			if(list.size() > 1)
-			{
-				System.out.println(this.dataType + " conflcit found for id:" + entry.org + "=" + list);
-			}
-			else
-			{
-				System.out.println("id re-assigment:" + entry.org + " > " + entry.newId);
-			}
 			Registries.hasConflicts = true;
 			if(this.canCrash())
 			{
@@ -99,15 +104,15 @@ public class Registry {
 		return entry.newId;
 	}
 	
-	public boolean shouldReplace(Class clazz, int id) 
+	public boolean isPassable(Class clazz, int id) 
 	{
 		String name = clazz.getName();
-		for(String s : RegistryConfig.passable)
-		{
-			if(name.equals(s))
-				return true;
-		}
-		return false;
+		return JavaUtil.contains(RegistryConfig.passable, name);
+	}
+	               
+	public boolean isPassableSelf(Class clazz)
+	{
+		return JavaUtil.contains(RegistryConfig.passableSelf, clazz.getName());
 	}
 	
 	public int newId;//the newId(semi-auto) index
@@ -256,12 +261,11 @@ public class Registry {
     	public String name;
     	public String modName;
     	
-    	public Entry(Class c, int org, boolean shouldReplace)
+    	public Entry(Class c, int org)
     	{
     		this.clazz = c;
     		this.org = org;
     		this.newId = org;
-    		this.replaced = shouldReplace;
     	}
     	
     	public void setName(String str)
@@ -281,7 +285,7 @@ public class Registry {
     		if(!(obj instanceof Entry))
     			return false;
     		Entry e = (Entry)obj;
-    		return this.org == e.org && this.clazz.equals(e.clazz) && this.replaced == e.replaced;
+    		return this.org == e.org && this.clazz.equals(e.clazz);
     	}
     	
     	@Override

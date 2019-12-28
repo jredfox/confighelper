@@ -1122,7 +1122,7 @@ public class JavaUtil {
 		return null;
 	}
 
-	public static Set<Integer> asSet(Object... obj) {
+	public static Set asSet(Object[] obj) {
 		Set set = new HashSet();
 		for(Object o : obj)
 			set.add(o);
@@ -1406,6 +1406,14 @@ public class JavaUtil {
 	public static boolean isStaticArray(Object value) 
 	{
 		return value != null && value.getClass().isArray();
+	}
+	
+	public static boolean contains(String[] list, String name) 
+	{
+		for(String s : list)
+			if(name.equals(s))
+				return true;
+		return false;
 	}
 	
 }

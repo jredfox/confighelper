@@ -19,7 +19,7 @@ public abstract class RegistryInt extends Registry{
 	public abstract Set<Integer> getPassableIds();
 	
 	@Override
-	public boolean shouldReplace(Class clazz, int id) 
+	public boolean isPassable(Class clazz, int id) 
 	{
 		for(Integer i : this.getPassableIds())
 		{

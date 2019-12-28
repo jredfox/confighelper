@@ -1,5 +1,7 @@
 package com.jredfox.confighelper;
 
+import org.apache.logging.log4j.core.appender.SyslogAppender;
+
 import com.evilnotch.lib.util.JavaUtil;
 
 import cpw.mods.fml.common.Mod;
