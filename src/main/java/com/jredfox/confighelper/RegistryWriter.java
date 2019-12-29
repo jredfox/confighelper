@@ -246,14 +246,19 @@ public class RegistryWriter {
 				{
 					JSONObject json = new JSONObject();
 					arr.add(json);
-					json.put("name", entry.name);
-					json.put("mod", entry.modName);
+					boolean nonInt = !(reg instanceof RegistryInt);
+					if(nonInt)
+					{
+						json.put("name", entry.name);
+						json.put("mod", entry.modName);
+					}
 					if(entry.replaced)
 						json.put("replaced", true);
 					if(entry.newId != entry.org)
 						json.put("freeId", reg.getNextFreeId(entry.newId));
 					json.put("memoryIndex", entry.newId);
-					json.put("class", entry.clazz);
+					if(nonInt)
+						json.put("class", entry.clazz);
 				}
 			}
 		}
