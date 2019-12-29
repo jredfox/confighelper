@@ -166,14 +166,17 @@ public class RegistryWriter {
 			List<Registry.Entry> list = map.getValue();
 			if(!canSuggestList(reg, list))
 				continue;
-			writer.write(modName + "\r\n");
+			boolean hasModName = !(reg instanceof RegistryInt);
+			if(hasModName)
+				writer.write(modName + "\r\n");
 			for(Registry.Entry e : list)
 			{
 				if(!canSuggest(reg, e))
 					continue;
 				writer.write(reg.getNextSuggestedId(e.newId) + " " + reg.getDisplay(e) + "\r\n");
 			}
-			writer.write("\r\n");
+			if(hasModName)
+				writer.write("\r\n");
 		}
 	}
 
@@ -244,14 +247,13 @@ public class RegistryWriter {
 					JSONObject json = new JSONObject();
 					arr.add(json);
 					json.put("name", entry.name);
-					if(entry.modName != null && !entry.modName.equals("Minecraft"))
-						json.put("mod", entry.modName);
+					json.put("mod", entry.modName);
 					if(entry.replaced)
 						json.put("replaced", true);
 					if(entry.newId != entry.org)
 						json.put("freeId", reg.getNextFreeId(entry.newId));
 					json.put("memoryIndex", entry.newId);
-					json.put("class", entry.clazz.getName());
+					json.put("class", entry.clazz);
 				}
 			}
 		}
@@ -323,7 +325,8 @@ public class RegistryWriter {
 				int providerId = map.getKey();
 				Class c = map.getValue();
 				boolean keepLoaded = DimensionManager.spawnSettings.get(providerId);
-				writer.write(c.getName() + "<" + providerId + ">" + "=" +  keepLoaded + "\r\n");
+				if(keepLoaded)
+					writer.write(c.getName() + "<" + providerId + ">" + "=" +  keepLoaded + "\r\n");
 			}
 			writer.close();
 		}

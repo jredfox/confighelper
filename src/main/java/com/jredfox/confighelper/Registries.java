@@ -137,9 +137,9 @@ public class Registries {
 	/**
 	 * get a modname from a class object is pretty expensive use with caution
 	 */
-	public static String getModName(Class clazz)
+	public static String getModName(String clazz)
 	{		
-		if(clazz.getName().startsWith("net.minecraft."))
+		if(clazz.startsWith("net.minecraft."))
 			return "Minecraft";
 		if(packageOwners == null)
 		{
@@ -155,8 +155,7 @@ public class Registries {
 			if(packageOwners == null)
 				return "packageOwners-" + null;
 		}
-		String name = clazz.getName();
-		String pakage = name.substring(0,JavaUtil.findLastChar(name, '.'));
+		String pakage = clazz.substring(0,JavaUtil.findLastChar(clazz, '.'));
 		if(packageOwners.containsKey(pakage))
 		{
 			ModContainer mod = packageOwners.get(pakage).get(0);

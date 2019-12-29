@@ -11,6 +11,7 @@ public class ClientProxy {
 	{
 		CrashReport crashreport = CrashReport.makeCrashReport(new RuntimeException(msg), cat);
 		crashreport.makeCategory(cat);
+		Minecraft.getMinecraft().theWorld = null;
 		Minecraft.getMinecraft().displayCrashReport(Minecraft.getMinecraft().addGraphicsAndWorldToCrashReport(crashreport));
 	}
 

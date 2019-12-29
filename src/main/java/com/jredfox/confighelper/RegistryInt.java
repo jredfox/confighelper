@@ -19,7 +19,7 @@ public abstract class RegistryInt extends Registry{
 	public abstract Set<Integer> getPassableIds();
 	
 	@Override
-	public boolean isPassable(Class clazz, int id) 
+	public boolean isPassable(String clazz, int id) 
 	{
 		for(Integer i : this.getPassableIds())
 		{
@@ -32,7 +32,7 @@ public abstract class RegistryInt extends Registry{
 	@Override
    	public String getDisplay(Registry.Entry e)
 	{
-   		return "(" + e.name + ")";
+   		return "(" + e.name + ", org:" + e.org + ")";
 	}
 
 }

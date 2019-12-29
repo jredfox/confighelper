@@ -7,8 +7,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.jredfox.confighelper.Registry.DataType;
+
+import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.potion.Potion;
+import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraftforge.common.DimensionManager;
 
 public class RegistryIds {
@@ -24,9 +29,9 @@ public class RegistryIds {
 	{
     	try
     	{
-    		System.out.println("biomes:" + getIntArray(Registries.biomes.getStaticReg()));
-    		System.out.println("potions:" + getIntArray(Registries.potions.getStaticReg()));
-    		System.out.println("enchantments:" + getIntArray(Registries.enchantments.getStaticReg()));
+    		System.out.println("biomes:" + getIntArray(getStaticReg(DataType.BIOME)));
+    		System.out.println("potions:" + getIntArray(getStaticReg(DataType.POTION)));
+    		System.out.println("enchantments:" + getIntArray(getStaticReg(DataType.ENCHANTMENT)));
     		System.out.println("dimensions:" + getDims());
     		System.out.println("entities:" + getEnts());
     	}
@@ -34,6 +39,17 @@ public class RegistryIds {
     	{
     		e.printStackTrace();
     	}
+	}
+	
+	protected static Object[] getStaticReg(DataType dataType) 
+	{
+		if(dataType == DataType.BIOME)
+			return BiomeGenBase.biomeList;
+		if(dataType == DataType.POTION)
+			return Potion.potionTypes;
+		if(dataType == DataType.ENCHANTMENT)
+			return Enchantment.enchantmentsList;
+		return null;
 	}
 	
 	public static List asList(int[] arr) 

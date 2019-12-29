@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.evilnotch.lib.util.JavaUtil;
+import com.google.common.base.Objects;
 import com.jredfox.confighelper.Registry.DataType;
 
 import cpw.mods.fml.common.Loader;
@@ -76,7 +77,7 @@ public class Registry {
 			this.reg.put(id, list);
 		}
 		
-		Class clazz = getClass(obj);
+		String clazz = getClass(obj).getName();
 		boolean conflicting = this.containsId(id);
 		Entry entry = new Entry(this.dataType, obj, clazz, id);
 		if(this.isPassableSelf(clazz) && list.contains(entry))
@@ -107,15 +108,14 @@ public class Registry {
 		return entry.newId;
 	}
 	
-	public boolean isPassable(Class clazz, int id) 
+	public boolean isPassable(String clazz, int id) 
 	{
-		String name = clazz.getName();
-		return JavaUtil.contains(RegistryConfig.passable, name);
+		return JavaUtil.contains(RegistryConfig.passable, clazz);
 	}
 	               
-	public boolean isPassableSelf(Class clazz)
+	public boolean isPassableSelf(String clazz)
 	{
-		return JavaUtil.contains(RegistryConfig.passableSelf, clazz.getName());
+		return JavaUtil.contains(RegistryConfig.passableSelf, clazz);
 	}
 	
 	public int newId;//the newId(semi-auto) index
@@ -156,7 +156,7 @@ public class Registry {
 	public int suggestedId;//the virtual suggested id index
 	public int getNextSuggestedId(int newId)
 	{
-		if(this.vanillaIds.contains(newId))
+		if(this.isVanillaId(newId))
 			return newId;
 		for(int i=this.suggestedId; i <= this.limit; i++)
 		{
@@ -178,19 +178,6 @@ public class Registry {
 	{
 		return this.reg.containsKey(org);
 	}
-
-	public boolean isVanillaId(int id) 
-	{
-		return this.vanillaIds.contains(id);
-	}
-
-	/**
-	 * returns whether or not it should crash on the first sign of conflict
-	 */
-	public boolean canCrash()
-	{
-		return !Registries.startup || this.strict;
-	}
 	
 	/**
 	 * a live look to see if the id is in memory
@@ -205,16 +192,18 @@ public class Registry {
 		}
 		return false;
 	}
-	
-	protected Object[] getStaticReg() 
+
+	public boolean isVanillaId(int id) 
 	{
-		if(this.dataType == DataType.BIOME)
-			return BiomeGenBase.biomeList;
-		if(this.dataType == DataType.POTION)
-			return Potion.potionTypes;
-		if(this.dataType == DataType.ENCHANTMENT)
-			return Enchantment.enchantmentsList;
-		return null;
+		return this.vanillaIds.contains(id);
+	}
+
+	/**
+	 * returns whether or not it should crash on the first sign of conflict
+	 */
+	public boolean canCrash()
+	{
+		return !Registries.startup || this.strict;
 	}
 	
 	public static Class getClass(Object entry)
@@ -241,7 +230,7 @@ public class Registry {
 	
    	public String getDisplay(Registry.Entry e)
 	{
-		return "(name:" + e.name + ", " + e.clazz.getName() + ", orgId:" + e.org + ")";
+		return "(name:" + e.name + ", " + e.clazz + ", orgId:" + e.org + ")";
 	}
    	
    	/**
@@ -287,11 +276,11 @@ public class Registry {
     	public int org;//the original id
     	public int newId;//the id in memory
     	public boolean replaced;//if it replaces an index in memory
-    	public Class clazz;// the class of the object may be wrong if it's a wrapper class
+    	public String clazz;// the class of the object may be wrong if it's a wrapper class
     	public String name;//display name
     	public String modName;//display mod name
     	
-    	public Entry(DataType type, Object obj, Class c, int org)
+    	public Entry(DataType type, Object obj, String c, int org)
     	{
        		this.dataType = type;
     		this.obj = obj;
@@ -351,11 +340,11 @@ public class Registry {
 			this.modName = Registries.getModName(this.getDataTypeClass());
 		}
     	
-    	public Class getDataTypeClass() 
+    	public String getDataTypeClass() 
     	{
 			if(this.obj instanceof BiomeGenBase)
 			{
-				return ((BiomeGenBase)this.obj).getBiomeClass();
+				return ((BiomeGenBase)this.obj).getBiomeClass().getName();
 			}
 			return this.clazz;
 		}
@@ -363,7 +352,7 @@ public class Registry {
 		@Override
     	public String toString()
     	{
-    		return "(name:" + this.name + ",newId:" + this.newId + ",class:" + this.clazz.getName() + ")";
+    		return "(name:" + this.name + ",newId:" + this.newId + ",class:" + this.clazz + ")";
     	}
     	
     	@Override
@@ -378,7 +367,7 @@ public class Registry {
     	@Override
     	public int hashCode()
     	{
-    		return ((Integer)this.newId).hashCode();
+    		return Objects.hashCode(this.org, this.clazz);
     	}
     }
     
