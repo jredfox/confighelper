@@ -27,7 +27,7 @@ public class RegistryDim extends RegistryInt{
 			return super.getNewId(org);
 		else
 		{
-			for(int i=this.lower;i>=RegistryConfig.searchDimLower;i--)
+			for(int i=this.lower;i>=RegistryConfig.dimLimitLower;i--)
 			{
 				if(!this.containsId(this.lower) && !this.isVanillaId(this.lower))
 				{
@@ -47,7 +47,7 @@ public class RegistryDim extends RegistryInt{
 			return super.getNextFreeId(newId);
 		else
 		{
-			for(int i=this.lowerFreeId;i>=RegistryConfig.searchDimLower;i--)
+			for(int i=this.lowerFreeId;i>=RegistryConfig.dimLimitLower;i--)
 			{
 				if(!this.containsOrg(this.lowerFreeId))
 				{
@@ -76,7 +76,7 @@ public class RegistryDim extends RegistryInt{
 			return super.getNextSuggestedId(newId);
 		else
 		{
-			for(int i=this.lowerV;i>=RegistryConfig.searchDimLower;i--)
+			for(int i=this.lowerV;i>=RegistryConfig.dimLimitLower;i--)
 			{
 				if(!this.isVanillaId(this.lowerV))
 				{

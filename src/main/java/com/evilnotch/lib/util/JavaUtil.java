@@ -297,7 +297,7 @@ public class JavaUtil {
 	        if (file.isFile() && !files.contains(file) && file.getName().endsWith(extension)) {
 	            files.add(file);
 	        } else if (file.isDirectory()) {
-	        	getAllFilesFromDir(file, files,extension);
+	        	getAllFilesFromDir(file, files, extension);
 	        }
 	    }
 	}

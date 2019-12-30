@@ -16,11 +16,10 @@ public class RegistryConfig {
 	public static int biomeLimit = 255;
 	public static int potionsLimit = 255;
 	public static int enchantmentsLimit = 255;
-	public static int searchDimLower = -100;
-	public static int searchDimUper = 300;
 	public static int entities = 255;
 	public static int dataWatchersLimit = 254;
-	public static int dimensionLimit = Integer.MAX_VALUE;
+	public static int dimLimitUpper = Integer.MAX_VALUE;
+	public static int dimLimitLower = Integer.MIN_VALUE;
 	
 	//mod config
 	public static boolean showVanillaIds;
@@ -28,35 +27,33 @@ public class RegistryConfig {
 	public static boolean regUnregBiomes = true;
 	//passable ids
 	public static String[] passable;
+	public static String[] passableSelf;
 	public static Set<Integer> passableDimIds;
 	public static Set<Integer> passableWatcherIds;
-	public static String[] passableSelf;
 	//optimizations
-	public static Set<String> unloadedDims;
+	public static boolean unloadModDimIds = true;
 	
 	static
 	{
 		Configuration cfg = new Configuration(new File("./config/confighelper/main.cfg"));
 		cfg.load();
-		regUnregBiomes = cfg.getBoolean("regUnregBiomes", "general", regUnregBiomes, "will prevent future biome conflicts if un registerd biomes get registerd later");
 		showVanillaIds = cfg.getBoolean("showVanillaIds", "general", showVanillaIds, "disable this to only show modded ids in suggestion files");
 		configMode = cfg.getBoolean("configMode", "general", configMode, "disable this when your modpack has been configured properly so it runs faster");
+		regUnregBiomes = cfg.getBoolean("regUnregBiomes", "general", regUnregBiomes, "will prevent future biome conflicts if un registerd biomes get registerd later");
 		
 		passable = cfg.getStringList("conflicts", "passable", new String[0], "passable Classes that are allowed to conflict(replace) a registry object");
+		passableSelf = cfg.getStringList("selfConflicts", "passable", new String[0], "passable Classes that are allowed to conflict with itself");
 		passableDimIds = getPassableIds(cfg, "conflictDimIds", "passable Dim ids(Not Provider) that are allowed to conflict. Only use if inputting the provider conflict class wasn't enough");
 		passableWatcherIds = getPassableIds(cfg, "conflictWatcherIds", "passable ids that data watchers are allowed to conflict with");
-		passableSelf = cfg.getStringList("selfConflicts", "passable", new String[0], "passable Classes that are allowed to conflict with itself");
 		
 		cfg.addCustomCategoryComment("limit", "changing these will not increase/decrease the limit of the ids. This is just so If a mod does extend the ids you can change them");
 		biomeLimit = cfg.get("limit", "biome", biomeLimit).getInt();
-		searchDimUper = cfg.get("limit", "searchDimUper", searchDimUper).getInt();
-		searchDimLower = cfg.get("limit", "searchDimLower", searchDimLower).getInt();
 		potionsLimit = cfg.get("limit", "potions", potionsLimit).getInt();
 		enchantmentsLimit = cfg.get("limit", "enchantments", enchantmentsLimit).getInt();
 		entities = cfg.get("limit", "entities", entities).getInt();
 		dataWatchersLimit = cfg.get("limit", "dataWatchers", dataWatchersLimit).getInt();
 		
-		unloadedDims = (Set<String>)JavaUtil.asSet(cfg.getStringList("providerUnloaded", "optimization", new String[0], "add modded classes here that you don't think needs to contantly load the dimension"));
+		unloadModDimIds = cfg.getBoolean("unloadModDimIds", "optimization", unloadModDimIds, "enabled: (less laggy)");
 		cfg.save();
 	}
 

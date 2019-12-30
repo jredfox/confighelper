@@ -8,10 +8,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.ralleytn.simple.json.JSONArray;
 import org.ralleytn.simple.json.JSONObject;
@@ -71,8 +74,8 @@ public class RegistryWriter {
 			RegistryWriter.outputSuggestions();
 			RegistryWriter.outputConflictedIds();
 			RegistryWriter.outputFreeIds();
+			RegistryWriter.dumpIds();
 			RegistryWriter.outputWatcher();
-			RegistryWriter.outputProvider();
 		}
 		catch(Throwable t)
 		{
@@ -88,8 +91,9 @@ public class RegistryWriter {
 		outputWatcherSuggestions();
 		outputWatcherConflicts();
 		outputWatcherFreeIds();
+		dumpWatcherIds();
 	}
-	
+
 	private static void grabNames()
 	{
 		Registries.biomes.grabNames();
@@ -274,15 +278,15 @@ public class RegistryWriter {
 		{
 			mkdirs();
 			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(dirBiomes, "freeids.txt")));
-			writeFreeIds(writer, RegistryConfig.biomeLimit, Registries.biomes);
+			writeFreeIds(writer, Registries.biomes);
 			writer.close();
 			
 			writer = new BufferedWriter(new FileWriter(new File(dirPotions, "freeids.txt")));
-			writeFreeIds(writer, RegistryConfig.potionsLimit, Registries.potions);
+			writeFreeIds(writer, Registries.potions);
 			writer.close();
 			
 			writer = new BufferedWriter(new FileWriter(new File(dirEnchantments, "freeids.txt")));
-			writeFreeIds(writer, RegistryConfig.enchantmentsLimit, Registries.enchantments);
+			writeFreeIds(writer, Registries.enchantments);
 			writer.close();
 			
 			writer = new BufferedWriter(new FileWriter(new File(dirDimensions, "freeids.txt")));
@@ -290,7 +294,38 @@ public class RegistryWriter {
 			writer.close();
 			
 			writer = new BufferedWriter(new FileWriter(new File(dirEntities, "freeids.txt")));
-			writeFreeIds(writer, RegistryConfig.entities, Registries.entities);
+			writeFreeIds(writer, Registries.entities);
+			writer.close();
+		}
+		catch(Throwable t)
+		{
+			t.printStackTrace();
+		}
+	}
+	
+	private static void dumpIds() 
+	{
+		try
+		{
+			mkdirs();
+			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(dirBiomes, "ids.txt")));
+			dumpIds(writer, Registries.biomes);
+			writer.close();
+			
+			writer = new BufferedWriter(new FileWriter(new File(dirPotions, "ids.txt")));
+			dumpIds(writer, Registries.potions);
+			writer.close();
+			
+			writer = new BufferedWriter(new FileWriter(new File(dirEnchantments, "ids.txt")));
+			dumpIds(writer, Registries.enchantments);
+			writer.close();
+			
+			writer = new BufferedWriter(new FileWriter(new File(dirDimensions, "ids.txt")));
+			dumpIds(writer, Registries.providers);
+			writer.close();
+			
+			writer = new BufferedWriter(new FileWriter(new File(dirEntities, "ids.txt")));
+			dumpIds(writer, Registries.entities);
 			writer.close();
 		}
 		catch(Throwable t)
@@ -299,46 +334,41 @@ public class RegistryWriter {
 		}
 	}
 
-	private static void writeFreeIds(BufferedWriter writer, int limit, Registry reg) throws IOException
+	private static void dumpIds(BufferedWriter writer, Registry reg) throws IOException
 	{
-		for(int i=0;i<=limit;i++)
-		{
-			if(!reg.containsOrg(i))
-				writer.write(i + "\r\n");
-		}
+		for(int id : reg.getUsedIds())
+			writer.write("id:" + id + "\r\n");
+	}
+
+	private static void writeFreeIds(BufferedWriter writer, Registry reg) throws IOException
+	{
+		Set<Integer> usedIds = reg.getUsedIds();
+		writeFreeIds(writer, reg.limit, usedIds);
 	}
 	
-	private static void writeFreeDimIds(BufferedWriter writer) throws IOException 
+	public static void writeFreeDimIds(BufferedWriter writer) throws IOException
 	{
-		for(int i=RegistryConfig.searchDimLower;i<=RegistryConfig.searchDimUper;i++)
-		{
-			if(!Registries.dimensions.containsOrg(i) && !Registries.providers.containsOrg(i))
-				writer.write(i + "\r\n");
-		}
+		Set<Integer> joinedIds = new TreeSet();
+		joinedIds.addAll(Registries.dimensions.getUsedIds());
+		joinedIds.addAll(Registries.providers.getUsedIds());
+		writeFreeIds(writer, Registries.dimensions.limit, joinedIds);
 	}
 	
-	/**
-	 * outputs DimensionRegistry providers with keepLoaded boolean
-	 */
-	private static void outputProvider() 
+	private static void writeFreeIds(BufferedWriter writer, int limit, Set<Integer> usedIds) throws IOException
 	{
-		try 
+		Iterator<Integer> it = usedIds.iterator();
+		int minId = 0;
+		int maxId = 0;
+		while(it.hasNext())
 		{
-			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(dirDimensions, "providers-keeploaded.txt")));
-			for(Map.Entry<Integer, Class<? extends WorldProvider>> map : DimensionManager.providers.entrySet())
-			{
-				int providerId = map.getKey();
-				Class c = map.getValue();
-				boolean keepLoaded = DimensionManager.spawnSettings.get(providerId);
-				if(keepLoaded)
-					writer.write(c.getName() + "<" + providerId + ">" + "=" +  keepLoaded + "\r\n");
-			}
-			writer.close();
+			int usedId = it.next();
+			maxId = usedId - 1;
+			if(maxId >= minId)
+				writer.write("id(" + minId + " - " + maxId + ")\r\n");
+			minId = usedId + 1;//reset min id for the next use
 		}
-		catch (Throwable t) 
-		{
-			t.printStackTrace();
-		}
+		maxId = limit;
+		writer.write("id:(" + minId + " - " + maxId + ") ------> last\r\n");
 	}
 	
 	private static void grabWatcherNames()
@@ -379,7 +409,21 @@ public class RegistryWriter {
 		try
 		{
 			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(dirDatawatchers, "freeids.txt")));
-			writeFreeIds(writer, RegistryConfig.dataWatchersLimit, Registries.datawatchers);
+			writeFreeIds(writer, Registries.datawatchers);
+			writer.close();
+		}
+		catch(Throwable t)
+		{
+			t.printStackTrace();
+		}
+	}
+	
+	private static void dumpWatcherIds()
+	{
+		try
+		{
+			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(dirDatawatchers, "ids.txt")));
+			dumpIds(writer, Registries.datawatchers);
 			writer.close();
 		}
 		catch(Throwable t)

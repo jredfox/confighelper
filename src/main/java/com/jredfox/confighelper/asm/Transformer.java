@@ -36,7 +36,7 @@ public class Transformer implements IClassTransformer{
 			System.out.println("finding:" + fileClass + ", stream valid:" + (stream != null) );
 			try 
 			{
-				return IOUtils.toByteArray(stream);
+//				return IOUtils.toByteArray(stream);
 			}
 			catch (Throwable t) 
 			{

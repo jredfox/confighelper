@@ -57,8 +57,7 @@ public class DimensionManager
             return false;
         }
         providers.put(id, provider);
-        keepLoaded = RegistryConfig.unloadedDims.contains(provider.getName()) ? false : keepLoaded;
-//        System.out.println("reg provider " + id + " with keepLoaded:" + keepLoaded);
+        keepLoaded = RegistryConfig.unloadModDimIds && !Registries.providers.isVanillaId(id) ? false : keepLoaded;
         spawnSettings.put(id, keepLoaded);
         return true;
     }

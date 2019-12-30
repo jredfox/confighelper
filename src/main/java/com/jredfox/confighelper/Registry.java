@@ -1,11 +1,13 @@
 package com.jredfox.confighelper;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import com.evilnotch.lib.util.JavaUtil;
 import com.google.common.base.Objects;
@@ -43,7 +45,7 @@ public class Registry {
 		else if(dataType == DataType.ENCHANTMENT)
 			return RegistryConfig.enchantmentsLimit;
 		else if(dataType == DataType.PROVIDER || dataType == DataType.DIMENSION)
-			return RegistryConfig.dimensionLimit;
+			return RegistryConfig.dimLimitUpper;
 		else if(dataType == DataType.ENTITY)
 			return RegistryConfig.entities;
 		else if(dataType == DataType.DATAWATCHER)
@@ -106,6 +108,14 @@ public class Registry {
 			}
 		}
 		return entry.newId;
+	}
+	
+	/**
+	 * get used org Ids in order from least to greatest
+	 */
+	public Set<Integer> getUsedIds()
+	{
+		return new TreeSet(this.reg.keySet());
 	}
 	
 	public boolean isPassable(String clazz, int id) 
