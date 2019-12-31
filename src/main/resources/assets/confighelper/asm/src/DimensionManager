@@ -17,6 +17,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.MapMaker;
 import com.google.common.collect.Multiset;
 import com.jredfox.confighelper.Registries;
+import com.jredfox.confighelper.RegistryConfig;
 
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.FMLLog;
@@ -56,6 +57,7 @@ public class DimensionManager
             return false;
         }
         providers.put(id, provider);
+        keepLoaded = RegistryConfig.unloadModDimIds && !Registries.providers.isVanillaId(id) ? false : keepLoaded;
         spawnSettings.put(id, keepLoaded);
         return true;
     }
@@ -342,9 +344,9 @@ public class DimensionManager
      * block of free ids. Always call for each individual ID you wish to get.
      * @return the next free dimension ID
      */
+    private static int next = Integer.MAX_VALUE;
     public static int getNextFreeDimId() 
     {
-        int next = Integer.MAX_VALUE;
         while (true)
         {
             if (!dimensions.containsKey(next))
@@ -357,12 +359,17 @@ public class DimensionManager
 
     public static NBTTagCompound saveDimensionDataMap()
     {
-       return new NBTTagCompound();
+       NBTTagCompound dimMap = new NBTTagCompound();
+       dimMap.setIntArray("DimensionArray", new int[]{3});
+       dimMap.setInteger("dimIndex", next);
+       return dimMap;
     }
 
     public static void loadDimensionDataMap(NBTTagCompound compoundTag)
     {
-    	
+    	if(compoundTag == null)
+    		return;
+    	next = compoundTag.getInteger("dimIndex");
     }
 
     /**

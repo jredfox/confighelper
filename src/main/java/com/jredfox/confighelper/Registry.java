@@ -26,6 +26,7 @@ public class Registry {
 	public Map<Integer,List<Registry.Entry>> reg = new LinkedHashMap<Integer,List<Registry.Entry>>();
 	public Set<Integer> vanillaIds = new HashSet();//the full list of vanilla ids per Registry
 	public int limit;//the registry limit
+	public int limitLower;
 	public DataType dataType;//the data type this registry is for
 	public boolean strict;//turn this on to automatically crash on the first sign of conflict
 	
@@ -34,8 +35,16 @@ public class Registry {
 		this.dataType = dataType;
 		this.vanillaIds = getVanillaIds();
 		this.limit = getLimit();
+		this.limitLower = this.getLimitLower();
 	}
 	
+	protected int getLimitLower()
+	{
+		if(this.dataType == DataType.DIMENSION || this.dataType == DataType.PROVIDER)
+			return RegistryConfig.dimLimitLower;
+		return 0;
+	}
+
 	protected int getLimit()
 	{
 		if(dataType == DataType.BIOME)

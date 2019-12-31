@@ -342,7 +342,7 @@ public class DataWatcher
             }
 
             int dataType = b;
-            int id = buf.readByte();
+            int id = buf.readUnsignedByte();
             DataWatcher.WatchableObject watchableobject = null;
 
             switch (dataType)

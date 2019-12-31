@@ -348,7 +348,7 @@ public class RegistryWriter {
 	private static void writeFreeIds(BufferedWriter writer, Registry reg) throws IOException
 	{
 		Set<Integer> usedIds = reg.getOrgIds();
-		writeFreeIds(writer, reg.limit, usedIds);
+		writeFreeIds(writer, reg.limitLower, reg.limit, usedIds);
 	}
 	
 	public static void writeFreeDimIds(BufferedWriter writer) throws IOException
@@ -356,29 +356,36 @@ public class RegistryWriter {
 		Set<Integer> joinedIds = new TreeSet();
 		joinedIds.addAll(Registries.dimensions.getOrgIds());
 		joinedIds.addAll(Registries.providers.getOrgIds());
-		writeFreeIds(writer, Registries.dimensions.limit, joinedIds);
+		writeFreeIds(writer, Registries.dimensions.limitLower, Registries.dimensions.limit, joinedIds);
 	}
 	
-	private static void writeFreeIds(BufferedWriter writer, int limit, Set<Integer> usedIds) throws IOException
+	private static void writeFreeIds(BufferedWriter writer, int minLimit, int limit, Set<Integer> usedIds) throws IOException
 	{
 		Iterator<Integer> it = usedIds.iterator();
-		int minId = 0;
-		int maxId = 0;
+		int minId = minLimit;
+		int maxId = minLimit;
 		while(it.hasNext())
 		{
 			int usedId = it.next();
 			maxId = usedId - 1;
 			if(maxId >= minId)
-				writer.write("id(" + minId + " - " + maxId + ")\r\n");
+				writer.write("id(" + getIdChunk(minId, maxId) + ")\r\n");
 			minId = usedId + 1;//reset min id for the next use
 		}
 		if(minId < limit)
 		{
 			maxId = limit;
-			writer.write("id:(" + minId + " - " + maxId + ") ------> last\r\n");
+			writer.write("id:(" + getIdChunk(minId, maxId) + ") ------> last\r\n");
 		}
 	}
 	
+	private static String getIdChunk(int minId, int maxId) 
+	{
+		if(minId == maxId)
+			return "" + minId;
+		return "" + minId + " - " + maxId;
+	}
+
 	private static void grabWatcherNames()
 	{
 		Registries.datawatchers.grabNames();
