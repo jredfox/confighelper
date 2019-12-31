@@ -44,7 +44,7 @@ public class RegistryIds {
 	protected static Object[] getStaticReg(DataType dataType) 
 	{
 		if(dataType == DataType.BIOME)
-			return BiomeGenBase.biomeList;
+			return BiomeGenBase.getBiomeGenArray();
 		if(dataType == DataType.POTION)
 			return Potion.potionTypes;
 		if(dataType == DataType.ENCHANTMENT)
@@ -75,10 +75,10 @@ public class RegistryIds {
 	private static String getDatawatchers(EntityPlayer player) {
 		StringBuilder b = new StringBuilder();
 		b.append('[');
-		for(Integer i : player.getDataWatcher().getIds())
-		{
-			b.append(i + ",");
-		}
+//		for(Integer i : player.getDataWatcher().getIds())
+//		{
+//			b.append(i + ",");
+//		}
 		b.append(']');
 		return b.toString();
 	}
@@ -86,8 +86,8 @@ public class RegistryIds {
 	private static String getEnts() {
 		StringBuilder b = new StringBuilder();
 		b.append('[');
-		for(Integer i : EntityList.IDtoClassMapping.keySet())
-			b.append(i + ",");
+//		for(Integer i : EntityList.IDtoClassMapping.keySet())
+//			b.append(i + ",");
 		b.append(']');
 		return b.toString();
 	}
@@ -95,8 +95,8 @@ public class RegistryIds {
 	private static String getDims() {
 		StringBuilder b = new StringBuilder();
 		b.append('[');
-		for(Integer i : DimensionManager.dimensions.keySet())
-			b.append(i + ",");
+//		for(Integer i : DimensionManager.dimensions.keySet())
+//			b.append(i + ",");
 		b.append(']');
 		return b.toString();
 	}

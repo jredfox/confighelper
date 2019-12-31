@@ -25,7 +25,7 @@ public class ConfigHelperMod
     public void preinit(FMLPreInitializationEvent event)
     {	
 		MinecraftForge.EVENT_BUS.register(new DatawatcherEvent());
-    	Registries.registerBiome(BiomeGenBase.biomeList[161], 161, true);//fix vanilla
+    	Registries.registerBiome(BiomeGenBase.getBiomeGenArray()[161], 161, true);//fix vanilla
     	Enchantment e = Enchantment.aquaAffinity;//force Load vanilla Enchantment
     }
     

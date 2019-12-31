@@ -1,8 +1,8 @@
 [
 {
-  "modid": "examplemod",
-  "name": "Example Mod",
-  "description": "Example placeholder mod.",
+  "modid": "confighelper",
+  "name": "Config Helper",
+  "description": "Configure modpacks with ease no more id conflicts! Optimiztions for modpacks",
   "version": "${version}",
   "mcversion": "${mcversion}",
   "url": "",
