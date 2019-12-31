@@ -1,12 +1,15 @@
 package com.jredfox.confighelper;
 
+import com.evilnotch.lib.reflect.ReflectionHandler;
 import com.evilnotch.lib.util.JavaUtil;
+import com.jredfox.confighelper.asm.Transformer;
 
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.event.FMLLoadCompleteEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import net.minecraft.enchantment.Enchantment;
+import net.minecraft.launchwrapper.Launch;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraftforge.common.MinecraftForge;
 
@@ -19,8 +22,8 @@ public class ConfigHelperMod
     
     @EventHandler
     public void preinit(FMLPreInitializationEvent event)
-    {
-    	MinecraftForge.EVENT_BUS.register(new DatawatcherEvent());
+    {	
+		MinecraftForge.EVENT_BUS.register(new DatawatcherEvent());
     	Registries.registerBiome(BiomeGenBase.biomeList[161], 161, true);//fix vanilla
     	Enchantment e = Enchantment.aquaAffinity;//force Load vanilla Enchantment
     }
@@ -30,9 +33,9 @@ public class ConfigHelperMod
      */
     @EventHandler
     public void loadComplete(FMLLoadCompleteEvent event)
-    {	
+    {	 		
+    	PatchedClassLoader.checkClassLoader(this.getClass().getClassLoader());
     	Registries.startup = false;
-		
 		if(Registries.hasConflicts)
 		{
 			Registries.output();

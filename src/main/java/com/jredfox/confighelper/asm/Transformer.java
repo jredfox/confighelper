@@ -20,20 +20,7 @@ public class Transformer implements IClassTransformer{
 	
 	static
 	{
-		patchClassLoader();
-	}
-	
-	private static void patchClassLoader() 
-	{
-		LaunchClassLoader old = Launch.classLoader;
-		Launch.classLoader = new PatchedClassLoader(Launch.classLoader);
-		Thread.currentThread().setContextClassLoader(Launch.classLoader);
-		
-		System.out.println("old cachedClasses:" + ReflectionHandler.getObject(PatchedClassLoader.cachedClasses, old).getClass().getName());
-		System.out.println("old resourceCache:" + ReflectionHandler.getObject(PatchedClassLoader.resourceCache, old).getClass().getName());
-		
-		System.out.println("new cachedClasses:" + ReflectionHandler.getObject(PatchedClassLoader.cachedClasses, Launch.classLoader).getClass().getName());
-		System.out.println("new resourceCache:" + ReflectionHandler.getObject(PatchedClassLoader.resourceCache, Launch.classLoader).getClass().getName());
+		PatchedClassLoader.stopMemoryOverflow(Launch.classLoader);
 	}
 
 	
