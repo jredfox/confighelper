@@ -1,13 +1,19 @@
 package com.jredfox.confighelper.asm;
 
+import java.lang.reflect.Field;
 import java.util.Map;
 
-import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
+import com.evilnotch.lib.reflect.ReflectionHandler;
+import com.jredfox.confighelper.PatchedClassLoader;
 
-@IFMLLoadingPlugin.SortingIndex(1001)
+import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
+import net.minecraft.launchwrapper.Launch;
+import net.minecraft.launchwrapper.LaunchClassLoader;
+
+@IFMLLoadingPlugin.SortingIndex(0)
 @IFMLLoadingPlugin.Name("confighelper-registry-transformer")
 public class Plugin implements IFMLLoadingPlugin{
-
+	
 	public static boolean isObf;
 	@Override
 	public String[] getASMTransformerClass() 
@@ -22,7 +28,8 @@ public class Plugin implements IFMLLoadingPlugin{
 	public String getSetupClass(){return null;}
 
 	@Override
-	public void injectData(Map<String, Object> data) {
+	public void injectData(Map<String, Object> data)
+	{
 		isObf = (Boolean) data.get("runtimeDeobfuscationEnabled");
 	}
 

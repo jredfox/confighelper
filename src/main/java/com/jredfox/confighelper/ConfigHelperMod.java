@@ -1,19 +1,13 @@
 package com.jredfox.confighelper;
 
-import org.apache.logging.log4j.core.appender.SyslogAppender;
-
 import com.evilnotch.lib.util.JavaUtil;
 
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.event.FMLLoadCompleteEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import net.minecraft.client.Minecraft;
-import net.minecraft.crash.CrashReport;
 import net.minecraft.enchantment.Enchantment;
-import net.minecraft.entity.EntityList;
 import net.minecraft.world.biome.BiomeGenBase;
-import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.MinecraftForge;
 
 @Mod(modid = ConfigHelperMod.MODID, version = ConfigHelperMod.VERSION, name = ConfigHelperMod.NAME)
