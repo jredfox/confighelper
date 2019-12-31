@@ -12,6 +12,7 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraft.world.biome.BiomeGenBase;
+import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.MinecraftForge;
 
 @Mod(modid = ConfigHelperMod.MODID, version = ConfigHelperMod.VERSION, name = ConfigHelperMod.NAME)
@@ -27,6 +28,7 @@ public class ConfigHelperMod
 		MinecraftForge.EVENT_BUS.register(new DatawatcherEvent());
     	Registries.registerBiome(BiomeGenBase.getBiomeGenArray()[161], 161, true);//fix vanilla
     	Enchantment e = Enchantment.aquaAffinity;//force Load vanilla Enchantment
+    	DimensionManager.init();
     }
     
     /**

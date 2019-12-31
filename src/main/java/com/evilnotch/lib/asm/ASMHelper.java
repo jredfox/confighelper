@@ -30,13 +30,13 @@ public class ASMHelper
 	/**
 	 * srg support doesn't patch local vars nor instructions
 	 */
-	public static MethodNode replaceMethod(ClassNode classNode,String inputStream,String method_name,String method_desc,String srgname)
+	public static MethodNode replaceMethod(ClassNode classNode, String inputStream, String method_name, String method_desc)
 	{
-		MethodNode origin = ObfHelper.isObf ? getMethodNode(classNode,srgname,method_desc) : getMethodNode(classNode,method_name,method_desc);
 		try
 		{
-			MethodNode toReplace = getCachedMethodNode(inputStream, ObfHelper.isObf ? srgname : method_name, method_desc);
-			origin.localVariables.clear();
+			MethodNode origin = getMethodNode(classNode, method_name, method_desc);
+			MethodNode toReplace = getCachedMethodNode(inputStream, method_name, method_desc);
+			System.out.println((origin == null) + "," + (toReplace == null) );
 			origin.instructions = toReplace.instructions;
 			origin.localVariables = toReplace.localVariables;
 			origin.annotationDefault = toReplace.annotationDefault;
@@ -65,31 +65,6 @@ public class ASMHelper
 	{
 		patchInstructions(node, className, oldClassName,patchStatic);
 		patchLocals(node, className);
-	}
-	
-	/**
-	 * notch name version of replacing a method don't recommend it at all since you can use regular replace method to do so
-	 */
-	public static void replaceMethodNotch(ClassNode classToTransform,String inputStream,MCPSidedString method_name,MCPSidedString method_desc,MCPSidedString methodNameInject) 
-	{
-		long time = System.currentTimeMillis();
-		MethodNode origin = getMethodNode(classToTransform,method_name.toString(),method_desc.toString());
-		try
-		{
-			MethodNode toReplace = getCachedMethodNode(inputStream,methodNameInject.toString(), method_desc.toString());
-			origin.localVariables.clear();
-			origin.instructions = toReplace.instructions;
-			origin.localVariables = toReplace.localVariables;
-			origin.annotationDefault = toReplace.annotationDefault;
-			origin.tryCatchBlocks = toReplace.tryCatchBlocks;
-			origin.visibleAnnotations = toReplace.visibleAnnotations;
-			origin.visibleLocalVariableAnnotations = toReplace.visibleLocalVariableAnnotations;
-			origin.visibleTypeAnnotations = toReplace.visibleTypeAnnotations;
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-		}
 	}
 	
 	/**

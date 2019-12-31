@@ -173,5 +173,24 @@ public class Registries {
 		}
 		return "" + null;
 	}
+	
+	/**
+	 * asm INTERNAL
+	 */
+	public static boolean keepDimLoaded(int id, boolean keepLoaded) 
+	{
+		return RegistryConfig.unloadModDimIds && !Registries.providers.isVanillaId(id) ? false : keepLoaded;
+	}
+	
+	/**
+	 * asm INTERNAL DO NOT USE
+	 */
+	public static int guessProviderId(int providerId) 
+	{
+		return Registries.providers.getEntry(providerId).get(0).newId;
+	}
+	
+	public static int nextDim = Integer.MAX_VALUE;
+	
 
 }

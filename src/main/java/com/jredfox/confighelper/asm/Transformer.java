@@ -61,9 +61,13 @@ public class Transformer implements IClassTransformer{
 				case 2:
 					patchEnchantment(classNode);
 				break;
+				
+				case 3:
+					patchForgeDimensions(classNode);
+				break;
 			}
 			byte[] custom = ASMHelper.getClassWriter(classNode).toByteArray();
-			if(index == 2)
+			if(index == 3)
 				ASMHelper.dumpFile(actualName, custom);
 			return custom;
 		}
@@ -74,20 +78,6 @@ public class Transformer implements IClassTransformer{
 			t.printStackTrace();
 		}
 		return bytes;
-	}
-	
-	/**
-	 * inject line: Registries.registerEnchantment(this, id)
-	 */
-	private void patchEnchantment(ClassNode classNode) 
-	{
-		MethodNode node = ASMHelper.getConstructionNode(classNode, "(IILnet/minecraft/enchantment/EnumEnchantmentType;)V");
-		InsnList list = new InsnList();
-		list.add(new VarInsnNode(Opcodes.ALOAD, 0));
-		list.add(new VarInsnNode(Opcodes.ILOAD, 1));
-		list.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/jredfox/confighelper/Registries", "registerEnchantment", "(Lnet/minecraft/enchantment/Enchantment;I)I", false));
-		list.add(new VarInsnNode(Opcodes.ISTORE, 1));
-		node.instructions.insert(ASMHelper.getFirstInstruction(node, Opcodes.INVOKESPECIAL), list);
 	}
 
 	/**
@@ -118,6 +108,56 @@ public class Transformer implements IClassTransformer{
 		list.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/jredfox/confighelper/Registries", "registerPotion", "(Lnet/minecraft/potion/Potion;I)I", false));
 		list.add(new VarInsnNode(Opcodes.ISTORE, 1));
 		constructor.instructions.insert(ASMHelper.getFirstInstruction(constructor, Opcodes.INVOKESPECIAL), list);
+	}
+	
+	/**
+	 * inject line: Registries.registerEnchantment(this, id)
+	 */
+	private void patchEnchantment(ClassNode classNode) 
+	{
+		MethodNode node = ASMHelper.getConstructionNode(classNode, "(IILnet/minecraft/enchantment/EnumEnchantmentType;)V");
+		InsnList list = new InsnList();
+		list.add(new VarInsnNode(Opcodes.ALOAD, 0));
+		list.add(new VarInsnNode(Opcodes.ILOAD, 1));
+		list.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/jredfox/confighelper/Registries", "registerEnchantment", "(Lnet/minecraft/enchantment/Enchantment;I)I", false));
+		list.add(new VarInsnNode(Opcodes.ISTORE, 1));
+		node.instructions.insert(ASMHelper.getFirstInstruction(node, Opcodes.INVOKESPECIAL), list);
+	}
+	
+	private static void patchForgeDimensions(ClassNode classNode) 
+	{
+		//inject provider lines
+		MethodNode provider = ASMHelper.getMethodNode(classNode, "registerProviderType", "(ILjava/lang/Class;Z)Z");
+		//id = Registries.registerProvider(provider.class, id);
+		InsnList list = new InsnList();
+		list.add(new VarInsnNode(Opcodes.ALOAD, 1));
+		list.add(new VarInsnNode(Opcodes.ILOAD, 0));
+		list.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/jredfox/confighelper/Registries", "registerProvider", "(Ljava/lang/Class;I)I", false));
+		list.add(new VarInsnNode(Opcodes.ISTORE, 0));
+		//keepLoaded = Registries.keepDimLoaded(id, keepLoaded);
+		list.add(new VarInsnNode(Opcodes.ILOAD, 0));
+		list.add(new VarInsnNode(Opcodes.ILOAD, 2));
+		list.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/jredfox/confighelper/Registries", "keepDimLoaded", "(IZ)Z", false));
+		list.add(new VarInsnNode(Opcodes.ISTORE, 2));
+		provider.instructions.insert(ASMHelper.getFirstInstruction(provider), list);
+		
+		//inject dimension lines
+		MethodNode dimensions = ASMHelper.getMethodNode(classNode, "registerDimension", "(II)V");
+		InsnList list2 = new InsnList();
+		//id = Registries.registerDimension(id);
+		list2.add(new VarInsnNode(Opcodes.ILOAD, 0));
+		list2.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/jredfox/confighelper/Registries", "registerDimension", "(I)I", false));
+		list2.add(new VarInsnNode(Opcodes.ISTORE, 0));
+		//providerId = Registries.guessProviderId(providerId);
+		list2.add(new VarInsnNode(Opcodes.ILOAD, 1));
+		list2.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/jredfox/confighelper/Registries", "guessProviderId", "(I)I", false));
+		list2.add(new VarInsnNode(Opcodes.ISTORE, 1));
+		dimensions.instructions.insert(ASMHelper.getFirstInstruction(dimensions), list2);
+		
+		//replace DimensionManager nextId methods
+		ASMHelper.replaceMethod(classNode, "assets/confighelper/asm/DimensionManager", "getNextFreeDimId", "()I");
+		ASMHelper.replaceMethod(classNode, "assets/confighelper/asm/DimensionManager", "saveDimensionDataMap", "()Lnet/minecraft/nbt/NBTTagCompound;");
+		ASMHelper.replaceMethod(classNode, "assets/confighelper/asm/DimensionManager", "loadDimensionDataMap", "(Lnet/minecraft/nbt/NBTTagCompound;)V");
 	}
 
 }
