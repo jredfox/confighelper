@@ -22,8 +22,10 @@ public class RegistryConfig {
 	public static int dimLimitLower = Integer.MIN_VALUE;
 	
 	//mod config
-	public static boolean showVanillaIds;
 	public static boolean configMode = true;
+	public static boolean dumpIds;
+	public static boolean dumpNewIds;
+	public static boolean showVanillaIds;
 	public static boolean regUnregBiomes = true;
 	//passable ids
 	public static String[] passable;
@@ -40,6 +42,7 @@ public class RegistryConfig {
 		showVanillaIds = cfg.getBoolean("showVanillaIds", "general", showVanillaIds, "disable this to only show modded ids in suggestion files");
 		configMode = cfg.getBoolean("configMode", "general", configMode, "disable this when your modpack has been configured properly so it runs faster");
 		regUnregBiomes = cfg.getBoolean("regUnregBiomes", "general", regUnregBiomes, "will prevent future biome conflicts if un registerd biomes get registerd later");
+		dumpIds = cfg.getBoolean("dumpIds", "general", false, "dump original requested and memory indexed ids");
 		
 		passable = cfg.getStringList("conflicts", "passable", new String[0], "passable Classes that are allowed to conflict(replace) a registry object");
 		passableSelf = cfg.getStringList("selfConflicts", "passable", new String[0], "passable Classes that are allowed to conflict with itself");

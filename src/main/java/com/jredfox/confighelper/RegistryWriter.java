@@ -308,23 +308,23 @@ public class RegistryWriter {
 		try
 		{
 			mkdirs();
-			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(dirBiomes, "ids.txt")));
+			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(dirBiomes, "ids-org.txt")));
 			dumpIds(writer, Registries.biomes);
 			writer.close();
 			
-			writer = new BufferedWriter(new FileWriter(new File(dirPotions, "ids.txt")));
+			writer = new BufferedWriter(new FileWriter(new File(dirPotions, "ids-org.txt")));
 			dumpIds(writer, Registries.potions);
 			writer.close();
 			
-			writer = new BufferedWriter(new FileWriter(new File(dirEnchantments, "ids.txt")));
+			writer = new BufferedWriter(new FileWriter(new File(dirEnchantments, "ids-org.txt")));
 			dumpIds(writer, Registries.enchantments);
 			writer.close();
 			
-			writer = new BufferedWriter(new FileWriter(new File(dirDimensions, "ids.txt")));
+			writer = new BufferedWriter(new FileWriter(new File(dirDimensions, "ids-org.txt")));
 			dumpIds(writer, Registries.providers);
 			writer.close();
 			
-			writer = new BufferedWriter(new FileWriter(new File(dirEntities, "ids.txt")));
+			writer = new BufferedWriter(new FileWriter(new File(dirEntities, "ids-org.txt")));
 			dumpIds(writer, Registries.entities);
 			writer.close();
 		}
@@ -333,7 +333,9 @@ public class RegistryWriter {
 			t.printStackTrace();
 		}
 	}
-
+	/**
+	 * dump orgIds
+	 */
 	private static void dumpIds(BufferedWriter writer, Registry reg) throws IOException
 	{
 		for(int id : reg.getUsedIds())
@@ -422,7 +424,7 @@ public class RegistryWriter {
 	{
 		try
 		{
-			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(dirDatawatchers, "ids.txt")));
+			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(dirDatawatchers, "ids-org.txt")));
 			dumpIds(writer, Registries.datawatchers);
 			writer.close();
 		}
