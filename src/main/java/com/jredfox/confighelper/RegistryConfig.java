@@ -24,7 +24,6 @@ public class RegistryConfig {
 	//mod config
 	public static boolean configMode = true;
 	public static boolean dumpIds;
-	public static boolean dumpNewIds;
 	public static boolean showVanillaIds;
 	public static boolean regUnregBiomes = true;
 	//passable ids

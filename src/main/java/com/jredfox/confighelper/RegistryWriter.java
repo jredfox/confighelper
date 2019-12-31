@@ -21,6 +21,7 @@ import org.ralleytn.simple.json.JSONObject;
 import org.ralleytn.simple.json.JSONParseException;
 
 import com.evilnotch.lib.util.JavaUtil;
+import com.evilnotch.lib.util.simple.Directory;
 import com.google.common.collect.ListMultimap;
 import com.jredfox.confighelper.Registry.DataType;
 import com.jredfox.confighelper.Registry.Entry;
@@ -39,32 +40,29 @@ import net.minecraftforge.common.DimensionManager;
 
 public class RegistryWriter {
 	
-	/**
-	 * a live look at the arrays
-	 */
-	public static final File root = new File("./config/confighelper");
-	public static final File dirBiomes = new File(root, "biomes");
-	public static final File dirPotions = new File(root, "potions");
-	public static final File dirEnchantments = new File(root, "enchantments");
-	public static final File dirDimensions = new File(root, "dimensions");
-	public static final File dirDatawatchers = new File(root,"datawatchers");
-	public static final File dirEntities = new File(root, "entities");
+	public static final File root = new Directory("./config/confighelper").create();
+	public static final File dirBiomes = new Directory(root, DataType.BIOME.getName()).create();
+	public static final File dirPotions = new Directory(root, DataType.POTION.getName()).create();
+	public static final File dirEnchantments = new Directory(root, DataType.ENCHANTMENT.getName()).create();
+	public static final File dirDimensions = new Directory(root, DataType.DIMENSION.getName()).create();
+	public static final File dirEntities = new Directory(root, DataType.ENTITY.getName()).create();
+	public static final File dirDatawatchers = new Directory(root, DataType.DATAWATCHER.getName()).create();
 	
-	public static void mkdirs() 
-	{
-		mkdirs(root);
-		mkdirs(dirBiomes);
-		mkdirs(dirPotions);
-		mkdirs(dirEnchantments);
-		mkdirs(dirDimensions);
-		mkdirs(dirDatawatchers);
-		mkdirs(dirEntities);
-	}
+	public static final String dumps = "dumps";
+	public static final File dirDumpBiomes = new Directory(dirBiomes, dumps).create();
+	public static final File dirDumpPotions = new Directory(dirPotions, dumps).create();
+	public static final File dirDumpEnchantments = new Directory(dirEnchantments, dumps).create();
+	public static final File dirDumpDimensions = new Directory(dirDimensions, dumps).create();
+	public static final File dirDumpEntities = new Directory(dirEntities, dumps).create();
+	public static final File dirDumpDataWatchers = new Directory(dirDatawatchers, dumps).create();
 	
-	private static void mkdirs(File dir){
-		if(!dir.exists())
-			dir.mkdir();
-	}
+	public static final String extension =  ".txt";
+	public static final String conflictExtension = ".json";
+	public static final String conflicts = "conflicts";
+	public static final String suggested = "suggested";
+	public static final String freeids = "freeids";
+	public static final String dumpIdsOrg = "ids-org";
+	public static final String dumpIdsNew = "ids-new";
 	
 	public static void output() 
 	{
@@ -108,20 +106,19 @@ public class RegistryWriter {
 	{
 		try
 		{
-			mkdirs();
-			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(dirBiomes, "suggested.txt")));
+			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(dirBiomes, suggested + extension)));
 			writeSuggested(writer, Registries.biomes);
 			writer.close();
-			writer = new BufferedWriter(new FileWriter(new File(dirPotions, "suggested.txt")));
+			writer = new BufferedWriter(new FileWriter(new File(dirPotions, suggested + extension)));
 			writeSuggested(writer, Registries.potions);
 			writer.close();
-			writer = new BufferedWriter(new FileWriter(new File(dirEnchantments, "suggested.txt")));
+			writer = new BufferedWriter(new FileWriter(new File(dirEnchantments, suggested + extension)));
 			writeSuggested(writer, Registries.enchantments);
 			writer.close();
-			writer = new BufferedWriter(new FileWriter(new File(dirDimensions, "suggested.txt")));
+			writer = new BufferedWriter(new FileWriter(new File(dirDimensions, suggested + extension)));
 			writeSuggested(writer, Registries.providers);
 			writer.close();
-			writer = new BufferedWriter(new FileWriter(new File(dirEntities, "suggested.txt")));
+			writer = new BufferedWriter(new FileWriter(new File(dirEntities, suggested + extension)));
 			writeSuggested(writer, Registries.entities);
 			writer.close();
 		}
@@ -205,28 +202,27 @@ public class RegistryWriter {
 	{
 		try
 		{
-			mkdirs();
-			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(dirBiomes,"conflicts.json")));
+			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(dirBiomes, conflicts + conflictExtension)));
 			writeConflicts(writer, Registries.biomes);
 			writer.close();
 		
-			writer = new BufferedWriter(new FileWriter(new File(dirDimensions,"conflicts-providers.json")));
+			writer = new BufferedWriter(new FileWriter(new File(dirDimensions, conflicts + "-providers" + conflictExtension)));
 			writeConflicts(writer, Registries.providers);
 			writer.close();
 		
-			writer = new BufferedWriter(new FileWriter(new File(dirDimensions,"conflicts-dimensions.json")));
+			writer = new BufferedWriter(new FileWriter(new File(dirDimensions, conflicts + "-dimensions" + conflictExtension)));
 			writeConflicts(writer, Registries.dimensions);
 			writer.close();
 		
-			writer = new BufferedWriter(new FileWriter(new File(dirEntities,"conflicts.json")));
+			writer = new BufferedWriter(new FileWriter(new File(dirEntities, conflicts + conflictExtension)));
 			writeConflicts(writer, Registries.entities);
 			writer.close();
 		
-			writer = new BufferedWriter(new FileWriter(new File(dirPotions,"conflicts.json")));
+			writer = new BufferedWriter(new FileWriter(new File(dirPotions, conflicts + conflictExtension)));
 			writeConflicts(writer, Registries.potions);
 			writer.close();
 		
-			writer = new BufferedWriter(new FileWriter(new File(dirEnchantments,"conflicts.json")));
+			writer = new BufferedWriter(new FileWriter(new File(dirEnchantments, conflicts + conflictExtension)));
 			writeConflicts(writer, Registries.enchantments);
 			writer.close();
 		}
@@ -245,7 +241,7 @@ public class RegistryWriter {
 			if(reg.isConflicting(id))
 			{
 				JSONArray arr = new JSONArray();
-				filejson.put(reg.dataType.toString().toLowerCase() + "s-id:" + id, arr);
+				filejson.put(reg.dataType.getName() + "-id:" + id, arr);
 				for(Registry.Entry entry : reg.getEntry(id))
 				{
 					JSONObject json = new JSONObject();
@@ -276,24 +272,23 @@ public class RegistryWriter {
 	{
 		try
 		{
-			mkdirs();
-			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(dirBiomes, "freeids.txt")));
+			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(dirBiomes, freeids + extension)));
 			writeFreeIds(writer, Registries.biomes);
 			writer.close();
 			
-			writer = new BufferedWriter(new FileWriter(new File(dirPotions, "freeids.txt")));
+			writer = new BufferedWriter(new FileWriter(new File(dirPotions, freeids + extension)));
 			writeFreeIds(writer, Registries.potions);
 			writer.close();
 			
-			writer = new BufferedWriter(new FileWriter(new File(dirEnchantments, "freeids.txt")));
+			writer = new BufferedWriter(new FileWriter(new File(dirEnchantments, freeids + extension)));
 			writeFreeIds(writer, Registries.enchantments);
 			writer.close();
 			
-			writer = new BufferedWriter(new FileWriter(new File(dirDimensions, "freeids.txt")));
+			writer = new BufferedWriter(new FileWriter(new File(dirDimensions, freeids + extension)));
 			writeFreeDimIds(writer);
 			writer.close();
 			
-			writer = new BufferedWriter(new FileWriter(new File(dirEntities, "freeids.txt")));
+			writer = new BufferedWriter(new FileWriter(new File(dirEntities, freeids + extension)));
 			writeFreeIds(writer, Registries.entities);
 			writer.close();
 		}
@@ -307,24 +302,23 @@ public class RegistryWriter {
 	{
 		try
 		{
-			mkdirs();
-			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(dirBiomes, "ids-org.txt")));
+			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(dirBiomes, dumpIdsOrg + extension)));
 			dumpIds(writer, Registries.biomes);
 			writer.close();
 			
-			writer = new BufferedWriter(new FileWriter(new File(dirPotions, "ids-org.txt")));
+			writer = new BufferedWriter(new FileWriter(new File(dirPotions, dumpIdsOrg + extension)));
 			dumpIds(writer, Registries.potions);
 			writer.close();
 			
-			writer = new BufferedWriter(new FileWriter(new File(dirEnchantments, "ids-org.txt")));
+			writer = new BufferedWriter(new FileWriter(new File(dirEnchantments, dumpIdsOrg + extension)));
 			dumpIds(writer, Registries.enchantments);
 			writer.close();
 			
-			writer = new BufferedWriter(new FileWriter(new File(dirDimensions, "ids-org.txt")));
+			writer = new BufferedWriter(new FileWriter(new File(dirDimensions, dumpIdsOrg + extension)));
 			dumpIds(writer, Registries.providers);
 			writer.close();
 			
-			writer = new BufferedWriter(new FileWriter(new File(dirEntities, "ids-org.txt")));
+			writer = new BufferedWriter(new FileWriter(new File(dirEntities, dumpIdsOrg + extension)));
 			dumpIds(writer, Registries.entities);
 			writer.close();
 		}
@@ -382,7 +376,7 @@ public class RegistryWriter {
 	{
 		try
 		{
-			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(dirDatawatchers, "suggested.txt")));
+			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(dirDatawatchers, suggested + extension)));
 			writeSuggested(writer, Registries.datawatchers);
 			writer.close();
 		}
@@ -396,7 +390,7 @@ public class RegistryWriter {
 	{
 		try
 		{
-			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(dirDatawatchers,"conflicts.json")));
+			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(dirDatawatchers, conflicts + conflictExtension)));
 			writeConflicts(writer, Registries.datawatchers);
 			writer.close();
 		}
@@ -410,7 +404,7 @@ public class RegistryWriter {
 	{
 		try
 		{
-			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(dirDatawatchers, "freeids.txt")));
+			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(dirDatawatchers, freeids + extension)));
 			writeFreeIds(writer, Registries.datawatchers);
 			writer.close();
 		}
@@ -424,7 +418,7 @@ public class RegistryWriter {
 	{
 		try
 		{
-			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(dirDatawatchers, "ids-org.txt")));
+			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(dirDatawatchers, dumpIdsOrg + extension)));
 			dumpIds(writer, Registries.datawatchers);
 			writer.close();
 		}

@@ -277,6 +277,16 @@ public class Registry {
     	ITEM(),
     	BLOCK(),
     	TILEENTITY();
+    	
+		public String getName() 
+		{
+			return this.getName(true);
+		}
+
+		public String getName(boolean plural) 
+		{
+			return plural ? this.toString().toLowerCase() + "s" : this.toString().toLowerCase();
+		}
     }
     
     public static class Entry
