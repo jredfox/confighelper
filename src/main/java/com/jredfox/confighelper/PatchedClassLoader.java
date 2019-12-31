@@ -46,6 +46,10 @@ public class PatchedClassLoader {
 	
 	public static boolean isOptimized(ClassLoader loader)
 	{
+		if(!(loader instanceof LaunchClassLoader))
+		{
+			return true;
+		}
 		return ReflectionHandler.getObject(cachedClasses, loader) instanceof DummyMap &&
 			   ReflectionHandler.getObject(resourceCache, loader) instanceof DummyMap &&
 			   ReflectionHandler.getObject(packageManifets, loader) instanceof DummyMap;
@@ -62,6 +66,14 @@ public class PatchedClassLoader {
     	{
     		Registries.makeCrashReport("init", "LaunchClassLoader is unoptimized!");
     	}
+	}
+	
+	/**
+	 * in versions 1.12.2+
+	 */
+	public static void foamFixSupport()
+	{
+		
 	}
 
 }

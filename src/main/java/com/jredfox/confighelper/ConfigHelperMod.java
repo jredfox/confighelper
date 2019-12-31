@@ -4,6 +4,7 @@ import com.evilnotch.lib.reflect.ReflectionHandler;
 import com.evilnotch.lib.util.JavaUtil;
 import com.jredfox.confighelper.asm.Transformer;
 
+import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.event.FMLLoadCompleteEvent;
@@ -17,7 +18,7 @@ import net.minecraftforge.common.MinecraftForge;
 public class ConfigHelperMod
 {
     public static final String MODID = "confighelper";
-    public static final String VERSION = "beta-1.0";
+    public static final String VERSION = "pre-1.0";
     public static final String NAME = "Config Helper";
     
     @EventHandler

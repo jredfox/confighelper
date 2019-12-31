@@ -43,7 +43,6 @@ public class Transformer implements IClassTransformer{
 			String[] path = actualName.split("\\.");
 			String fileClass = inputBase + path[path.length-1];
 			InputStream stream = Transformer.class.getClassLoader().getResourceAsStream(fileClass);
-			System.out.println("finding:" + fileClass + ", stream valid:" + (stream != null) );
 			try 
 			{
 				return IOUtils.toByteArray(stream);

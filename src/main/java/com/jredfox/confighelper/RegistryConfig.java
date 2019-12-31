@@ -27,8 +27,17 @@ public class RegistryConfig {
 	public static boolean showVanillaIds;
 	public static boolean regUnregBiomes = true;
 	//passable ids
-	public static String[] passable;
-	public static String[] passableSelf;
+	public static String[] passable = new String[]
+	{
+			"chylex.hee.world.biome.BiomeGenHardcoreEnd",
+			"chylex.hee.world.WorldProviderHardcoreEnd",
+			"chylex.hee.entity.mob.EntityMobEnderman",
+			"chylex.hee.entity.block.EntityBlockEnderCrystal"
+	};
+	public static String[] passableSelf = new String[]
+	{
+			"net.aetherteam.aether.dungeons.worldgen.DungeonsBiome"
+	};
 	public static Set<Integer> passableDimIds;
 	public static Set<Integer> passableWatcherIds;
 	//optimizations
@@ -43,8 +52,8 @@ public class RegistryConfig {
 		regUnregBiomes = cfg.getBoolean("regUnregBiomes", "general", regUnregBiomes, "will prevent future biome conflicts if un registerd biomes get registerd later");
 		dumpIds = cfg.getBoolean("dumpIds", "general", false, "dump original requested and memory indexed ids");
 		
-		passable = cfg.getStringList("conflicts", "passable", new String[0], "passable Classes that are allowed to conflict(replace) a registry object");
-		passableSelf = cfg.getStringList("selfConflicts", "passable", new String[0], "passable Classes that are allowed to conflict with itself");
+		passable = cfg.getStringList("conflicts", "passable", passable, "passable Classes that are allowed to conflict(replace) a registry object");
+		passableSelf = cfg.getStringList("selfConflicts", "passable", passableSelf, "passable Classes that are allowed to conflict with itself");
 		passableDimIds = getPassableIds(cfg, "conflictDimIds", "passable Dim ids(Not Provider) that are allowed to conflict. Only use if inputting the provider conflict class wasn't enough");
 		passableWatcherIds = getPassableIds(cfg, "conflictWatcherIds", "passable ids that data watchers are allowed to conflict with");
 		
