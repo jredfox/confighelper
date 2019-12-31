@@ -54,7 +54,7 @@ public class RegistryWriter {
 	public static final File dirDumpEnchantments = new Directory(dirEnchantments, dumps).create();
 	public static final File dirDumpDimensions = new Directory(dirDimensions, dumps).create();
 	public static final File dirDumpEntities = new Directory(dirEntities, dumps).create();
-	public static final File dirDumpDataWatchers = new Directory(dirDatawatchers, dumps).create();
+	public static final File dirDumpDatawatchers = new Directory(dirDatawatchers, dumps).create();
 	
 	public static final String extension =  ".txt";
 	public static final String conflictExtension = ".json";
@@ -72,7 +72,8 @@ public class RegistryWriter {
 			RegistryWriter.outputSuggestions();
 			RegistryWriter.outputConflictedIds();
 			RegistryWriter.outputFreeIds();
-			RegistryWriter.dumpIds();
+			if(RegistryConfig.dumpIds)
+				RegistryWriter.dumpIds();
 			RegistryWriter.outputWatcher();
 		}
 		catch(Throwable t)
@@ -89,7 +90,8 @@ public class RegistryWriter {
 		outputWatcherSuggestions();
 		outputWatcherConflicts();
 		outputWatcherFreeIds();
-		dumpWatcherIds();
+		if(RegistryConfig.dumpIds)
+			dumpWatcherIds();
 	}
 
 	private static void grabNames()
@@ -174,7 +176,7 @@ public class RegistryWriter {
 			{
 				if(!canSuggest(reg, e))
 					continue;
-				writer.write(reg.getNextSuggestedId(e.newId) + " " + reg.getDisplay(e) + "\r\n");
+				writer.write(reg.getNextSuggestedId(e.newId) + " " + reg.getDisplay(e, false) + "\r\n");
 			}
 			if(hasModName)
 				writer.write("\r\n");
@@ -301,25 +303,25 @@ public class RegistryWriter {
 	private static void dumpIds() 
 	{
 		try
-		{
-			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(dirBiomes, dumpIdsOrg + extension)));
-			dumpIds(writer, Registries.biomes);
+		{	
+			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(dirDumpBiomes, dumpIdsNew + extension)));
+			dumpIdsNew(writer, Registries.biomes);
+			writer.close();//aaaaaaaaaaaaaaaaaaaaaa
+			
+			writer = new BufferedWriter(new FileWriter(new File(dirDumpPotions, dumpIdsNew + extension)));
+			dumpIdsNew(writer, Registries.potions);
 			writer.close();
 			
-			writer = new BufferedWriter(new FileWriter(new File(dirPotions, dumpIdsOrg + extension)));
-			dumpIds(writer, Registries.potions);
+			writer = new BufferedWriter(new FileWriter(new File(dirDumpEnchantments, dumpIdsNew + extension)));
+			dumpIdsNew(writer, Registries.enchantments);
 			writer.close();
 			
-			writer = new BufferedWriter(new FileWriter(new File(dirEnchantments, dumpIdsOrg + extension)));
-			dumpIds(writer, Registries.enchantments);
+			writer = new BufferedWriter(new FileWriter(new File(dirDumpDimensions, dumpIdsNew + extension)));
+			dumpIdsNew(writer, Registries.providers);
 			writer.close();
 			
-			writer = new BufferedWriter(new FileWriter(new File(dirDimensions, dumpIdsOrg + extension)));
-			dumpIds(writer, Registries.providers);
-			writer.close();
-			
-			writer = new BufferedWriter(new FileWriter(new File(dirEntities, dumpIdsOrg + extension)));
-			dumpIds(writer, Registries.entities);
+			writer = new BufferedWriter(new FileWriter(new File(dirDumpEntities, dumpIdsNew + extension)));
+			dumpIdsNew(writer, Registries.entities);
 			writer.close();
 		}
 		catch(Throwable t)
@@ -327,26 +329,33 @@ public class RegistryWriter {
 			t.printStackTrace();
 		}
 	}
-	/**
-	 * dump orgIds
-	 */
-	private static void dumpIds(BufferedWriter writer, Registry reg) throws IOException
+	
+	private static void dumpIdsNew(BufferedWriter writer, Registry reg) throws IOException
 	{
-		for(int id : reg.getUsedIds())
-			writer.write("id:" + id + "\r\n");
+		List<Registry.Entry> entries = reg.getAllEntries();
+		Collections.sort(entries, new Comparator<Registry.Entry>()
+		{
+			@Override
+			public int compare(Registry.Entry arg0, Registry.Entry arg1)
+			{
+				return ((Integer)arg0.newId).compareTo((Integer)arg1.newId);
+			}
+		});
+		for(Registry.Entry entry : entries)
+			writer.write("" + entry.newId + " " + reg.getDisplay(entry, true) + "\r\n");
 	}
 
 	private static void writeFreeIds(BufferedWriter writer, Registry reg) throws IOException
 	{
-		Set<Integer> usedIds = reg.getUsedIds();
+		Set<Integer> usedIds = reg.getOrgIds();
 		writeFreeIds(writer, reg.limit, usedIds);
 	}
 	
 	public static void writeFreeDimIds(BufferedWriter writer) throws IOException
 	{
 		Set<Integer> joinedIds = new TreeSet();
-		joinedIds.addAll(Registries.dimensions.getUsedIds());
-		joinedIds.addAll(Registries.providers.getUsedIds());
+		joinedIds.addAll(Registries.dimensions.getOrgIds());
+		joinedIds.addAll(Registries.providers.getOrgIds());
 		writeFreeIds(writer, Registries.dimensions.limit, joinedIds);
 	}
 	
@@ -363,8 +372,11 @@ public class RegistryWriter {
 				writer.write("id(" + minId + " - " + maxId + ")\r\n");
 			minId = usedId + 1;//reset min id for the next use
 		}
-		maxId = limit;
-		writer.write("id:(" + minId + " - " + maxId + ") ------> last\r\n");
+		if(minId < limit)
+		{
+			maxId = limit;
+			writer.write("id:(" + minId + " - " + maxId + ") ------> last\r\n");
+		}
 	}
 	
 	private static void grabWatcherNames()
@@ -418,8 +430,8 @@ public class RegistryWriter {
 	{
 		try
 		{
-			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(dirDatawatchers, dumpIdsOrg + extension)));
-			dumpIds(writer, Registries.datawatchers);
+			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(dirDumpDatawatchers, dumpIdsNew + extension)));
+			dumpIdsNew(writer, Registries.datawatchers);
 			writer.close();
 		}
 		catch(Throwable t)

@@ -113,9 +113,26 @@ public class Registry {
 	/**
 	 * get used org Ids in order from least to greatest
 	 */
-	public Set<Integer> getUsedIds()
+	public Set<Integer> getOrgIds()
 	{
 		return new TreeSet(this.reg.keySet());
+	}
+	
+	public Set<Integer> getNewIds()
+	{
+		Set<Integer> newIds = new TreeSet();
+		for(List<Registry.Entry> list : this.reg.values())
+			for(Registry.Entry entry : list)
+				newIds.add(entry.newId);
+		return newIds;
+	}
+	
+	public List<Registry.Entry> getAllEntries()
+	{
+		List<Registry.Entry> list = new ArrayList();
+		for(List<Registry.Entry> entries : this.reg.values())
+			list.addAll(entries);
+		return list;
 	}
 	
 	public boolean isPassable(String clazz, int id) 
@@ -238,9 +255,9 @@ public class Registry {
 		return this.reg.get(org);
 	}
 	
-   	public String getDisplay(Registry.Entry e)
+   	public String getDisplay(Registry.Entry e, boolean name)
 	{
-		return "(name:" + e.name + ", " + e.clazz + ", orgId:" + e.org + ")";
+		return "(name:" + e.name + ", " + (name ? e.modName + ", " : "") + e.clazz + ", orgId:" + e.org + ")";
 	}
    	
    	/**
@@ -285,7 +302,15 @@ public class Registry {
 
 		public String getName(boolean plural) 
 		{
-			return plural ? this.toString().toLowerCase() + "s" : this.toString().toLowerCase();
+			String str = this.toString().toLowerCase();
+			if(plural)
+			{
+				if(str.endsWith("y"))
+					str = str.substring(0, str.length()-1) + "ies";
+				else
+					str += "s";
+			}
+			return str;
 		}
     }
     

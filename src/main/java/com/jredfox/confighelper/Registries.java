@@ -58,7 +58,6 @@ public class Registries {
 	
 	public static int registerEnchantment(Enchantment ench, int id)
 	{
-		System.out.println("registering enchantment:" + id);
 		return register(ench, id, enchantments);
 	}
 	

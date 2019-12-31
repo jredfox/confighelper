@@ -30,7 +30,7 @@ public abstract class RegistryInt extends Registry{
 	}
 	
 	@Override
-   	public String getDisplay(Registry.Entry e)
+   	public String getDisplay(Registry.Entry e, boolean name)
 	{
    		return "(" + e.name + ", org:" + e.org + ")";
 	}
