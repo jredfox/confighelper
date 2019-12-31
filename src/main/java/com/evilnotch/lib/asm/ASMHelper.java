@@ -36,7 +36,6 @@ public class ASMHelper
 		{
 			MethodNode origin = getMethodNode(classNode, method_name, method_desc);
 			MethodNode toReplace = getCachedMethodNode(inputStream, method_name, method_desc);
-			System.out.println((origin == null) + "," + (toReplace == null) );
 			origin.instructions = toReplace.instructions;
 			origin.localVariables = toReplace.localVariables;
 			origin.annotationDefault = toReplace.annotationDefault;

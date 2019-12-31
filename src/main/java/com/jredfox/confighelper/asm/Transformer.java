@@ -12,6 +12,7 @@ import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.LineNumberNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
 import com.evilnotch.lib.asm.ASMHelper;
@@ -65,9 +66,13 @@ public class Transformer implements IClassTransformer{
 				case 3:
 					patchForgeDimensions(classNode);
 				break;
+				
+				case 4:
+					patchEntityList(classNode);
+				break;
 			}
 			byte[] custom = ASMHelper.getClassWriter(classNode).toByteArray();
-			if(index == 3)
+			if(index == 4)
 				ASMHelper.dumpFile(actualName, custom);
 			return custom;
 		}
@@ -78,6 +83,30 @@ public class Transformer implements IClassTransformer{
 			t.printStackTrace();
 		}
 		return bytes;
+	}
+
+	private void patchEntityList(ClassNode classNode) 
+	{
+		//inject line: Registries.registerEntity(EntityClass.class, name, id)
+		MethodNode node = ASMHelper.getMethodNode(classNode, "addMapping", "(Ljava/lang/Class;Ljava/lang/String;I)V");
+		InsnList list = new InsnList();
+		list.add(new VarInsnNode(Opcodes.ALOAD, 0));
+		list.add(new VarInsnNode(Opcodes.ALOAD, 1));
+		list.add(new VarInsnNode(Opcodes.ILOAD, 2));
+		list.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/jredfox/confighelper/Registries", "registerEntity", "(Ljava/lang/Class;Ljava/lang/String;I)I", false));
+		list.add(new VarInsnNode(Opcodes.ISTORE, 2));
+		node.instructions.insert(ASMHelper.getFirstInstruction(node), list);
+		
+		//inject line: id = (Integer) classToIDMapping.get(id);
+		MethodNode egg = ASMHelper.getMethodNode(classNode, "addMapping", "(Ljava/lang/Class;Ljava/lang/String;III)V");
+		InsnList list2 = new InsnList();
+		list2.add(new FieldInsnNode(Opcodes.GETSTATIC, "net/minecraft/entity/EntityList", "classToIDMapping", "Ljava/util/Map;"));
+		list2.add(new VarInsnNode(Opcodes.ALOAD, 0));
+		list2.add(new MethodInsnNode(Opcodes.INVOKEINTERFACE, "java/util/Map", "get", "(Ljava/lang/Object;)Ljava/lang/Object;", true));
+		list2.add(new TypeInsnNode(Opcodes.CHECKCAST, "java/lang/Integer"));
+		list2.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "java/lang/Integer", "intValue", "()I", false));
+		list2.add(new VarInsnNode(Opcodes.ISTORE, 2));
+		egg.instructions.insert(ASMHelper.getFirstInstruction(egg, Opcodes.INVOKESTATIC), list2);
 	}
 
 	/**
