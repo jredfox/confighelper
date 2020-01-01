@@ -16,6 +16,7 @@ import org.objectweb.asm.tree.VarInsnNode;
 
 import com.evilnotch.lib.asm.ASMHelper;
 import com.evilnotch.lib.asm.ObfHelper;
+import com.evilnotch.lib.reflect.MCPSidedString;
 import com.jredfox.confighelper.ConfigHelperMod;
 import com.jredfox.confighelper.PatchedClassLoader;
 import com.jredfox.confighelper.ModReference;
@@ -78,8 +79,7 @@ public class Transformer implements IClassTransformer{
 				break;
 			}
 			byte[] custom = ASMHelper.getClassWriter(classNode).toByteArray();
-			if(index == 5)
-				ASMHelper.dumpFile(actualName, custom);
+			ASMHelper.dumpFile(actualName, custom);
 			return custom;
 		}
 		
@@ -89,17 +89,6 @@ public class Transformer implements IClassTransformer{
 			t.printStackTrace();
 		}
 		return bytes;
-	}
-
-	private void patchDatawatcher(ClassNode classNode) 
-	{
-		ASMHelper.addFeild(classNode, "reg", "Lcom/jredfox/confighelper/Registry;");
-		DataWatcherPatcher.patchConstructor(classNode);
-		DataWatcherPatcher.patchAddObject(classNode);
-		DataWatcherPatcher.patchWriteList(classNode);
-		String input = ASMHelper.getInputStream(ModReference.MODID, "DataWatcher"); //"assets/confighelper/asm/" + (ObfHelper.isObf ? "srg/" : "deob/") + "DataWatcher";
-		ASMHelper.replaceMethod(classNode, input, "writeWatchableObjectToPacketBuffer", "(Lnet/minecraft/network/PacketBuffer;Lnet/minecraft/entity/DataWatcher$WatchableObject;)V");
-		ASMHelper.replaceMethod(classNode, input, "readWatchedListFromPacketBuffer", "(Lnet/minecraft/network/PacketBuffer;)Ljava/util/List;");
 	}
 
 	/**
@@ -114,7 +103,7 @@ public class Transformer implements IClassTransformer{
 		list.add(new VarInsnNode(Opcodes.ILOAD, 2));
 		list.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/jredfox/confighelper/Registries", "registerBiome", "(Lnet/minecraft/world/biome/BiomeGenBase;IZ)I", false));
 		list.add(new VarInsnNode(Opcodes.ISTORE, 1));
-		FieldInsnNode field = new FieldInsnNode(Opcodes.PUTFIELD, "net/minecraft/world/biome/BiomeGenBase", "topBlock", "Lnet/minecraft/block/Block;");
+		FieldInsnNode field = new FieldInsnNode(Opcodes.PUTFIELD, "net/minecraft/world/biome/BiomeGenBase", new MCPSidedString("topBlock", "field_76752_A").toString(), "Lnet/minecraft/block/Block;");
 		node.instructions.insert(ASMHelper.getFirstInstruction(node, Opcodes.INVOKESPECIAL), list);
 	}
 	
@@ -177,7 +166,7 @@ public class Transformer implements IClassTransformer{
 		dimensions.instructions.insert(ASMHelper.getFirstInstruction(dimensions), list2);
 		
 		//replace DimensionManager nextId methods
-		String input = "assets/confighelper/asm/deob/DimensionManager";
+		String input = ASMHelper.getInputStream(ModReference.MODID, "DimensionManager");
 		ASMHelper.replaceMethod(classNode, input, "getNextFreeDimId", "()I");
 		ASMHelper.replaceMethod(classNode, input, "saveDimensionDataMap", "()Lnet/minecraft/nbt/NBTTagCompound;");
 		ASMHelper.replaceMethod(classNode, input, "loadDimensionDataMap", "(Lnet/minecraft/nbt/NBTTagCompound;)V");
@@ -186,7 +175,7 @@ public class Transformer implements IClassTransformer{
 	private void patchEntityList(ClassNode classNode) 
 	{
 		//inject line: Registries.registerEntity(EntityClass.class, name, id)
-		MethodNode node = ASMHelper.getMethodNode(classNode, "addMapping", "(Ljava/lang/Class;Ljava/lang/String;I)V");
+		MethodNode node = ASMHelper.getMethodNode(classNode, new MCPSidedString("addMapping", "func_75618_a").toString(), "(Ljava/lang/Class;Ljava/lang/String;I)V");
 		InsnList list = new InsnList();
 		list.add(new VarInsnNode(Opcodes.ALOAD, 0));
 		list.add(new VarInsnNode(Opcodes.ALOAD, 1));
@@ -196,16 +185,27 @@ public class Transformer implements IClassTransformer{
 		node.instructions.insert(ASMHelper.getFirstInstruction(node), list);
 		
 		//inject line: id = (Integer) classToIDMapping.get(id);
-		MethodNode egg = ASMHelper.getMethodNode(classNode, "addMapping", "(Ljava/lang/Class;Ljava/lang/String;III)V");
+		MethodNode egg = ASMHelper.getMethodNode(classNode, new MCPSidedString("addMapping", "func_75614_a").toString(), "(Ljava/lang/Class;Ljava/lang/String;III)V");
 		InsnList list2 = new InsnList();
-		list2.add(new FieldInsnNode(Opcodes.GETSTATIC, "net/minecraft/entity/EntityList", "classToIDMapping", "Ljava/util/Map;"));
+		list2.add(new FieldInsnNode(Opcodes.GETSTATIC, "net/minecraft/entity/EntityList", new MCPSidedString("classToIDMapping", "field_75624_e").toString(), "Ljava/util/Map;"));
 		list2.add(new VarInsnNode(Opcodes.ALOAD, 0));
 		list2.add(new MethodInsnNode(Opcodes.INVOKEINTERFACE, "java/util/Map", "get", "(Ljava/lang/Object;)Ljava/lang/Object;", true));
 		list2.add(new TypeInsnNode(Opcodes.CHECKCAST, "java/lang/Integer"));
 		list2.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "java/lang/Integer", "intValue", "()I", false));
 		list2.add(new VarInsnNode(Opcodes.ISTORE, 2));
-		MethodInsnNode check = new MethodInsnNode(Opcodes.INVOKESTATIC, "net/minecraft/entity/EntityList", "addMapping", "(Ljava/lang/Class;Ljava/lang/String;I)V", false);
+		MethodInsnNode check = new MethodInsnNode(Opcodes.INVOKESTATIC, "net/minecraft/entity/EntityList", new MCPSidedString("addMapping", "func_75618_a").toString(), "(Ljava/lang/Class;Ljava/lang/String;I)V", false);
 		egg.instructions.insert(ASMHelper.getFirstMethodInsn(egg, check), list2);
+	}
+	
+	private void patchDatawatcher(ClassNode classNode) 
+	{
+		ASMHelper.addFeild(classNode, "reg", "Lcom/jredfox/confighelper/Registry;");
+		DataWatcherPatcher.patchConstructor(classNode);
+		DataWatcherPatcher.patchAddObject(classNode);
+		DataWatcherPatcher.patchWriteList(classNode);
+		String input = ASMHelper.getInputStream(ModReference.MODID, "DataWatcher"); //"assets/confighelper/asm/" + (ObfHelper.isObf ? "srg/" : "deob/") + "DataWatcher";
+		ASMHelper.replaceMethod(classNode, input, new MCPSidedString("writeWatchableObjectToPacketBuffer", "func_151510_a").toString(), "(Lnet/minecraft/network/PacketBuffer;Lnet/minecraft/entity/DataWatcher$WatchableObject;)V");
+		ASMHelper.replaceMethod(classNode, input, new MCPSidedString("readWatchedListFromPacketBuffer", "func_151508_b").toString(), "(Lnet/minecraft/network/PacketBuffer;)Ljava/util/List;");
 	}
 
 }

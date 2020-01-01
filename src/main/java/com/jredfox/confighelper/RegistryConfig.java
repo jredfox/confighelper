@@ -62,7 +62,6 @@ public class RegistryConfig {
 		potionsLimit = cfg.get("limit", "potions", potionsLimit).getInt();
 		enchantmentsLimit = cfg.get("limit", "enchantments", enchantmentsLimit).getInt();
 		entities = cfg.get("limit", "entities", entities).getInt();
-		dataWatchersLimit = cfg.get("limit", "dataWatchers", dataWatchersLimit).getInt();
 		
 		unloadModDimIds = cfg.getBoolean("unloadModDimIds", "optimization", unloadModDimIds, "enabled: (less laggy)");
 		cfg.save();

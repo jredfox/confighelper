@@ -12,6 +12,7 @@ import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
 import com.evilnotch.lib.asm.ASMHelper;
+import com.evilnotch.lib.reflect.MCPSidedString;
 
 public class DataWatcherPatcher {
 	
@@ -28,11 +29,11 @@ public class DataWatcherPatcher {
 
 	public static void patchAddObject(ClassNode classNode) 
 	{
-		MethodNode addObject = ASMHelper.getMethodNode(classNode, "addObject", "(ILjava/lang/Object;)V");
+		MethodNode addObject = ASMHelper.getMethodNode(classNode, new MCPSidedString("addObject", "func_75682_a").toString(), "(ILjava/lang/Object;)V");
 		InsnList list = new InsnList();
 		//inject line: id = Registries.registerDataWatcher(this.field_151511_a, id, this.reg);
 		list.add(new VarInsnNode(Opcodes.ALOAD, 0));
-		list.add(new FieldInsnNode(Opcodes.GETFIELD, "net/minecraft/entity/DataWatcher", "field_151511_a", "Lnet/minecraft/entity/Entity;"));
+		list.add(new FieldInsnNode(Opcodes.GETFIELD, "net/minecraft/entity/DataWatcher", new MCPSidedString("field_151511_a", "field_151511_a").toString(), "Lnet/minecraft/entity/Entity;"));
 		list.add(new VarInsnNode(Opcodes.ILOAD, 1));
 		list.add(new VarInsnNode(Opcodes.ALOAD, 0));
 		list.add(new FieldInsnNode(Opcodes.GETFIELD, "net/minecraft/entity/DataWatcher", "reg", "Lcom/jredfox/confighelper/Registry;"));
@@ -60,9 +61,9 @@ public class DataWatcherPatcher {
 	
 	public static void patchWriteList(ClassNode classNode)
 	{
-		MethodNode write1 = ASMHelper.getMethodNode(classNode, "func_151509_a", "(Lnet/minecraft/network/PacketBuffer;)V");
+		MethodNode write1 = ASMHelper.getMethodNode(classNode, new MCPSidedString("func_151509_a", "func_151509_a").toString(), "(Lnet/minecraft/network/PacketBuffer;)V");
 		DataWatcherPatcher.patch127(write1);
-		MethodNode write2 = ASMHelper.getMethodNode(classNode, "writeWatchedListToPacketBuffer", "(Ljava/util/List;Lnet/minecraft/network/PacketBuffer;)V");
+		MethodNode write2 = ASMHelper.getMethodNode(classNode, new MCPSidedString("writeWatchedListToPacketBuffer", "func_151507_a").toString(), "(Ljava/util/List;Lnet/minecraft/network/PacketBuffer;)V");
 		DataWatcherPatcher.patch127(write2);
 	}
 	
