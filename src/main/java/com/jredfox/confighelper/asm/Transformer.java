@@ -19,6 +19,7 @@ import com.evilnotch.lib.asm.ObfHelper;
 import com.evilnotch.lib.reflect.MCPSidedString;
 import com.jredfox.confighelper.ConfigHelperMod;
 import com.jredfox.confighelper.PatchedClassLoader;
+import com.jredfox.confighelper.RegistryConfig;
 import com.jredfox.confighelper.ModReference;
 import com.jredfox.confighelper.RegistryIds;
 
@@ -112,6 +113,23 @@ public class Transformer implements IClassTransformer{
 	 */
 	private static void patchPotion(ClassNode classNode) 
 	{
+		//extend potion id limit to byte
+		MethodNode clinit = ASMHelper.getClassInitNode(classNode);
+		for(AbstractInsnNode ab : clinit.instructions.toArray())
+		{
+			if(Opcodes.BIPUSH == ab.getOpcode())
+			{
+				IntInsnNode i = (IntInsnNode)ab;
+				if(i.operand < 255)
+				{
+					i.setOpcode(Opcodes.SIPUSH);
+					i.operand = 255;
+					break;
+				}
+			}
+		}
+		
+		//inject line: Registries.registerPotion(this, id);
 		MethodNode constructor = ASMHelper.getConstructionNode(classNode, "(IZI)V");
 		InsnList list = new InsnList();
 		list.add(new VarInsnNode(Opcodes.ALOAD, 0));

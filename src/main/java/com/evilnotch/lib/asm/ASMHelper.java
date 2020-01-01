@@ -618,4 +618,9 @@ public class ASMHelper
 		}
 		return null;
 	}
+
+	public static MethodNode getClassInitNode(ClassNode classNode) 
+	{
+		return getMethodNode(classNode, "<clinit>", "()V");
+	}
 }
