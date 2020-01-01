@@ -97,7 +97,6 @@ public class Transformer implements IClassTransformer{
 		DataWatcherPatcher.patchConstructor(classNode);
 		DataWatcherPatcher.patchAddObject(classNode);
 		DataWatcherPatcher.patchWriteList(classNode);
-		
 		String input = ASMHelper.getInputStream(ModReference.MODID, "DataWatcher"); //"assets/confighelper/asm/" + (ObfHelper.isObf ? "srg/" : "deob/") + "DataWatcher";
 		ASMHelper.replaceMethod(classNode, input, "writeWatchableObjectToPacketBuffer", "(Lnet/minecraft/network/PacketBuffer;Lnet/minecraft/entity/DataWatcher$WatchableObject;)V");
 		ASMHelper.replaceMethod(classNode, input, "readWatchedListFromPacketBuffer", "(Lnet/minecraft/network/PacketBuffer;)Ljava/util/List;");

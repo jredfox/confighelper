@@ -15,6 +15,7 @@ import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.potion.Potion;
 import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.tileentity.TileEntity;
@@ -205,6 +206,16 @@ public class Registries {
 	public static Registry createWatcherReg(Entity e) 
 	{
 		return e instanceof EntityPlayer ? new RegistryDatawatcher() : null;
+	}
+
+	public static void writeWatchableObject(PacketBuffer buf, int dataType, Object object) 
+	{
+		
+	}
+
+	public static Object readWatchableObject(PacketBuffer buf, int dataType) 
+	{
+		return null;
 	}
 	
 
