@@ -17,7 +17,7 @@ public class RegistryConfig {
 	public static int potionsLimit = 255;
 	public static int enchantmentsLimit = 255;
 	public static int entities = 255;
-	public static int dataWatchersLimit = 254;
+	public static int dataWatchersLimit = Integer.MAX_VALUE;
 	public static int dimLimitUpper = Integer.MAX_VALUE;
 	public static int dimLimitLower = Integer.MIN_VALUE;
 	

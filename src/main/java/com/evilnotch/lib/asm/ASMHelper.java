@@ -15,6 +15,8 @@ import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.FieldNode;
+import org.objectweb.asm.tree.IntInsnNode;
+import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.LineNumberNode;
 import org.objectweb.asm.tree.LocalVariableNode;
 import org.objectweb.asm.tree.MethodInsnNode;
@@ -235,7 +237,7 @@ public class ASMHelper
 	 */
 	public static void addFeild(ClassNode node,String feildName,String desc,String paramDesc)
 	{
-		FieldNode field = new FieldNode(Opcodes.ACC_PUBLIC, feildName, desc, paramDesc,null);
+		FieldNode field = new FieldNode(Opcodes.ACC_PUBLIC, feildName, desc, paramDesc, null);
 		node.fields.add(field);
 	}
 	
@@ -584,6 +586,35 @@ public class ASMHelper
 			{
 				return ab;
 			}
+		}
+		return null;
+	}
+	
+	/**
+	 * get the standard recommended input stream for asm
+	 */
+	public static String getInputStream(String modid, String clazzName) 
+	{
+		return "assets/" + modid + "/asm/" + (ObfHelper.isObf ? "srg/" : "deob/") + clazzName;
+	}
+	
+	/**
+	 * get a classes simple name without loading it
+	 */
+	public static String getSimpleName(String clazz)
+	{
+		String[] args = clazz.split("\\.");
+		return args[args.length-1];
+	}
+
+	public static JumpInsnNode getJumpInsnNode(AbstractInsnNode starting) 
+	{
+		AbstractInsnNode k = starting;
+		while(k != null)
+		{
+			k = k.getNext();
+			if(k instanceof JumpInsnNode)
+				return (JumpInsnNode) k;
 		}
 		return null;
 	}

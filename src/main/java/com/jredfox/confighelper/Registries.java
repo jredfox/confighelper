@@ -13,6 +13,7 @@ import cpw.mods.fml.relauncher.ReflectionHelper;
 import net.minecraft.block.Block;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.potion.Potion;
 import net.minecraft.server.dedicated.DedicatedServer;
@@ -76,9 +77,18 @@ public class Registries {
 		return register(new EntryEntity(entity, entityName), id, entities);
 	}
 	
-	public static int registerDataWatcher(Class<? extends Entity> entityClass, int id, Registry reg)
+	public static int registerDataWatcher(Entity entity, int id, Registry reg)
 	{
-		return register(entityClass, id, reg);
+		if(id < 0 || id > RegistryConfig.dataWatchersLimit)
+		{
+			throw new IllegalArgumentException(DataType.DATAWATCHER.toString() + " id must be between 0-" + RegistryConfig.dataWatchersLimit);
+		}
+		if(!(entity instanceof EntityPlayer))
+		{
+			return id;
+		}
+		datawatchers = reg;
+		return register(entity, id, reg);
 	}
 	
 	public static int register(Object obj, int id, Registry reg)
@@ -191,6 +201,11 @@ public class Registries {
 	}
 	
 	public static int nextDim = Integer.MAX_VALUE;
+
+	public static Registry createWatcherReg(Entity e) 
+	{
+		return e instanceof EntityPlayer ? new RegistryDatawatcher() : null;
+	}
 	
 
 }
