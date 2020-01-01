@@ -9,6 +9,7 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.DataWatcher;
 import net.minecraft.entity.monster.EntityCreeper;
+import net.minecraft.potion.Potion;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.MinecraftForge;

@@ -113,17 +113,18 @@ public class Transformer implements IClassTransformer{
 	 */
 	private static void patchPotion(ClassNode classNode) 
 	{
-		//extend potion id limit to byte
+		//extend potion id limit to signed byte(0-127)
 		MethodNode clinit = ASMHelper.getClassInitNode(classNode);
 		for(AbstractInsnNode ab : clinit.instructions.toArray())
 		{
 			if(Opcodes.BIPUSH == ab.getOpcode())
 			{
 				IntInsnNode i = (IntInsnNode)ab;
-				if(i.operand < 255)
+				int value = 127 + 1;
+				if(i.operand < value)
 				{
 					i.setOpcode(Opcodes.SIPUSH);
-					i.operand = 255;
+					i.operand = value;//needs the +1 because arrays use size not indexes
 					break;
 				}
 			}
