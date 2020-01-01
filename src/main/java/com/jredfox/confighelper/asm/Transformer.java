@@ -96,12 +96,9 @@ public class Transformer implements IClassTransformer{
 		ASMHelper.addFeild(classNode, "reg", "Lcom/jredfox/confighelper/Registry;");
 		DataWatcherPatcher.patchConstructor(classNode);
 		DataWatcherPatcher.patchAddObject(classNode);
+		DataWatcherPatcher.patchWriteList(classNode);
 		
 		String input = ASMHelper.getInputStream(ModReference.MODID, "DataWatcher"); //"assets/confighelper/asm/" + (ObfHelper.isObf ? "srg/" : "deob/") + "DataWatcher";
-		//127 > 255
-		ASMHelper.replaceMethod(classNode, input, "func_151509_a", "(Lnet/minecraft/network/PacketBuffer;)V");
-		ASMHelper.replaceMethod(classNode, input, "writeWatchedListToPacketBuffer", "(Ljava/util/List;Lnet/minecraft/network/PacketBuffer;)V");
-		//method edits
 		ASMHelper.replaceMethod(classNode, input, "writeWatchableObjectToPacketBuffer", "(Lnet/minecraft/network/PacketBuffer;Lnet/minecraft/entity/DataWatcher$WatchableObject;)V");
 		ASMHelper.replaceMethod(classNode, input, "readWatchedListFromPacketBuffer", "(Lnet/minecraft/network/PacketBuffer;)Ljava/util/List;");
 	}

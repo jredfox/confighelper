@@ -57,5 +57,35 @@ public class DataWatcherPatcher {
 		append.add(new JumpInsnNode(Opcodes.IFEQ, todisable.label));
 		addObject.instructions.insertBefore(push.getPrevious(), append);
 	}
+	
+	public static void patchWriteList(ClassNode classNode)
+	{
+		MethodNode write1 = ASMHelper.getMethodNode(classNode, "func_151509_a", "(Lnet/minecraft/network/PacketBuffer;)V");
+		DataWatcherPatcher.patch127(write1);
+		MethodNode write2 = ASMHelper.getMethodNode(classNode, "writeWatchedListToPacketBuffer", "(Ljava/util/List;Lnet/minecraft/network/PacketBuffer;)V");
+		DataWatcherPatcher.patch127(write2);
+	}
+	
+	/**
+	 * patch the writing of the packet to end in 255 instead of 127
+	 */
+	public static void patch127(MethodNode node) 
+	{
+		AbstractInsnNode[] abs = node.instructions.toArray();
+		for(int i = abs.length-1; i >= 0; i--)
+		{
+			AbstractInsnNode ab = abs[i];
+			if(Opcodes.BIPUSH == ab.getOpcode())
+			{
+				IntInsnNode k = (IntInsnNode)ab;
+				if(k.operand == 127)
+				{
+					k.setOpcode(Opcodes.SIPUSH);
+					k.operand = 255;
+				}
+				break;
+			}
+		}
+	}
 
 }
