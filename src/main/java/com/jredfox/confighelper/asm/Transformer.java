@@ -94,43 +94,8 @@ public class Transformer implements IClassTransformer{
 	private void patchDatawatcher(ClassNode classNode) 
 	{
 		ASMHelper.addFeild(classNode, "reg", "Lcom/jredfox/confighelper/Registry;");
-		MethodNode construct = ASMHelper.getConstructionNode(classNode, "(Lnet/minecraft/entity/Entity;)V");
-		InsnList list0 = new InsnList();
-		list0.add(new VarInsnNode(Opcodes.ALOAD, 0));
-		list0.add(new VarInsnNode(Opcodes.ALOAD, 1));
-		list0.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/jredfox/confighelper/Registries", "createWatcherReg", "(Lnet/minecraft/entity/Entity;)Lcom/jredfox/confighelper/Registry;", false));
-		list0.add(new FieldInsnNode(Opcodes.PUTFIELD, "net/minecraft/entity/DataWatcher", "reg", "Lcom/jredfox/confighelper/Registry;"));
-		construct.instructions.insert(ASMHelper.getLastPutField(construct), list0);
-		
-		MethodNode addObject = ASMHelper.getMethodNode(classNode, "addObject", "(ILjava/lang/Object;)V");
-		InsnList list = new InsnList();
-		//inject line: id = Registries.registerDataWatcher(this.field_151511_a, id, this.reg);
-		list.add(new VarInsnNode(Opcodes.ALOAD, 0));
-		list.add(new FieldInsnNode(Opcodes.GETFIELD, "net/minecraft/entity/DataWatcher", "field_151511_a", "Lnet/minecraft/entity/Entity;"));
-		list.add(new VarInsnNode(Opcodes.ILOAD, 1));
-		list.add(new VarInsnNode(Opcodes.ALOAD, 0));
-		list.add(new FieldInsnNode(Opcodes.GETFIELD, "net/minecraft/entity/DataWatcher", "reg", "Lcom/jredfox/confighelper/Registry;"));
-		list.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/jredfox/confighelper/Registries", "registerDataWatcher", "(Lnet/minecraft/entity/Entity;ILcom/jredfox/confighelper/Registry;)I", false));
-		list.add(new VarInsnNode(Opcodes.ISTORE, 1));
-		addObject.instructions.insert(ASMHelper.getFirstInstruction(addObject), list);
-		
-		//disable throwable if the id > 31
-		JumpInsnNode todisable = null;
-		IntInsnNode push = null;
-		for(AbstractInsnNode ab : addObject.instructions.toArray())
-		{
-			if(ab.getOpcode() == Opcodes.BIPUSH)
-			{
-				push = (IntInsnNode)ab;
-				todisable = ASMHelper.getJumpInsnNode(push);
-				break;
-			}
-		}
-		InsnList append = new InsnList();
-		append.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/evilnotch/lib/util/JavaUtil", "returnFalse", "()Z", false));
-		append.add(new JumpInsnNode(Opcodes.IFEQ, todisable.label));
-		addObject.instructions.insertBefore(push.getPrevious(), append);
-		
+		DataWatcherPatcher.patchConstructor(classNode);
+		DataWatcherPatcher.patchAddObject(classNode);
 		
 		String input = ASMHelper.getInputStream(ModReference.MODID, "DataWatcher"); //"assets/confighelper/asm/" + (ObfHelper.isObf ? "srg/" : "deob/") + "DataWatcher";
 		//127 > 255
