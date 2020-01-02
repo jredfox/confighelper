@@ -230,7 +230,7 @@ public class Registries {
 					return dim.dimId;
 			}
 		}
-		System.out.println("GUESS DIM ID FROM PROVIDER FAILED!" + providerId);
+		System.out.println("GUESS DIM ID FROM PROVIDER FAILED! returning default:\t" + providerId);
 		return providerId;
 	}
 
