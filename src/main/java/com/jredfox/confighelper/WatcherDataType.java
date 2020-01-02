@@ -7,9 +7,11 @@ public abstract class WatcherDataType {
 	public static int nextId = 7;
 	
 	public int dataType;
-	public WatcherDataType()
+	public Class clazz;
+	public WatcherDataType(Class clazz)
 	{
 		this.dataType = nextId++;
+		this.clazz = clazz;
 	}
 	
 	public abstract void write(PacketBuffer buf, Object object);

@@ -15,6 +15,7 @@ import cpw.mods.fml.common.ModContainer;
 import cpw.mods.fml.relauncher.ReflectionHelper;
 import net.minecraft.block.Block;
 import net.minecraft.enchantment.Enchantment;
+import net.minecraft.entity.DataWatcher;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -211,6 +212,7 @@ public class Registries {
 		if(reg.containsKey(type.dataType))
 			throw new IllegalArgumentException("DataWatcher DataType id conflict!" + type.dataType);
 		reg.put(type.dataType, type);
+		DataWatcher.dataTypes.put(type.clazz, type.dataType);
 	}
 	
 	public static void writeWatcher(PacketBuffer buf, int dataType, Object object) 
