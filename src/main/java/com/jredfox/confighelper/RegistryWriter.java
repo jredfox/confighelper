@@ -244,7 +244,7 @@ public class RegistryWriter {
 			{
 				JSONArray arr = new JSONArray();
 				filejson.put(reg.dataType.getName() + "-id:" + id, arr);
-				for(Registry.Entry entry : reg.getEntry(id))
+				for(Registry.Entry entry : reg.getEntryOrg(id))
 				{
 					JSONObject json = new JSONObject();
 					arr.add(json);

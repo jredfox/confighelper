@@ -186,14 +186,15 @@ public class Transformer implements IClassTransformer{
 		//inject dimension lines
 		MethodNode dimensions = ASMHelper.getMethodNode(classNode, "registerDimension", "(II)V");
 		InsnList list2 = new InsnList();
-		//id = Registries.registerDimension(id);
-		list2.add(new VarInsnNode(Opcodes.ILOAD, 0));
-		list2.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/jredfox/confighelper/Registries", "registerDimension", "(I)I", false));
-		list2.add(new VarInsnNode(Opcodes.ISTORE, 0));
 		//providerId = Registries.guessProviderId(providerId);
 		list2.add(new VarInsnNode(Opcodes.ILOAD, 1));
 		list2.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/jredfox/confighelper/Registries", "guessProviderId", "(I)I", false));
 		list2.add(new VarInsnNode(Opcodes.ISTORE, 1));
+		//Regitries.register(providerId, dimid);
+		list2.add(new VarInsnNode(Opcodes.ILOAD, 1));
+		list2.add(new VarInsnNode(Opcodes.ILOAD, 0));
+		list2.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/jredfox/confighelper/Registries", "registerDimension", "(II)I", false));
+		list2.add(new VarInsnNode(Opcodes.ISTORE, 0));
 		dimensions.instructions.insert(ASMHelper.getFirstInstruction(dimensions), list2);
 		
 		//replace DimensionManager nextId methods
@@ -201,6 +202,20 @@ public class Transformer implements IClassTransformer{
 		ASMHelper.replaceMethod(classNode, input, "getNextFreeDimId", "()I");
 		ASMHelper.replaceMethod(classNode, input, "saveDimensionDataMap", "()Lnet/minecraft/nbt/NBTTagCompound;");
 		ASMHelper.replaceMethod(classNode, input, "loadDimensionDataMap", "(Lnet/minecraft/nbt/NBTTagCompound;)V");
+		
+		//inject line: Registries.unregisterProvider(id);
+		MethodNode unregProvider = ASMHelper.getMethodNode(classNode, "unregisterProviderType", "(I)[I");
+		InsnList list3 = new InsnList();
+		list3.add(new VarInsnNode(Opcodes.ILOAD, 0));
+		list3.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/jredfox/confighelper/Registries", "unregisterProvider", "(I)V", false));
+		unregProvider.instructions.insert(ASMHelper.getFirstInstruction(unregProvider), list3);
+		
+		//inject line Registries.unregisterDimension(id);
+		MethodNode unregDim = ASMHelper.getMethodNode(classNode, "unregisterDimension", "(I)V");
+		InsnList list4 = new InsnList();
+		list4.add(new VarInsnNode(Opcodes.ILOAD, 0));
+		list4.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/jredfox/confighelper/Registries", "unregisterDimension", "(I)V", false));
+		unregDim.instructions.insert(ASMHelper.getFirstInstruction(unregDim), list4);
 	}
 	
 	private void patchEntityList(ClassNode classNode) 

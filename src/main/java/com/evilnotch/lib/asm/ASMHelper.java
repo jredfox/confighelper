@@ -84,11 +84,11 @@ public class ASMHelper
 		return getMethodNode(node,obMethod,method_desc);
 	}
 	
-	public static MethodNode getMethodNode(Class ourClass, String method_name,String method_desc) throws IOException 
+	public static MethodNode getMethodNode(Class clazz, String method_name,String method_desc) throws IOException 
 	{
-		String className = ourClass.getName();
+		String className = clazz.getName();
 		String classAsPath = className.replaceAll("\\.", "/") + ".class";
-		InputStream stream = ourClass.getClassLoader().getResourceAsStream(classAsPath);
+		InputStream stream = clazz.getClassLoader().getResourceAsStream(classAsPath);
 		ClassNode node = getClassNode(stream);
 		return getMethodNode(node,method_name,method_desc);
 	}

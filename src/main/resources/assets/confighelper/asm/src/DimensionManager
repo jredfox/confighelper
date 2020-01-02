@@ -37,7 +37,10 @@ public class DimensionManager {
     public static void loadDimensionDataMap(NBTTagCompound compoundTag)
     {
     	if(compoundTag == null)
+    	{
+    		Registries.nextDim = Registries.nextDimFrozen;
     		return;
+    	}
     	Registries.nextDim = compoundTag.getInteger("dimIndex");
     }
 

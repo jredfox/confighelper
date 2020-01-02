@@ -1,6 +1,7 @@
 package com.jredfox.confighelper;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.evilnotch.lib.util.JavaUtil;
@@ -25,6 +26,7 @@ import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.biome.BiomeGenBase;
+import net.minecraftforge.common.DimensionManager;
 
 /**
  * The central Registry system for all data types to be used upon
@@ -72,9 +74,9 @@ public class Registries {
 		return register(providerObj, providerId, providers);
 	}
 	
-	public static int registerDimension(int dimId)
+	public static int registerDimension(int providerId, int dimId)
 	{
-		return register(Integer.class, dimId, dimensions);
+		return register(new EntryDimension(providerId, dimId), dimId, dimensions);
 	}
 	
 	public static int registerEntity(Class<? extends Entity> entity, String entityName, int id) 
@@ -114,6 +116,21 @@ public class Registries {
 	public static int registerTileEntity(TileEntity obj, int id)
 	{
 		throw new RuntimeException("Tile Entitities are already Automated Ids");
+	}
+	
+	public static void unregisterProvider(int id) 
+	{
+		unregister(id, providers);
+	}
+	
+	public static void unregisterDimension(int id) 
+	{
+		unregister(id, dimensions);
+	}
+	
+	public static void unregister(int id, Registry reg)
+	{
+		reg.unreg(id);
 	}
 	
 	public static void output()
@@ -170,7 +187,7 @@ public class Registries {
 			if(packageOwners == null)
 				return "packageOwners-" + null;
 		}
-		String pakage = clazz.substring(0,JavaUtil.findLastChar(clazz, '.'));
+		String pakage = clazz.substring(0, JavaUtil.findLastChar(clazz, '.'));
 		if(packageOwners.containsKey(pakage))
 		{
 			ModContainer mod = packageOwners.get(pakage).get(0);
@@ -190,6 +207,7 @@ public class Registries {
 	}
 	
 	public static int nextDim = Integer.MAX_VALUE;
+	public static int nextDimFrozen = nextDim;
 	
 	public static boolean keepDimLoaded(int id, boolean keepLoaded) 
 	{
@@ -198,7 +216,22 @@ public class Registries {
 	
 	public static int guessProviderId(int providerId) 
 	{
-		return Registries.providers.getEntry(providerId).get(0).newId;
+		return Registries.providers.getEntryOrg(providerId).get(0).newId;
+	}
+	
+	public static int guessDimId(int providerId) 
+	{
+		for(List<Registry.Entry> li : dimensions.reg.values())
+		{
+			for(Registry.Entry e : li)
+			{
+				EntryDimension dim = (EntryDimension) e.obj;
+				if(providerId == dim.providerId)
+					return dim.dimId;
+			}
+		}
+		System.out.println("GUESS DIM ID FROM PROVIDER FAILED!" + providerId);
+		return providerId;
 	}
 
 	public static Registry createWatcherReg(Entity e) 
@@ -226,6 +259,5 @@ public class Registries {
 	{
 		return reg.get(dataType).read(buf);
 	}
-	
 
 }

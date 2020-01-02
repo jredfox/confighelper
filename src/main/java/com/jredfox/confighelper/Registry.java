@@ -3,6 +3,7 @@ package com.jredfox.confighelper;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -81,7 +82,7 @@ public class Registry {
 
 	public int reg(Object obj, int id)
 	{
-		List<Entry> list = this.getEntry(id);
+		List<Entry> list = this.getEntryOrg(id);
 		if(list == null)
 		{
 			list = new ArrayList<Entry>();
@@ -256,12 +257,63 @@ public class Registry {
 	 */
 	public boolean isConflicting(int org)
 	{
-		return this.getEntry(org).size() > 1;
+		return this.getEntryOrg(org).size() > 1;
 	}
 	
-	public List<Entry> getEntry(int org)
+	/**
+	 * returns an array of entries that are linked to the original requested id.
+	 * if there is more then one it is conflicting
+	 */
+	public List<Registry.Entry> getEntryOrg(int org)
 	{
 		return this.reg.get(org);
+	}
+	
+	/**
+	 * get a registry entry based on newId
+	 */
+	public Registry.Entry getEntry(int newId)
+	{
+		for(List<Registry.Entry> li : this.reg.values())
+			for(Registry.Entry e : li)
+				if(e.newId == newId)
+					return e;
+		return null;
+	}
+	
+	/**
+	 * unregisters all ids attached to the newId
+	 * if there is an intended conflict the newId will equal the org id and will occur multiple times
+	 */
+	public void unreg(int newId)
+	{
+		unreg(newId, true);
+	}
+	
+	/**
+	 * unregisters the first instanceof of the entry it finds
+	 */
+	public void unregFirst(int newId)
+	{
+		unreg(newId, false);
+	}
+	
+	protected void unreg(int newId, boolean all)
+	{
+		for(List<Registry.Entry> li : this.reg.values())
+		{
+			Iterator<Registry.Entry> it = li.iterator();
+			while(it.hasNext())
+			{
+				Registry.Entry e = it.next();
+				if(e.newId == newId)
+				{
+					it.remove();
+					if(!all)
+						return;
+				}
+			}
+		}
 	}
 	
    	public String getDisplay(Registry.Entry e, boolean name)
@@ -367,6 +419,8 @@ public class Registry {
     			else if(this.dataType == DataType.PROVIDER)
     			{
     				WorldProvider provider = (WorldProvider) ((Class)this.obj).newInstance();
+    				int dimId = Registries.guessDimId(this.newId);
+    				provider.setDimension(dimId);
     				return provider.getDimensionName();
     			}
     			else if(this.dataType == DataType.DIMENSION)
