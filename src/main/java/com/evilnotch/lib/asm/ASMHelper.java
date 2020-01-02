@@ -21,6 +21,7 @@ import org.objectweb.asm.tree.LineNumberNode;
 import org.objectweb.asm.tree.LocalVariableNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.TypeInsnNode;
 
 import com.evilnotch.lib.reflect.MCPSidedString;
 import com.evilnotch.lib.reflect.ReflectionHandler;
@@ -420,14 +421,13 @@ public class ASMHelper
 		return node.name + " desc:" + node.desc + " signature:" + node.signature + " access:" + node.access;
  	}
 
-	public static MethodInsnNode getLastMethodInsn(MethodNode node, int opcode, String owner, String name, String desc, boolean isInterface) 
+	public static MethodInsnNode getLastMethodInsn(MethodNode node, MethodInsnNode compare) 
 	{
-		MethodInsnNode compare = new MethodInsnNode(opcode,owner,name,desc,isInterface);
 		AbstractInsnNode[] list = node.instructions.toArray();
-		for(int i=list.length-1;i>=0;i--)
+		for(int i = list.length-1; i >=0 ; i--)
 		{
 			AbstractInsnNode ab = list[i];
-			if(ab.getOpcode() == opcode && ab instanceof MethodInsnNode && equals(compare, (MethodInsnNode)ab) )
+			if(equals(compare, ab) )
 			{
 				return (MethodInsnNode)ab;
 			}
@@ -435,14 +435,15 @@ public class ASMHelper
 		return null;
 	}
 	
-	public static MethodInsnNode getFirstMethodInsn(MethodNode node, int opcode, String owner, String name, String desc, boolean isInterface) 
+	public static FieldInsnNode getLastFieldInsn(MethodNode node, FieldInsnNode compare) 
 	{
-		MethodInsnNode compare = new MethodInsnNode(opcode,owner,name,desc,isInterface);
-		for(AbstractInsnNode ab : node.instructions.toArray())
+		AbstractInsnNode[] list = node.instructions.toArray();
+		for(int i = list.length-1; i >=0 ; i--)
 		{
-			if(ab.getOpcode() == opcode && ab instanceof MethodInsnNode && equals(compare, (MethodInsnNode)ab) )
+			AbstractInsnNode ab = list[i];
+			if(equals(compare, ab) )
 			{
-				return (MethodInsnNode)ab;
+				return (FieldInsnNode)ab;
 			}
 		}
 		return null;
@@ -552,7 +553,7 @@ public class ASMHelper
 		return null;
 	}
 	
-	public static FieldInsnNode getFieldNode(MethodNode node, int opcode, String owner, String name, String desc)
+	public static FieldInsnNode getFieldInsnNode(MethodNode node, int opcode, String owner, String name, String desc)
 	{
 		AbstractInsnNode[] arr = node.instructions.toArray();
 		FieldInsnNode compare = new FieldInsnNode(opcode, owner, name, desc);
@@ -634,5 +635,40 @@ public class ASMHelper
 	public static MethodNode getClassInitNode(ClassNode classNode) 
 	{
 		return getMethodNode(classNode, "<clinit>", "()V");
+	}
+
+	public static void removeField(ClassNode node, String name) 
+	{
+		FieldNode f = getFieldNode(node, name);
+		node.fields.remove(f);
+	}
+
+	private static FieldNode getFieldNode(ClassNode node, String name)
+	{
+		for(FieldNode f : node.fields)
+			if(f.name.equals(name))
+				return f;
+		return null;
+	}
+	
+	public static void removeInsn(MethodNode node, AbstractInsnNode start, int size) 
+	{
+		for(int i=0; i < size; i++)
+		{
+			AbstractInsnNode next = start.getNext();
+			node.instructions.remove(start);
+			start = next;
+		}
+	}
+
+	public static IntInsnNode nextIntInsn(AbstractInsnNode ab) 
+	{
+		while(ab != null)
+		{
+			ab = ab.getNext();
+			if(ab instanceof IntInsnNode)
+				return (IntInsnNode) ab;
+		}
+		return null;
 	}
 }

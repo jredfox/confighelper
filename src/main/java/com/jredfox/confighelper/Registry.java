@@ -419,8 +419,15 @@ public class Registry {
     			else if(this.dataType == DataType.PROVIDER)
     			{
     				WorldProvider provider = (WorldProvider) ((Class)this.obj).newInstance();
-    				int dimId = Registries.guessDimId(this.newId);
-    				provider.setDimension(dimId);
+    				try
+    				{
+    					int dimId = Registries.guessDimId(this.newId);
+    					provider.setDimension(dimId);
+    				}
+    				catch(Throwable t)
+    				{
+    					t.printStackTrace();
+    				}
     				return provider.getDimensionName();
     			}
     			else if(this.dataType == DataType.DIMENSION)

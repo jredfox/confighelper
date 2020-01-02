@@ -372,7 +372,7 @@ public class RegistryWriter {
 				writer.write("id(" + getIdChunk(minId, maxId) + ")\r\n");
 			minId = usedId + 1;//reset min id for the next use
 		}
-		if(minId < limit)
+		if(minId <= limit)
 		{
 			maxId = limit;
 			writer.write("id:(" + getIdChunk(minId, maxId) + ") ------> last\r\n");

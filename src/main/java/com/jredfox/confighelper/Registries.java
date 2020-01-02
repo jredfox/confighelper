@@ -214,11 +214,19 @@ public class Registries {
 		return RegistryConfig.unloadModDimIds && !Registries.providers.isVanillaId(id) ? false : keepLoaded;
 	}
 	
+	/**
+	 * DimensionManager providers and dimIds are unlinked if a conflict occurs 
+	 * the best way to link them is to guess
+	 */
 	public static int guessProviderId(int providerId) 
 	{
 		return Registries.providers.getEntryOrg(providerId).get(0).newId;
 	}
 	
+	/**
+	 * DimensionManager providers and dimIds are unlinked if a conflict occurs 
+	 * the best way to link them is to guess
+	 */
 	public static int guessDimId(int providerId) 
 	{
 		for(List<Registry.Entry> li : dimensions.reg.values())

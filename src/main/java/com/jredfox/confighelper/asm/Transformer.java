@@ -6,6 +6,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldInsnNode;
+import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.IntInsnNode;
@@ -196,6 +197,12 @@ public class Transformer implements IClassTransformer{
 		list2.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/jredfox/confighelper/Registries", "registerDimension", "(II)I", false));
 		list2.add(new VarInsnNode(Opcodes.ISTORE, 0));
 		dimensions.instructions.insert(ASMHelper.getFirstInstruction(dimensions), list2);
+		//remove bitset map call
+		AbstractInsnNode a = ASMHelper.getLastFieldInsn(dimensions, new FieldInsnNode(Opcodes.GETSTATIC, "net/minecraftforge/common/DimensionManager", "dimensionMap", "Ljava/util/BitSet;"));
+		if(a != null)
+			ASMHelper.removeInsn(dimensions, a, 3);
+		else
+			System.out.println("unable to remove reference for dimMap game might crash!");
 		
 		//replace DimensionManager nextId methods
 		String input = ASMHelper.getInputStream(ModReference.MODID, "DimensionManager");
@@ -216,6 +223,22 @@ public class Transformer implements IClassTransformer{
 		list4.add(new VarInsnNode(Opcodes.ILOAD, 0));
 		list4.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/jredfox/confighelper/Registries", "unregisterDimension", "(I)V", false));
 		unregDim.instructions.insert(ASMHelper.getFirstInstruction(unregDim), list4);
+		
+		//remove initialization of the BitSet as it's bad
+		ASMHelper.removeField(classNode, "dimensionMap");
+		MethodNode clinit = ASMHelper.getClassInitNode(classNode);
+		for(AbstractInsnNode ab : clinit.instructions.toArray())
+		{
+			if(ab.getOpcode() == Opcodes.NEW)
+			{
+				TypeInsnNode type = (TypeInsnNode)ab;
+				if(type.desc.equals("java/util/BitSet"))
+				{
+					ASMHelper.removeInsn(clinit, type, 5);
+					break;
+				}
+			}
+		}
 	}
 	
 	private void patchEntityList(ClassNode classNode) 
