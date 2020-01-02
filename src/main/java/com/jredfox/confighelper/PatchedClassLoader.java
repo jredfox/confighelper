@@ -48,7 +48,7 @@ public class PatchedClassLoader {
 	{
 		if(!(loader instanceof LaunchClassLoader))
 		{
-			return true;
+			return false;
 		}
 		return ReflectionHandler.getObject(cachedClasses, loader) instanceof DummyMap &&
 			   ReflectionHandler.getObject(resourceCache, loader) instanceof DummyMap &&

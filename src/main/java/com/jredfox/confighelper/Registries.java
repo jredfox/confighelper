@@ -1,5 +1,8 @@
 package com.jredfox.confighelper;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.evilnotch.lib.util.JavaUtil;
 import com.google.common.collect.ListMultimap;
 import com.jredfox.confighelper.Registry.DataType;
@@ -185,37 +188,39 @@ public class Registries {
 		return "" + null;
 	}
 	
-	/**
-	 * asm INTERNAL
-	 */
+	public static int nextDim = Integer.MAX_VALUE;
+	
 	public static boolean keepDimLoaded(int id, boolean keepLoaded) 
 	{
 		return RegistryConfig.unloadModDimIds && !Registries.providers.isVanillaId(id) ? false : keepLoaded;
 	}
 	
-	/**
-	 * asm INTERNAL DO NOT USE
-	 */
 	public static int guessProviderId(int providerId) 
 	{
 		return Registries.providers.getEntry(providerId).get(0).newId;
 	}
-	
-	public static int nextDim = Integer.MAX_VALUE;
 
 	public static Registry createWatcherReg(Entity e) 
 	{
 		return e instanceof EntityPlayer ? new RegistryDatawatcher() : null;
 	}
-
-	public static void writeWatchableObject(PacketBuffer buf, int dataType, Object object) 
+	
+	public static Map<Integer, WatcherDataType> reg = new HashMap(0);
+	public static void registerWatcherDataType(WatcherDataType type)
 	{
-		
+		if(reg.containsKey(type.dataType))
+			throw new IllegalArgumentException("DataWatcher DataType id conflict!" + type.dataType);
+		reg.put(type.dataType, type);
+	}
+	
+	public static void writeWatcher(PacketBuffer buf, int dataType, Object object) 
+	{
+		reg.get(dataType).write(buf, object);
 	}
 
-	public static Object readWatchableObject(PacketBuffer buf, int dataType) 
+	public static Object readWatcher(PacketBuffer buf, int dataType) 
 	{
-		return null;
+		return reg.get(dataType).read(buf);
 	}
 	
 

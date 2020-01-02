@@ -49,7 +49,7 @@ public class DataWatcherPatcher {
 			if(ab.getOpcode() == Opcodes.BIPUSH)
 			{
 				push = (IntInsnNode)ab;
-				todisable = ASMHelper.getJumpInsnNode(push);
+				todisable = ASMHelper.nextJumpInsnNode(push);
 				break;
 			}
 		}

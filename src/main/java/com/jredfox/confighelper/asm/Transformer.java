@@ -120,12 +120,16 @@ public class Transformer implements IClassTransformer{
 			if(Opcodes.BIPUSH == ab.getOpcode())
 			{
 				IntInsnNode i = (IntInsnNode)ab;
-				int value = 127 + 1;
-				if(i.operand < value)
+				FieldInsnNode f = new FieldInsnNode(Opcodes.PUTSTATIC, "net/minecraft/potion/Potion", new MCPSidedString("potionTypes", "field_76425_a").toString(), "[Lnet/minecraft/potion/Potion;");
+				if(ASMHelper.equals(f, ASMHelper.nextFieldInsnNode(i)) )
 				{
-					i.setOpcode(Opcodes.SIPUSH);
-					i.operand = value;//needs the +1 because arrays use size not indexes
-					break;
+					int value = 127 + 1;
+					if(i.operand < value)
+					{
+						i.setOpcode(Opcodes.SIPUSH);
+						i.operand = value;//needs the +1 because arrays use size not indexes
+						break;
+					}
 				}
 			}
 		}

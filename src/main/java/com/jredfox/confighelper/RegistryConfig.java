@@ -14,7 +14,7 @@ public class RegistryConfig {
 	
 	//registry config
 	public static int biomeLimit = 255;
-	public static int potionsLimit = 255;
+	public static int potionsLimit = 127;
 	public static int enchantmentsLimit = 255;
 	public static int entities = 255;
 	public static int dataWatchersLimit = Integer.MAX_VALUE;
@@ -29,14 +29,14 @@ public class RegistryConfig {
 	//passable ids
 	public static String[] passable = new String[]
 	{
-			"chylex.hee.world.biome.BiomeGenHardcoreEnd",
-			"chylex.hee.world.WorldProviderHardcoreEnd",
-			"chylex.hee.entity.mob.EntityMobEnderman",
-			"chylex.hee.entity.block.EntityBlockEnderCrystal"
+		"chylex.hee.world.biome.BiomeGenHardcoreEnd",
+		"chylex.hee.world.WorldProviderHardcoreEnd",
+		"chylex.hee.entity.mob.EntityMobEnderman",
+		"chylex.hee.entity.block.EntityBlockEnderCrystal"
 	};
 	public static String[] passableSelf = new String[]
 	{
-			"net.aetherteam.aether.dungeons.worldgen.DungeonsBiome"
+		"net.aetherteam.aether.dungeons.worldgen.DungeonsBiome"
 	};
 	public static Set<Integer> passableDimIds;
 	public static Set<Integer> passableWatcherIds;

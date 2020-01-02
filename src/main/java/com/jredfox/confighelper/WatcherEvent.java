@@ -10,7 +10,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.event.entity.EntityEvent.EntityConstructing;
 
-public class DatawatcherEvent {
+public class WatcherEvent {
 	
 	private static boolean outputted;
 	@SubscribeEvent(priority=EventPriority.LOWEST)

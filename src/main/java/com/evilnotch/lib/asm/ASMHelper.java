@@ -607,7 +607,7 @@ public class ASMHelper
 		return args[args.length-1];
 	}
 
-	public static JumpInsnNode getJumpInsnNode(AbstractInsnNode starting) 
+	public static JumpInsnNode nextJumpInsnNode(AbstractInsnNode starting) 
 	{
 		AbstractInsnNode k = starting;
 		while(k != null)
@@ -615,6 +615,18 @@ public class ASMHelper
 			k = k.getNext();
 			if(k instanceof JumpInsnNode)
 				return (JumpInsnNode) k;
+		}
+		return null;
+	}
+	
+	public static FieldInsnNode nextFieldInsnNode(AbstractInsnNode starting) 
+	{
+		AbstractInsnNode k = starting;
+		while(k != null)
+		{
+			k = k.getNext();
+			if(k instanceof FieldInsnNode)
+				return (FieldInsnNode) k;
 		}
 		return null;
 	}
