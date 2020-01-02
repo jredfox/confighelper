@@ -211,6 +211,8 @@ public class Registries {
 	{
 		if(reg.containsKey(type.dataType))
 			throw new IllegalArgumentException("DataWatcher DataType id conflict!" + type.dataType);
+		else if(type.dataType < 0 || type.dataType > 254)
+			throw new IllegalArgumentException("DataWatcher DataType cannot be above" + 254 + " or less then 0");
 		reg.put(type.dataType, type);
 		DataWatcher.dataTypes.put(type.clazz, type.dataType);
 	}

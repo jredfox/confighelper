@@ -1100,7 +1100,7 @@ public class JavaUtil {
 
 	public static void saveJSON(JSONObject json, File file, boolean utf8) 
 	{
-		ArrayList<String> arr = JavaUtil.asArray(new String[]{toPrettyFormat(json.toString())}) ;
+		ArrayList<String> arr = JavaUtil.asArray((Object[])new String[]{toPrettyFormat(json.toString())}) ;
 		JavaUtil.saveFileLines(arr, file, utf8);
 	}
 	

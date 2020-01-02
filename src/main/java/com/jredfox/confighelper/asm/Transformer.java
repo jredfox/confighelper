@@ -7,8 +7,11 @@ import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.InsnList;
+import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.IntInsnNode;
 import org.objectweb.asm.tree.JumpInsnNode;
+import org.objectweb.asm.tree.LabelNode;
+import org.objectweb.asm.tree.LineNumberNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TypeInsnNode;
@@ -41,7 +44,8 @@ public class Transformer implements IClassTransformer{
 		"net.minecraft.enchantment.Enchantment",
 		"net.minecraftforge.common.DimensionManager",
 		"net.minecraft.entity.EntityList",
-		"net.minecraft.entity.DataWatcher"
+		"net.minecraft.entity.DataWatcher",
+		"com.shinoow.abyssalcraft.AbyssalCraft"
 	});
 	
 	@Override
@@ -77,6 +81,10 @@ public class Transformer implements IClassTransformer{
 				
 				case 5:
 					patchDatawatcher(classNode);
+				break;
+				
+				case 6:
+					patchAbyssalcraft(classNode);
 				break;
 			}
 			byte[] custom = ASMHelper.getClassWriter(classNode).toByteArray();
@@ -229,6 +237,17 @@ public class Transformer implements IClassTransformer{
 		String input = ASMHelper.getInputStream(ModReference.MODID, "DataWatcher"); //"assets/confighelper/asm/" + (ObfHelper.isObf ? "srg/" : "deob/") + "DataWatcher";
 		ASMHelper.replaceMethod(classNode, input, new MCPSidedString("writeWatchableObjectToPacketBuffer", "func_151510_a").toString(), "(Lnet/minecraft/network/PacketBuffer;Lnet/minecraft/entity/DataWatcher$WatchableObject;)V");
 		ASMHelper.replaceMethod(classNode, input, new MCPSidedString("readWatchedListFromPacketBuffer", "func_151508_b").toString(), "(Lnet/minecraft/network/PacketBuffer;)Ljava/util/List;");
+	}
+	
+	private static void patchAbyssalcraft(ClassNode classNode) 
+	{
+		MethodNode method = ASMHelper.getMethodNode(classNode, "checkBiomeIds", "(Z)V");
+		LineNumberNode line = ASMHelper.getFirstInstruction(method);
+		method.instructions.clear();
+		LabelNode label = new LabelNode();
+		method.instructions.add(label);
+		method.instructions.add(new LineNumberNode(line.line, label));
+		method.instructions.add(new InsnNode(Opcodes.RETURN));
 	}
 
 }
