@@ -18,10 +18,4 @@ public class RegistryDatawatcher extends RegistryInt{
 	{
 		return RegistryConfig.passableWatcherIds;
 	}
-	
-	@Override
-	public boolean canCrash()
-	{
-		return this.strict;
-	}
 }

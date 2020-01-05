@@ -36,11 +36,12 @@ public class ConfigHelperMod
     {	 		
     	PatchedClassLoader.checkClassLoader(this.getClass().getClassLoader());
     	Registries.nextDimFrozen = Registries.nextDim;
-    	Registries.startup = false;
-		if(Registries.hasConflicts)
+    	Registries.loading = false;
+    	Registries.strictRegs();
+		if(Registries.hasConflicts())
 		{
 			Registries.output();
-			Registries.makeCrashReport("Load Complete", "Id Conflicts have been detected! Reconfigure your modpack");
+			Registries.makeCrashReport("Load Complete", "Id Conflicts have been detected! Reconfigure your modpack:" + getConflicts());
 		}
 		else if(RegistryConfig.configMode)
 		{
@@ -49,4 +50,26 @@ public class ConfigHelperMod
 			JavaUtil.printTime(time, "Done Outputing files: ");
 		}
     }
+
+	private String getConflicts() 
+	{
+		StringBuilder b = new StringBuilder();
+		b.append('[');
+		if(Registries.biomes.hasConflicts)
+			b.append(Registries.biomes.dataType + ", ");
+		if(Registries.potions.hasConflicts)
+			b.append(Registries.potions.dataType + ", ");
+		if(Registries.enchantments.hasConflicts)
+			b.append(Registries.enchantments.dataType + ", ");
+		if(Registries.dimensions.hasConflicts)
+			b.append(Registries.dimensions.dataType + ", ");
+		if(Registries.providers.hasConflicts)
+			b.append(Registries.providers.dataType + ", ");
+		if(Registries.entities.hasConflicts)
+			b.append(Registries.entities.dataType + ", ");
+		if(Registries.datawatchers != null && Registries.entities.hasConflicts)
+			b.append(Registries.datawatchers.dataType + ", ");
+		String c = b.toString();
+		return c.substring(0, c.length()-2) + "]";
+	}
 }

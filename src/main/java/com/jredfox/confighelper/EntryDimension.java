@@ -2,12 +2,12 @@ package com.jredfox.confighelper;
 
 public class EntryDimension {
 	
-	public int providerId;
-	public int dimId;
-	public EntryDimension(int providerId, int dimId)
+	public int providerNewId;
+	public int dimOrgId;
+	public EntryDimension(int providerId, int org)
 	{
-		this.providerId = providerId;
-		this.dimId = dimId;
+		this.providerNewId = providerId;
+		this.dimOrgId = org;
 	}
 
 }

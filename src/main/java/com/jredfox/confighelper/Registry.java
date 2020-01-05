@@ -30,6 +30,7 @@ public class Registry {
 	public int limitLower;
 	public DataType dataType;//the data type this registry is for
 	public boolean strict;//turn this on to automatically crash on the first sign of conflict
+	public boolean hasConflicts;
 	
 	public Registry(DataType dataType)
 	{
@@ -82,6 +83,7 @@ public class Registry {
 
 	public int reg(Object obj, int id)
 	{
+		this.checkId(id);
 		List<Entry> list = this.getEntryOrg(id);
 		if(list == null)
 		{
@@ -109,15 +111,23 @@ public class Registry {
 				return entry.newId;
 			}
 			entry.newId = this.getNewId(id);
-			Registries.hasConflicts = true;
+			this.checkId(entry.newId);
+			
+			this.hasConflicts = true;
 			if(this.canCrash())
 			{
 				Registries.output();
-				String cat = !Registries.startup ? "In Game" : "Loading";
+				String cat = Registries.loading ? "Loading" : "In Game";
 				Registries.makeCrashReport(cat, this.dataType + " Id conflict during " +  cat + " id:" + id + "=" + list.toString());
 			}
 		}
 		return entry.newId;
+	}
+	
+	public void checkId(int id) throws IllegalArgumentException
+	{
+		if(id < this.limitLower || id > this.limit)
+			throw new IllegalArgumentException(this.dataType + " ids must be between " + this.limitLower + "-" + this.limit + " id:" + id);
 	}
 	
 	/**
@@ -190,6 +200,16 @@ public class Registry {
 		return -1;
 	}
 	
+	/**
+	 * mods should call this if they support me before registering it
+	 */
+	public int getNextId(int id)
+	{
+		int next = this.getNextFreeId(id);
+		this.resetFreeIds();
+		return next;
+	}
+	
 	public int suggestedId;//the virtual suggested id index
 	public int getNextSuggestedId(int newId)
 	{
@@ -240,7 +260,7 @@ public class Registry {
 	 */
 	public boolean canCrash()
 	{
-		return !Registries.startup || this.strict;
+		return this.strict;
 	}
 	
 	public static Class getClass(Object entry)
@@ -421,8 +441,8 @@ public class Registry {
     				WorldProvider provider = (WorldProvider) ((Class)this.obj).newInstance();
     				try
     				{
-    					int dimId = Registries.guessDimId(this.newId);
-    					provider.setDimension(dimId);
+    					int dimOrgId = Registries.guessDimOrgId(this.newId);
+    					provider.setDimension(dimOrgId);
     				}
     				catch(Throwable t)
     				{
@@ -491,5 +511,4 @@ public class Registry {
     {
     	return this.reg.toString();
     }
-
 }

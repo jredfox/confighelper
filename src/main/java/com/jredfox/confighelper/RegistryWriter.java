@@ -258,7 +258,6 @@ public class RegistryWriter {
 						json.put("replaced", true);
 					if(entry.newId != entry.org)
 						json.put("freeId", reg.getNextFreeId(entry.newId));
-					json.put("memoryIndex", entry.newId);
 					if(nonInt)
 						json.put("class", entry.clazz);
 				}

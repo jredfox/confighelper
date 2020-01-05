@@ -18,11 +18,11 @@ public class WatcherEvent {
 	{
 		if(event.entity instanceof EntityPlayer)
 		{
-			Registries.datawatchers.strict = true;//make sure it crashes after entity.init if a new data watcher id gets registered on the fly
-			if(Registries.hasConflicts)
+			Registries.strictWatcher();//make sure it crashes after entity.init if a new data watcher id gets registered on the fly
+			if(Registries.hasWatcherConflicts())
 			{
 				Registries.outputWatcher();
-				Registries.makeCrashReport("Load Complete", "DataWatcher Id Conflicts have been detected! Reconfigure your modpack");
+				Registries.makeCrashReport("Constructing DataWatcher", "DataWatcher Id Conflicts have been detected! Reconfigure your modpack");
 			}
 			else if(RegistryConfig.configMode && !outputted)
 			{

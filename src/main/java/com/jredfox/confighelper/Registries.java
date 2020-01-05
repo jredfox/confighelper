@@ -35,12 +35,10 @@ import net.minecraftforge.common.DimensionManager;
  */
 public class Registries {
 	
-	public static boolean hasConflicts;
-	public static boolean startup = true;
-	
+	public static boolean loading = true;
 	public static Registry biomes = new Registry(DataType.BIOME);
-	public static Registry enchantments = new Registry(DataType.ENCHANTMENT);
 	public static Registry potions = new Registry(DataType.POTION);
+	public static Registry enchantments = new Registry(DataType.ENCHANTMENT);
 	public static Registry dimensions = new RegistryDim();
 	public static Registry providers = new RegistryProvider();
 	public static Registry entities = new Registry(DataType.ENTITY);
@@ -86,10 +84,6 @@ public class Registries {
 	
 	public static int registerDataWatcher(Entity entity, int id, Registry reg)
 	{
-		if(id < 0 || id > RegistryConfig.dataWatchersLimit)
-		{
-			throw new IllegalArgumentException(DataType.DATAWATCHER.toString() + " id must be between 0-" + RegistryConfig.dataWatchersLimit);
-		}
 		if(!(entity instanceof EntityPlayer))
 		{
 			return id;
@@ -133,6 +127,39 @@ public class Registries {
 		reg.unreg(id);
 	}
 	
+	public static boolean hasConflicts() 
+	{
+		return biomes.hasConflicts || 
+				potions.hasConflicts || 
+				enchantments.hasConflicts || 
+				dimensions.hasConflicts || 
+				providers.hasConflicts ||
+				entities.hasConflicts ||
+				hasWatcherConflicts();
+	}
+
+	public static boolean hasWatcherConflicts() 
+	{
+		return datawatchers != null ? datawatchers.hasConflicts : false;
+	}
+	
+	public static void strictRegs()
+	{
+		biomes.strict = true;
+		potions.strict = true;
+		enchantments.strict = true;
+		dimensions.strict = true;
+		providers.strict = true;
+		entities.strict = true;
+		strictWatcher();
+	}
+	
+	public static void strictWatcher() 
+	{
+		if(datawatchers != null)
+			datawatchers.strict = true;
+	}
+
 	public static void output()
 	{
 		RegistryWriter.output();
@@ -220,22 +247,23 @@ public class Registries {
 	 */
 	public static int guessProviderId(int providerId) 
 	{
-		return Registries.providers.getEntryOrg(providerId).get(0).newId;
+		List<Registry.Entry> list = Registries.providers.getEntryOrg(providerId);
+		return list.get(list.size() - 1).newId;
 	}
 	
 	/**
 	 * DimensionManager providers and dimIds are unlinked if a conflict occurs 
 	 * the best way to link them is to guess
 	 */
-	public static int guessDimId(int providerId) 
+	public static int guessDimOrgId(int providerId) 
 	{
 		for(List<Registry.Entry> li : dimensions.reg.values())
 		{
 			for(Registry.Entry e : li)
 			{
 				EntryDimension dim = (EntryDimension) e.obj;
-				if(providerId == dim.providerId)
-					return dim.dimId;
+				if(providerId == dim.providerNewId)
+					return e.org;
 			}
 		}
 		System.out.println("GUESS DIM ID FROM PROVIDER FAILED! returning default:\t" + providerId);
