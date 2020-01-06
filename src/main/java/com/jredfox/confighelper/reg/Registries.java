@@ -239,6 +239,14 @@ public class Registries {
 		}
 	}
 	
+	/**
+	 * get the crash report category based on loading or in game
+	 */
+	public static String getCat()
+	{
+		return Registries.loading ? "Loading" : "In Game";
+	}
+	
 	public static LoadController loadController;
 	public static ListMultimap<String, ModContainer> packageOwners;
 	/**

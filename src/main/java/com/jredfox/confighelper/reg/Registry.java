@@ -117,8 +117,8 @@ public class Registry {
 			if(this.canCrash())
 			{
 				Registries.output();
-				String cat = Registries.loading ? "Loading" : "In Game";
-				Registries.makeCrashReport(cat, this.dataType + " Id conflict during " +  cat + " id:" + id + "=" + list.toString());
+				String cat = Registries.getCat();
+				Registries.makeCrashReport(Registries.getCat(), this.dataType + " Id conflict during " +  cat + " id:" + id + "=" + list.toString());
 			}
 		}
 		return entry.newId;
@@ -127,10 +127,7 @@ public class Registry {
 	public void checkId(int id) throws IllegalArgumentException
 	{
 		if(id < this.limitLower || id > this.limit)
-		{
-			String cat = Registries.loading ? "Loading" : "In Game";
-			Registries.makeCrashReport(cat, this.dataType + " ids must be between " + this.limitLower + "-" + this.limit + " id:" + id);
-		}
+			Registries.makeCrashReport(Registries.getCat(), this.dataType + " ids must be between " + this.limitLower + "-" + this.limit + " id:" + id);
 	}
 	
 	/**
