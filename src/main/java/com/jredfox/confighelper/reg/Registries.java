@@ -183,6 +183,30 @@ public class Registries {
 		String c = b.toString();
 		return c.substring(0, c.length()-2) + "]";
 	}
+	
+	public static void potionSecurity() 
+	{
+		Potion[] potions = Potion.potionTypes;
+		int limit =  Byte.MAX_VALUE + 1;
+		//if it's greater then a signed byte and not greater then an unsigned byte patch potions
+		if(potions.length > limit && potions.length < 256 + 1)
+		{
+			System.out.println("Fixing Potion ids. A Dumb Mod has extended potions to unsiged byte it can be only a signed byte 0-127!");
+			for(int i=128; i < potions.length; i++)
+			{
+				if(potions[i] != null)
+				{
+					Registries.potions.checkId(i);
+				}
+			}
+			Potion[] fixed = new Potion[limit];
+			for(int i=0; i < fixed.length; i++)
+			{
+				fixed[i] = potions[i];
+			}
+			Potion.potionTypes = fixed;
+		}
+	}
 
 	public static void output()
 	{

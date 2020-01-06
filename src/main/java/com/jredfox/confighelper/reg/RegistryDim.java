@@ -71,12 +71,12 @@ public class RegistryDim extends RegistryInt{
 	@Override
 	public int getNextSuggestedId(int newId)
 	{
-		if(this.vanillaIds.contains(newId))
-			return newId;
 		if(newId >= 0)
 			return super.getNextSuggestedId(newId);
 		else
 		{
+			if(this.vanillaIds.contains(newId))
+				return newId;
 			for(int i=this.lowerV;i>=RegistryConfig.dimLimitLower;i--)
 			{
 				if(!this.isVanillaId(this.lowerV))

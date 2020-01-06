@@ -127,7 +127,7 @@ public class Registry {
 	public void checkId(int id) throws IllegalArgumentException
 	{
 		if(id < this.limitLower || id > this.limit)
-			throw new RuntimeException(this.dataType + " ids must be between " + this.limitLower + "-" + this.limit + " id:" + id);
+			Registries.makeCrashReport("Index out of bounds", this.dataType + " ids must be between " + this.limitLower + "-" + this.limit + " id:" + id);
 	}
 	
 	/**

@@ -38,6 +38,7 @@ public class ConfigHelperMod
     public void loadComplete(FMLLoadCompleteEvent event)
     {	 		
     	PatchedClassLoader.checkClassLoader(this.getClass().getClassLoader());
+    	Registries.potionSecurity();
     	Registries.nextDimFrozen = Registries.nextDim;
     	Registries.loading = false;
     	Registries.strictRegs();
