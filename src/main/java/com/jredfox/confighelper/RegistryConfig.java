@@ -6,8 +6,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.evilnotch.lib.util.JavaUtil;
+import com.evilnotch.lib.JavaUtil;
 
+import net.minecraft.launchwrapper.Launch;
 import net.minecraftforge.common.config.Configuration;
 
 public class RegistryConfig {
@@ -45,7 +46,7 @@ public class RegistryConfig {
 	
 	static
 	{
-		Configuration cfg = new Configuration(new File("./config/confighelper/main.cfg"));
+		Configuration cfg = new Configuration(new File(Launch.minecraftHome, "config/confighelper/main.cfg"));
 		cfg.load();
 		showVanillaIds = cfg.getBoolean("showVanillaIds", "general", showVanillaIds, "disable this to only show modded ids in suggestion files");
 		configMode = cfg.getBoolean("configMode", "general", configMode, "disable this when your modpack has been configured properly so it runs faster");

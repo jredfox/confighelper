@@ -4,7 +4,7 @@ import java.lang.reflect.Field;
 import java.util.Map;
 
 import com.evilnotch.lib.reflect.ReflectionHandler;
-import com.jredfox.confighelper.PatchedClassLoader;
+import com.evilnotch.mod.PatchedClassLoader;
 
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
 import net.minecraft.launchwrapper.Launch;
@@ -14,11 +14,14 @@ import net.minecraft.launchwrapper.LaunchClassLoader;
 @IFMLLoadingPlugin.Name("confighelper-registry-transformer")
 public class Plugin implements IFMLLoadingPlugin{
 	
-	public static boolean isObf;
 	@Override
 	public String[] getASMTransformerClass() 
 	{
-		return new String[]{"com.jredfox.confighelper.asm.Transformer"};
+		return new String[]
+		{
+			"com.jredfox.confighelper.asm.Transformer",
+			"com.jredfox.confighelper.compat.Transformer"
+		};
 	}
 
 	@Override
@@ -28,10 +31,7 @@ public class Plugin implements IFMLLoadingPlugin{
 	public String getSetupClass(){return null;}
 
 	@Override
-	public void injectData(Map<String, Object> data)
-	{
-		isObf = (Boolean) data.get("runtimeDeobfuscationEnabled");
-	}
+	public void injectData(Map<String, Object> data){}
 
 	@Override
 	public String getAccessTransformerClass() {return null;}

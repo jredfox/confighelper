@@ -21,11 +21,11 @@ import org.objectweb.asm.tree.VarInsnNode;
 import com.evilnotch.lib.asm.ASMHelper;
 import com.evilnotch.lib.asm.ObfHelper;
 import com.evilnotch.lib.reflect.MCPSidedString;
+import com.evilnotch.mod.PatchedClassLoader;
 import com.jredfox.confighelper.ConfigHelperMod;
-import com.jredfox.confighelper.PatchedClassLoader;
 import com.jredfox.confighelper.RegistryConfig;
+import com.jredfox.confighelper.reg.RegistryIds;
 import com.jredfox.confighelper.ModReference;
-import com.jredfox.confighelper.RegistryIds;
 
 import net.minecraft.launchwrapper.IClassTransformer;
 import net.minecraft.launchwrapper.Launch;
@@ -45,8 +45,7 @@ public class Transformer implements IClassTransformer{
 		"net.minecraft.enchantment.Enchantment",
 		"net.minecraftforge.common.DimensionManager",
 		"net.minecraft.entity.EntityList",
-		"net.minecraft.entity.DataWatcher",
-		"com.shinoow.abyssalcraft.AbyssalCraft"
+		"net.minecraft.entity.DataWatcher"
 	});
 	
 	@Override
@@ -83,10 +82,6 @@ public class Transformer implements IClassTransformer{
 				case 5:
 					patchDatawatcher(classNode);
 				break;
-				
-				case 6:
-					patchAbyssalcraft(classNode);
-				break;
 			}
 			byte[] custom = ASMHelper.getClassWriter(classNode).toByteArray();
 			ASMHelper.dumpFile(actualName, custom);
@@ -111,7 +106,7 @@ public class Transformer implements IClassTransformer{
 		list.add(new VarInsnNode(Opcodes.ALOAD, 0));
 		list.add(new VarInsnNode(Opcodes.ILOAD, 1));
 		list.add(new VarInsnNode(Opcodes.ILOAD, 2));
-		list.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/jredfox/confighelper/Registries", "registerBiome", "(Lnet/minecraft/world/biome/BiomeGenBase;IZ)I", false));
+		list.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/jredfox/confighelper/reg/Registries", "registerBiome", "(Lnet/minecraft/world/biome/BiomeGenBase;IZ)I", false));
 		list.add(new VarInsnNode(Opcodes.ISTORE, 1));
 		FieldInsnNode field = new FieldInsnNode(Opcodes.PUTFIELD, "net/minecraft/world/biome/BiomeGenBase", new MCPSidedString("topBlock", "field_76752_A").toString(), "Lnet/minecraft/block/Block;");
 		node.instructions.insert(ASMHelper.getFirstInstruction(node, Opcodes.INVOKESPECIAL), list);
@@ -148,7 +143,7 @@ public class Transformer implements IClassTransformer{
 		InsnList list = new InsnList();
 		list.add(new VarInsnNode(Opcodes.ALOAD, 0));
 		list.add(new VarInsnNode(Opcodes.ILOAD, 1));
-		list.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/jredfox/confighelper/Registries", "registerPotion", "(Lnet/minecraft/potion/Potion;I)I", false));
+		list.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/jredfox/confighelper/reg/Registries", "registerPotion", "(Lnet/minecraft/potion/Potion;I)I", false));
 		list.add(new VarInsnNode(Opcodes.ISTORE, 1));
 		constructor.instructions.insert(ASMHelper.getFirstInstruction(constructor, Opcodes.INVOKESPECIAL), list);
 	}
@@ -162,7 +157,7 @@ public class Transformer implements IClassTransformer{
 		InsnList list = new InsnList();
 		list.add(new VarInsnNode(Opcodes.ALOAD, 0));
 		list.add(new VarInsnNode(Opcodes.ILOAD, 1));
-		list.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/jredfox/confighelper/Registries", "registerEnchantment", "(Lnet/minecraft/enchantment/Enchantment;I)I", false));
+		list.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/jredfox/confighelper/reg/Registries", "registerEnchantment", "(Lnet/minecraft/enchantment/Enchantment;I)I", false));
 		list.add(new VarInsnNode(Opcodes.ISTORE, 1));
 		node.instructions.insert(ASMHelper.getFirstInstruction(node, Opcodes.INVOKESPECIAL), list);
 	}
@@ -175,12 +170,12 @@ public class Transformer implements IClassTransformer{
 		InsnList list = new InsnList();
 		list.add(new VarInsnNode(Opcodes.ALOAD, 1));
 		list.add(new VarInsnNode(Opcodes.ILOAD, 0));
-		list.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/jredfox/confighelper/Registries", "registerProvider", "(Ljava/lang/Class;I)I", false));
+		list.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/jredfox/confighelper/reg/Registries", "registerProvider", "(Ljava/lang/Class;I)I", false));
 		list.add(new VarInsnNode(Opcodes.ISTORE, 0));
 		//keepLoaded = Registries.keepDimLoaded(id, keepLoaded);
 		list.add(new VarInsnNode(Opcodes.ILOAD, 0));
 		list.add(new VarInsnNode(Opcodes.ILOAD, 2));
-		list.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/jredfox/confighelper/Registries", "keepDimLoaded", "(IZ)Z", false));
+		list.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/jredfox/confighelper/reg/Registries", "keepDimLoaded", "(IZ)Z", false));
 		list.add(new VarInsnNode(Opcodes.ISTORE, 2));
 		provider.instructions.insert(ASMHelper.getFirstInstruction(provider), list);
 		
@@ -189,12 +184,12 @@ public class Transformer implements IClassTransformer{
 		InsnList list2 = new InsnList();
 		//providerId = Registries.guessProviderId(providerId);
 		list2.add(new VarInsnNode(Opcodes.ILOAD, 1));
-		list2.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/jredfox/confighelper/Registries", "guessProviderId", "(I)I", false));
+		list2.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/jredfox/confighelper/reg/Registries", "guessProviderId", "(I)I", false));
 		list2.add(new VarInsnNode(Opcodes.ISTORE, 1));
 		//Regitries.register(providerId, dimid);
 		list2.add(new VarInsnNode(Opcodes.ILOAD, 1));
 		list2.add(new VarInsnNode(Opcodes.ILOAD, 0));
-		list2.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/jredfox/confighelper/Registries", "registerDimension", "(II)I", false));
+		list2.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/jredfox/confighelper/reg/Registries", "registerDimension", "(II)I", false));
 		list2.add(new VarInsnNode(Opcodes.ISTORE, 0));
 		dimensions.instructions.insert(ASMHelper.getFirstInstruction(dimensions), list2);
 		//remove bitset map call
@@ -214,14 +209,14 @@ public class Transformer implements IClassTransformer{
 		MethodNode unregProvider = ASMHelper.getMethodNode(classNode, "unregisterProviderType", "(I)[I");
 		InsnList list3 = new InsnList();
 		list3.add(new VarInsnNode(Opcodes.ILOAD, 0));
-		list3.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/jredfox/confighelper/Registries", "unregisterProvider", "(I)V", false));
+		list3.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/jredfox/confighelper/reg/Registries", "unregisterProvider", "(I)V", false));
 		unregProvider.instructions.insert(ASMHelper.getFirstInstruction(unregProvider), list3);
 		
 		//inject line Registries.unregisterDimension(id);
 		MethodNode unregDim = ASMHelper.getMethodNode(classNode, "unregisterDimension", "(I)V");
 		InsnList list4 = new InsnList();
 		list4.add(new VarInsnNode(Opcodes.ILOAD, 0));
-		list4.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/jredfox/confighelper/Registries", "unregisterDimension", "(I)V", false));
+		list4.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/jredfox/confighelper/reg/Registries", "unregisterDimension", "(I)V", false));
 		unregDim.instructions.insert(ASMHelper.getFirstInstruction(unregDim), list4);
 		
 		//remove initialization of the BitSet as it's bad
@@ -249,7 +244,7 @@ public class Transformer implements IClassTransformer{
 		list.add(new VarInsnNode(Opcodes.ALOAD, 0));
 		list.add(new VarInsnNode(Opcodes.ALOAD, 1));
 		list.add(new VarInsnNode(Opcodes.ILOAD, 2));
-		list.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/jredfox/confighelper/Registries", "registerEntity", "(Ljava/lang/Class;Ljava/lang/String;I)I", false));
+		list.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/jredfox/confighelper/reg/Registries", "registerEntity", "(Ljava/lang/Class;Ljava/lang/String;I)I", false));
 		list.add(new VarInsnNode(Opcodes.ISTORE, 2));
 		node.instructions.insert(ASMHelper.getFirstInstruction(node), list);
 		
@@ -268,24 +263,13 @@ public class Transformer implements IClassTransformer{
 	
 	private void patchDatawatcher(ClassNode classNode) 
 	{
-		ASMHelper.addFeild(classNode, "reg", "Lcom/jredfox/confighelper/Registry;");
+		ASMHelper.addFeild(classNode, "reg", "Lcom/jredfox/confighelper/reg/Registry;");
 		DataWatcherPatcher.patchConstructor(classNode);
 		DataWatcherPatcher.patchAddObject(classNode);
 		DataWatcherPatcher.patchWriteList(classNode);
 		String input = ASMHelper.getInputStream(ModReference.MODID, "DataWatcher"); //"assets/confighelper/asm/" + (ObfHelper.isObf ? "srg/" : "deob/") + "DataWatcher";
 		ASMHelper.replaceMethod(classNode, input, new MCPSidedString("writeWatchableObjectToPacketBuffer", "func_151510_a").toString(), "(Lnet/minecraft/network/PacketBuffer;Lnet/minecraft/entity/DataWatcher$WatchableObject;)V");
 		ASMHelper.replaceMethod(classNode, input, new MCPSidedString("readWatchedListFromPacketBuffer", "func_151508_b").toString(), "(Lnet/minecraft/network/PacketBuffer;)Ljava/util/List;");
-	}
-	
-	private static void patchAbyssalcraft(ClassNode classNode) 
-	{
-		MethodNode method = ASMHelper.getMethodNode(classNode, "checkBiomeIds", "(Z)V");
-		LineNumberNode line = ASMHelper.getFirstInstruction(method);
-		method.instructions.clear();
-		LabelNode label = new LabelNode();
-		method.instructions.add(label);
-		method.instructions.add(new LineNumberNode(line.line, label));
-		method.instructions.add(new InsnNode(Opcodes.RETURN));
 	}
 
 }

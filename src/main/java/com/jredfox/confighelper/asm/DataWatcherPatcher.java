@@ -22,8 +22,8 @@ public class DataWatcherPatcher {
 		InsnList list0 = new InsnList();
 		list0.add(new VarInsnNode(Opcodes.ALOAD, 0));
 		list0.add(new VarInsnNode(Opcodes.ALOAD, 1));
-		list0.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/jredfox/confighelper/Registries", "createWatcherReg", "(Lnet/minecraft/entity/Entity;)Lcom/jredfox/confighelper/Registry;", false));
-		list0.add(new FieldInsnNode(Opcodes.PUTFIELD, "net/minecraft/entity/DataWatcher", "reg", "Lcom/jredfox/confighelper/Registry;"));
+		list0.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/jredfox/confighelper/reg/Registries", "createWatcherReg", "(Lnet/minecraft/entity/Entity;)Lcom/jredfox/confighelper/reg/Registry;", false));
+		list0.add(new FieldInsnNode(Opcodes.PUTFIELD, "net/minecraft/entity/DataWatcher", "reg", "Lcom/jredfox/confighelper/reg/Registry;"));
 		construct.instructions.insert(ASMHelper.getLastPutField(construct), list0);
 	}
 
@@ -36,8 +36,8 @@ public class DataWatcherPatcher {
 		list.add(new FieldInsnNode(Opcodes.GETFIELD, "net/minecraft/entity/DataWatcher", new MCPSidedString("field_151511_a", "field_151511_a").toString(), "Lnet/minecraft/entity/Entity;"));
 		list.add(new VarInsnNode(Opcodes.ILOAD, 1));
 		list.add(new VarInsnNode(Opcodes.ALOAD, 0));
-		list.add(new FieldInsnNode(Opcodes.GETFIELD, "net/minecraft/entity/DataWatcher", "reg", "Lcom/jredfox/confighelper/Registry;"));
-		list.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/jredfox/confighelper/Registries", "registerDataWatcher", "(Lnet/minecraft/entity/Entity;ILcom/jredfox/confighelper/Registry;)I", false));
+		list.add(new FieldInsnNode(Opcodes.GETFIELD, "net/minecraft/entity/DataWatcher", "reg", "Lcom/jredfox/confighelper/reg/Registry;"));
+		list.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/jredfox/confighelper/reg/Registries", "registerDataWatcher", "(Lnet/minecraft/entity/Entity;ILcom/jredfox/confighelper/reg/Registry;)I", false));
 		list.add(new VarInsnNode(Opcodes.ISTORE, 1));
 		addObject.instructions.insert(ASMHelper.getFirstInstruction(addObject), list);
 		
@@ -54,7 +54,7 @@ public class DataWatcherPatcher {
 			}
 		}
 		InsnList append = new InsnList();
-		append.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/evilnotch/lib/util/JavaUtil", "returnFalse", "()Z", false));
+		append.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/evilnotch/lib/JavaUtil", "returnFalse", "()Z", false));
 		append.add(new JumpInsnNode(Opcodes.IFEQ, todisable.label));
 		addObject.instructions.insertBefore(push.getPrevious(), append);
 	}

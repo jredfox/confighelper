@@ -1,6 +1,9 @@
 package com.jredfox.confighelper;
 
-import com.evilnotch.lib.util.JavaUtil;
+import com.evilnotch.lib.JavaUtil;
+import com.evilnotch.mod.PatchedClassLoader;
+import com.jredfox.confighelper.event.WatcherEvent;
+import com.jredfox.confighelper.reg.Registries;
 
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
@@ -41,7 +44,7 @@ public class ConfigHelperMod
 		if(Registries.hasConflicts())
 		{
 			Registries.output();
-			Registries.makeCrashReport("Load Complete", "Id Conflicts have been detected! Reconfigure your modpack:" + getConflicts());
+			Registries.makeCrashReport("Load Complete", "Id Conflicts have been detected! Reconfigure your modpack:" + Registries.getConflictTypes());
 		}
 		else if(RegistryConfig.configMode)
 		{
@@ -50,26 +53,4 @@ public class ConfigHelperMod
 			JavaUtil.printTime(time, "Done Outputing files: ");
 		}
     }
-
-	private String getConflicts() 
-	{
-		StringBuilder b = new StringBuilder();
-		b.append('[');
-		if(Registries.biomes.hasConflicts)
-			b.append(Registries.biomes.dataType + ", ");
-		if(Registries.potions.hasConflicts)
-			b.append(Registries.potions.dataType + ", ");
-		if(Registries.enchantments.hasConflicts)
-			b.append(Registries.enchantments.dataType + ", ");
-		if(Registries.dimensions.hasConflicts)
-			b.append(Registries.dimensions.dataType + ", ");
-		if(Registries.providers.hasConflicts)
-			b.append(Registries.providers.dataType + ", ");
-		if(Registries.entities.hasConflicts)
-			b.append(Registries.entities.dataType + ", ");
-		if(Registries.datawatchers != null && Registries.entities.hasConflicts)
-			b.append(Registries.datawatchers.dataType + ", ");
-		String c = b.toString();
-		return c.substring(0, c.length()-2) + "]";
-	}
 }

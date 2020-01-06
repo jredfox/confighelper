@@ -1,6 +1,6 @@
 package com.jredfox.confighelper.proxy;
 
-import com.jredfox.confighelper.Registries;
+import com.jredfox.confighelper.reg.Registries;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.crash.CrashReport;
