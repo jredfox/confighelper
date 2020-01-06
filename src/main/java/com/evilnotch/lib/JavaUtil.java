@@ -37,6 +37,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
 import com.evilnotch.lib.json.JSONObject;
@@ -312,6 +313,18 @@ public class JavaUtil {
 	        	getAllFilesFromDir(file, files);
 	        }
 	    }
+	}
+	
+	public static void deleteDir(File dir)
+	{
+		try 
+		{
+			FileUtils.deleteDirectory(dir);
+		} 
+		catch (IOException e) 
+		{
+			e.printStackTrace();
+		}
 	}
 	
 	public static Color getColorFromMsAcess(int p_78258_4_)

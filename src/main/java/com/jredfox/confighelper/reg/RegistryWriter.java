@@ -50,12 +50,12 @@ public class RegistryWriter {
 	public static final File dirDatawatchers = new Directory(root, DataType.DATAWATCHER.getName()).create();
 	
 	public static final String dumps = "dumps";
-	public static final File dirDumpBiomes = new Directory(dirBiomes, dumps).create();
-	public static final File dirDumpPotions = new Directory(dirPotions, dumps).create();
-	public static final File dirDumpEnchantments = new Directory(dirEnchantments, dumps).create();
-	public static final File dirDumpDimensions = new Directory(dirDimensions, dumps).create();
-	public static final File dirDumpEntities = new Directory(dirEntities, dumps).create();
-	public static final File dirDumpDatawatchers = new Directory(dirDatawatchers, dumps).create();
+	public static final Directory dirDumpBiomes = new Directory(dirBiomes, dumps);
+	public static final Directory dirDumpPotions = new Directory(dirPotions, dumps);
+	public static final Directory dirDumpEnchantments = new Directory(dirEnchantments, dumps);
+	public static final Directory dirDumpDimensions = new Directory(dirDimensions, dumps);
+	public static final Directory dirDumpEntities = new Directory(dirEntities, dumps);
+	public static final Directory dirDumpDatawatchers = new Directory(dirDatawatchers, dumps);
 	
 	public static final String extension =  ".txt";
 	public static final String conflictExtension = ".json";
@@ -63,6 +63,28 @@ public class RegistryWriter {
 	public static final String suggested = "suggested";
 	public static final String freeids = "freeids";
 	public static final String dumpIdsNew = "ids-new";
+	
+	static
+	{
+		if(RegistryConfig.dumpIds)
+		{
+			dirDumpBiomes.create();
+			dirDumpPotions.create();
+			dirDumpEnchantments.create();
+			dirDumpDimensions.create();
+			dirDumpEntities.create();
+			dirDumpDatawatchers.create();
+		}
+		else
+		{
+			JavaUtil.deleteDir(dirDumpBiomes);
+			JavaUtil.deleteDir(dirDumpPotions);
+			JavaUtil.deleteDir(dirDumpEnchantments);
+			JavaUtil.deleteDir(dirDumpDimensions);
+			JavaUtil.deleteDir(dirDumpEntities);
+			JavaUtil.deleteDir(dirDumpDatawatchers);
+		}
+	}
 	
 	public static void output() 
 	{
@@ -237,9 +259,8 @@ public class RegistryWriter {
 	public static void writeConflicts(BufferedWriter writer, Registry reg) throws IOException, JSONParseException, IllegalArgumentException, IllegalAccessException
 	{	
 		JSONObject filejson = new JSONObject();
-		for(Map.Entry<Integer, List<Registry.Entry>> map : reg.reg.entrySet())
+		for(Integer id : reg.getOrgIds())
 		{
-			int id = map.getKey();
 			if(reg.isConflicting(id))
 			{
 				JSONArray arr = new JSONArray();

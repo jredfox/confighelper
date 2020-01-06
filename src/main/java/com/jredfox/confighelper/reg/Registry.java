@@ -84,7 +84,7 @@ public class Registry {
 
 	public int reg(Object obj, int id)
 	{
-		this.checkId(id);
+		this.checkId(obj, id);
 		List<Entry> list = this.getEntryOrg(id);
 		if(list == null)
 		{
@@ -112,7 +112,7 @@ public class Registry {
 				return entry.newId;
 			}
 			entry.newId = this.getNewId(id);
-			this.checkId(entry.newId);
+			this.checkId(obj, entry.newId);
 			this.hasConflicts = true;
 			if(this.canCrash())
 			{
@@ -124,10 +124,10 @@ public class Registry {
 		return entry.newId;
 	}
 	
-	public void checkId(int id)
+	public void checkId(Object obj, int id)
 	{
 		if(id < this.limitLower || id > this.limit)
-			Registries.makeCrashReport(Registries.getCat(), this.dataType + " ids must be between " + this.limitLower + "-" + this.limit + " id:" + id);
+			Registries.makeCrashReport(Registries.getCat(), this.dataType + " ids must be between " + this.limitLower + "-" + this.limit + " id:" + id + ", " + getClass(obj).getName());
 	}
 	
 	/**

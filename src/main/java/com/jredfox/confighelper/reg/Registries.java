@@ -194,9 +194,10 @@ public class Registries {
 			System.out.println("Fixing Potion ids. A Dumb Mod has extended potions to unsiged byte it can be only a signed byte 0-127!");
 			for(int i=128; i < potions.length; i++)
 			{
-				if(potions[i] != null)
+				Potion p = potions[i];
+				if(p != null)
 				{
-					Registries.potions.checkId(i);
+					Registries.potions.checkId(p, i);
 				}
 			}
 			Potion[] fixed = new Potion[limit];
