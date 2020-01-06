@@ -15,8 +15,10 @@ import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.FieldNode;
+import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.IntInsnNode;
 import org.objectweb.asm.tree.JumpInsnNode;
+import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.LineNumberNode;
 import org.objectweb.asm.tree.LocalVariableNode;
 import org.objectweb.asm.tree.MethodInsnNode;
@@ -650,6 +652,52 @@ public class ASMHelper
 				return f;
 		return null;
 	}
+
+	public static IntInsnNode nextIntInsn(AbstractInsnNode ab) 
+	{
+		while(ab != null)
+		{
+			ab = ab.getNext();
+			if(ab instanceof IntInsnNode)
+				return (IntInsnNode) ab;
+		}
+		return null;
+	}
+
+	public static void clearVoidMethod(MethodNode method) 
+	{
+		LineNumberNode line = ASMHelper.getFirstInstruction(method);
+		method.instructions.clear();
+		LabelNode label = new LabelNode();
+		method.instructions.add(label);
+		method.instructions.add(new LineNumberNode(line.line, label));
+		method.instructions.add(new InsnNode(Opcodes.RETURN));
+	}
+
+	public static AbstractInsnNode nextInsn(AbstractInsnNode ab, int opcode) 
+	{
+		while(ab != null)
+		{
+			ab = ab.getNext();
+			if(ab != null && ab.getOpcode() == opcode)
+				return ab;
+		}
+		return null;
+	}
+
+	/**
+	 * make sure the start and end are fetched directly from the method node
+	 */
+	public static void removeInsn(MethodNode node, AbstractInsnNode start, AbstractInsnNode end) 
+	{
+		while(start != end)
+		{
+			AbstractInsnNode next = start.getNext();
+			node.instructions.remove(start);
+			start = next;
+		}
+		node.instructions.remove(end);
+	}
 	
 	public static void removeInsn(MethodNode node, AbstractInsnNode start, int size) 
 	{
@@ -661,14 +709,23 @@ public class ASMHelper
 		}
 	}
 
-	public static IntInsnNode nextIntInsn(AbstractInsnNode ab) 
+	public static void clearNextThrowable(MethodNode method, String desc_exception) 
 	{
-		while(ab != null)
+		AbstractInsnNode start = null;
+		AbstractInsnNode end = null;
+		for(AbstractInsnNode ab : method.instructions.toArray())
 		{
-			ab = ab.getNext();
-			if(ab instanceof IntInsnNode)
-				return (IntInsnNode) ab;
+			if(Opcodes.NEW == ab.getOpcode())
+			{
+				TypeInsnNode type = (TypeInsnNode)ab;
+				if(type.desc.equals(desc_exception))
+				{
+					start = ab;
+					end = ASMHelper.nextInsn(start, Opcodes.ATHROW);
+					break;
+				}
+			}
 		}
-		return null;
+		ASMHelper.removeInsn(method, start, end);
 	}
 }

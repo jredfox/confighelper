@@ -118,13 +118,13 @@ public class Registry {
 			{
 				Registries.output();
 				String cat = Registries.getCat();
-				Registries.makeCrashReport(Registries.getCat(), this.dataType + " Id conflict during " +  cat + " id:" + id + "=" + list.toString());
+				Registries.makeCrashReport(cat, this.dataType + " Id conflict during " +  cat + " id:" + id + "=" + list.toString());
 			}
 		}
 		return entry.newId;
 	}
 	
-	public void checkId(int id) throws IllegalArgumentException
+	public void checkId(int id)
 	{
 		if(id < this.limitLower || id > this.limit)
 			Registries.makeCrashReport(Registries.getCat(), this.dataType + " ids must be between " + this.limitLower + "-" + this.limit + " id:" + id);

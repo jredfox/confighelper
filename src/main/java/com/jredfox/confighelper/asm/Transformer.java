@@ -53,10 +53,10 @@ public class Transformer implements IClassTransformer{
 	{
 		try
 		{
-		if(clazzes.contains(actualName))
+		int index = clazzes.indexOf(actualName);
+		if(index != -1)
 		{
 			ClassNode classNode = ASMHelper.getClassNode(bytes);
-			int index = clazzes.indexOf(actualName);
 			switch(index)
 			{
 				case 0:
