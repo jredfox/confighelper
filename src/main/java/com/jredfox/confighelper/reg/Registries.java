@@ -28,6 +28,7 @@ import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.biome.BiomeGenBase;
+import net.minecraft.world.biome.BiomeGenMutated;
 import net.minecraftforge.common.DimensionManager;
 
 /**
@@ -49,13 +50,17 @@ public class Registries {
 	 */
 	public static Registry datawatchers;
 	
+	public static boolean initBiomes = false;
+	public static int nextBiome = biomes.limit;
 	public static int registerBiome(BiomeGenBase biome, int id, boolean reg)
 	{
 		if(reg || !reg && RegistryConfig.regUnregBiomes)
 		{
+			if(initBiomes && biome instanceof BiomeGenMutated)
+				id = nextBiome--;//automate BiomeGenMutated for mods
 			return register(biome, id, biomes);
 		}
-		System.out.println("Returning Original Biome Id as it's flagged to not be registered:" + id);
+		System.out.println("Returning Original Biome Id as it's flagged to not be registered:" + id + ", " + biome);
 		return id;
 	}
 	

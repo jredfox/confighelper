@@ -25,7 +25,6 @@ public class RegistryConfig {
 	//mod config
 	public static boolean configMode = true;
 	public static boolean dumpIds;
-	public static boolean showVanillaIds;
 	public static boolean regUnregBiomes = true;
 	//passable ids
 	public static String[] passable = new String[]
@@ -48,7 +47,6 @@ public class RegistryConfig {
 	{
 		Configuration cfg = new Configuration(new File(Launch.minecraftHome, "config/confighelper/main.cfg"));
 		cfg.load();
-		showVanillaIds = cfg.getBoolean("showVanillaIds", "general", showVanillaIds, "disable this to only show modded ids in suggestion files");
 		configMode = cfg.getBoolean("configMode", "general", configMode, "disable this when your modpack has been configured properly so it runs faster");
 		regUnregBiomes = cfg.getBoolean("regUnregBiomes", "general", regUnregBiomes, "will prevent future biome conflicts if un registerd biomes get registerd later");
 		dumpIds = cfg.getBoolean("dumpIds", "general", dumpIds, "dump original requested and memory indexed ids");

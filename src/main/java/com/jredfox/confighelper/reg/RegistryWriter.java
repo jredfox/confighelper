@@ -198,7 +198,8 @@ public class RegistryWriter {
 			{
 				if(!canSuggest(reg, e))
 					continue;
-				writer.write(reg.getNextSuggestedId(e.newId) + " " + reg.getDisplay(e, false) + "\r\n");
+				int suggestion = reg.getNextSuggestedId(e.newId);
+				writer.write(suggestion + " " + reg.getDisplay(e, false) + "\r\n");
 			}
 			if(hasModName)
 				writer.write("\r\n");
@@ -217,9 +218,9 @@ public class RegistryWriter {
 
 	private static boolean canSuggest(Registry reg, Entry e) 
 	{
-		if(e.replaced)
+		if(e.replaced || e.obj instanceof BiomeGenMutated)
 			return false;
-		return RegistryConfig.showVanillaIds || !reg.isVanillaId(e.newId);
+		return !reg.isVanillaId(e.newId);
 	}
 
 	public static void outputConflictedIds()

@@ -110,6 +110,12 @@ public class Transformer implements IClassTransformer{
 		list.add(new VarInsnNode(Opcodes.ISTORE, 1));
 		FieldInsnNode field = new FieldInsnNode(Opcodes.PUTFIELD, "net/minecraft/world/biome/BiomeGenBase", new MCPSidedString("topBlock", "field_76752_A").toString(), "Lnet/minecraft/block/Block;");
 		node.instructions.insert(ASMHelper.getFirstInstruction(node, Opcodes.INVOKESPECIAL), list);
+		
+		MethodNode clinit = ASMHelper.getClassInitNode(classNode);
+		InsnList list2 = new InsnList();
+		list2.add(new InsnNode(Opcodes.ICONST_1));
+		list2.add(new FieldInsnNode(Opcodes.PUTSTATIC, "com/jredfox/confighelper/reg/Registries", "initBiomes", "Z"));
+		clinit.instructions.insertBefore(ASMHelper.getLastInstruction(clinit, Opcodes.RETURN), list2);
 	}
 	
 	/**
