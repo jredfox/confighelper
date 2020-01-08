@@ -217,9 +217,23 @@ public class Registry {
 		return -1;
 	}
 	
+	public void resetSuggestedIds()
+	{
+		this.suggestedId = 0;
+	}
+	
 	public void resetFreeIds()
 	{
 		this.freeId = 0;
+	}
+	
+	/**
+	 * resets the suggested ids and the free ids
+	 */
+	public void resetInfoIds()
+	{
+		this.resetSuggestedIds();
+		this.resetFreeIds();
 	}
 	
 	public boolean containsOrg(int org)

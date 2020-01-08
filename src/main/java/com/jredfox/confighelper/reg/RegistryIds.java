@@ -3,10 +3,12 @@ package com.jredfox.confighelper.reg;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.evilnotch.lib.reflect.ReflectionHandler;
 import com.jredfox.confighelper.reg.Registry.DataType;
 
 import net.minecraft.enchantment.Enchantment;
@@ -72,13 +74,14 @@ public class RegistryIds {
 		}
 	}
 	
-	private static String getDatawatchers(EntityPlayer player) {
+	private static String getDatawatchers(EntityPlayer player) 
+	{
 		StringBuilder b = new StringBuilder();
 		b.append('[');
-//		for(Integer i : player.getDataWatcher().getIds())
-//		{
-//			b.append(i + ",");
-//		}
+		for(Object i : player.getDataWatcher().watchedObjects.keySet())
+		{
+			b.append(i + ",");
+		}
 		b.append(']');
 		return b.toString();
 	}
@@ -86,8 +89,8 @@ public class RegistryIds {
 	private static String getEnts() {
 		StringBuilder b = new StringBuilder();
 		b.append('[');
-//		for(Integer i : EntityList.IDtoClassMapping.keySet())
-//			b.append(i + ",");
+		for(Object i : EntityList.IDtoClassMapping.keySet())
+			b.append(i + ",");
 		b.append(']');
 		return b.toString();
 	}
@@ -95,8 +98,9 @@ public class RegistryIds {
 	private static String getDims() {
 		StringBuilder b = new StringBuilder();
 		b.append('[');
-//		for(Integer i : DimensionManager.dimensions.keySet())
-//			b.append(i + ",");
+		HashMap<Integer,Integer> dimensions = (HashMap<Integer, Integer>) ReflectionHandler.getObject(ReflectionHandler.makePublicField(DimensionManager.class,"dimensions"), null);
+		for(Integer i : dimensions.keySet())
+			b.append(i + ",");
 		b.append(']');
 		return b.toString();
 	}

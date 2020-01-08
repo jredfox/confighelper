@@ -134,22 +134,6 @@ public class Registries {
 		reg.unreg(id);
 	}
 	
-	public static boolean hasConflicts() 
-	{
-		return biomes.hasConflicts || 
-				potions.hasConflicts || 
-				enchantments.hasConflicts || 
-				dimensions.hasConflicts || 
-				providers.hasConflicts ||
-				entities.hasConflicts ||
-				hasWatcherConflicts();
-	}
-
-	public static boolean hasWatcherConflicts() 
-	{
-		return datawatchers != null ? datawatchers.hasConflicts : false;
-	}
-	
 	public static void strictRegs()
 	{
 		biomes.strict = true;
@@ -167,63 +151,64 @@ public class Registries {
 			datawatchers.strict = true;
 	}
 	
-	public static String getConflictTypes() 
+	public static boolean hasConflicts() 
 	{
-		StringBuilder b = new StringBuilder();
-		b.append('[');
-		if(Registries.biomes.hasConflicts)
-			b.append(Registries.biomes.dataType + ", ");
-		if(Registries.potions.hasConflicts)
-			b.append(Registries.potions.dataType + ", ");
-		if(Registries.enchantments.hasConflicts)
-			b.append(Registries.enchantments.dataType + ", ");
-		if(Registries.dimensions.hasConflicts)
-			b.append(Registries.dimensions.dataType + ", ");
-		if(Registries.providers.hasConflicts)
-			b.append(Registries.providers.dataType + ", ");
-		if(Registries.entities.hasConflicts)
-			b.append(Registries.entities.dataType + ", ");
-		if(Registries.datawatchers != null && Registries.entities.hasConflicts)
-			b.append(Registries.datawatchers.dataType + ", ");
-		String c = b.toString();
-		return c.substring(0, c.length()-2) + "]";
+		return biomes.hasConflicts || 
+				potions.hasConflicts || 
+				enchantments.hasConflicts || 
+				dimensions.hasConflicts || 
+				providers.hasConflicts ||
+				entities.hasConflicts ||
+				hasWatcherConflicts();
+	}
+
+	public static boolean hasWatcherConflicts() 
+	{
+		return datawatchers != null ? datawatchers.hasConflicts : false;
 	}
 	
-	public static void potionSecurity() 
+	public static void resetIds() 
 	{
-		Potion[] potions = Potion.potionTypes;
-		int limit =  Byte.MAX_VALUE + 1;
-		//if it's greater then a signed byte and not greater then an unsigned byte patch potions
-		if(potions.length > limit && potions.length < 256 + 1)
-		{
-			System.out.println("Fixing Potion ids. A Dumb Mod has extended potions to unsiged byte it can be only a signed byte 0-127!");
-			for(int i=128; i < potions.length; i++)
-			{
-				Potion p = potions[i];
-				if(p != null)
-				{
-					Registries.potions.checkId(p, i);
-				}
-			}
-			Potion[] fixed = new Potion[limit];
-			for(int i=0; i < fixed.length; i++)
-			{
-				fixed[i] = potions[i];
-			}
-			Potion.potionTypes = fixed;
-		}
+		Registries.biomes.resetInfoIds();
+		Registries.potions.resetInfoIds();
+		Registries.enchantments.resetInfoIds();
+		Registries.dimensions.resetInfoIds();
+		Registries.providers.resetInfoIds();
+		Registries.entities.resetInfoIds();
+	}
+	
+	public static void resetWatcherIds() 
+	{
+		Registries.datawatchers.resetInfoIds();
 	}
 
 	public static void output()
 	{
 		RegistryWriter.output();
 	}
-	
+
 	public static void outputWatcher()
 	{
 		RegistryWriter.outputWatcher();
 	}
 	
+	/**
+	 * fix derp potion vanilla registry if another mod attempts to do this
+	 */
+	public static void potionSecurity() 
+	{
+		Potion[] potions = Potion.potionTypes;
+		int limit =  Byte.MAX_VALUE + 1;
+		if(potions.length > limit && potions.length < 256 + 1)
+		{
+			System.out.println("Fixing Potion array to be a signed byte 0-127!");
+			Potion[] fixed = new Potion[limit];
+			for(int i=0; i < fixed.length; i++)
+				fixed[i] = potions[i];
+			Potion.potionTypes = fixed;
+		}
+	}
+
 	public static void makeCrashReport(String cat, String msg) 
 	{
 		boolean isClient = false;
@@ -252,6 +237,29 @@ public class Registries {
 	{
 		return Registries.loading ? "Loading" : "In Game";
 	}
+	
+	public static String getConflictTypes() 
+	{
+		StringBuilder b = new StringBuilder();
+		b.append('[');
+		if(Registries.biomes.hasConflicts)
+			b.append(Registries.biomes.dataType + ", ");
+		if(Registries.potions.hasConflicts)
+			b.append(Registries.potions.dataType + ", ");
+		if(Registries.enchantments.hasConflicts)
+			b.append(Registries.enchantments.dataType + ", ");
+		if(Registries.dimensions.hasConflicts)
+			b.append(Registries.dimensions.dataType + ", ");
+		if(Registries.providers.hasConflicts)
+			b.append(Registries.providers.dataType + ", ");
+		if(Registries.entities.hasConflicts)
+			b.append(Registries.entities.dataType + ", ");
+		if(Registries.datawatchers != null && Registries.entities.hasConflicts)
+			b.append(Registries.datawatchers.dataType + ", ");
+		String c = b.toString();
+		return c.substring(0, c.length()-2) + "]";
+	}
+	
 	
 	public static LoadController loadController;
 	public static ListMultimap<String, ModContainer> packageOwners;

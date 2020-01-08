@@ -60,8 +60,15 @@ public class RegistryProvider extends Registry{
 	@Override
 	public void resetFreeIds()
 	{
-		this.freeId = 2;
+		super.resetFreeIds();
 		this.lowerFreeId = -2;
+	}
+	
+	@Override
+	public void resetSuggestedIds()
+	{
+		super.resetSuggestedIds();
+		this.lowerV = -2;
 	}
 	
 	public int lowerV = -2;//suggestedId lower index counter

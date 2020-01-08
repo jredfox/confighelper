@@ -96,6 +96,7 @@ public class RegistryWriter {
 			RegistryWriter.outputFreeIds();
 			if(RegistryConfig.dumpIds)
 				RegistryWriter.dumpIds();
+			Registries.resetIds();
 			RegistryWriter.outputWatcher();
 		}
 		catch(Throwable t)
@@ -114,6 +115,7 @@ public class RegistryWriter {
 		outputWatcherFreeIds();
 		if(RegistryConfig.dumpIds)
 			dumpWatcherIds();
+		Registries.resetWatcherIds();
 	}
 
 	private static void grabNames()
@@ -160,6 +162,8 @@ public class RegistryWriter {
 		{
 			for(Registry.Entry entry : list)
 			{
+				if(!canSuggest(reg, entry))
+					continue;
 				String modname = entry.modName;
 				List<Registry.Entry> map = entries.get(modname);
 				if(map == null)
@@ -189,31 +193,17 @@ public class RegistryWriter {
 		{
 			String modName = map.getKey();
 			List<Registry.Entry> list = map.getValue();
-			if(!canSuggestList(reg, list))
-				continue;
 			boolean hasModName = !(reg instanceof RegistryInt);
 			if(hasModName)
 				writer.write(modName + "\r\n");
 			for(Registry.Entry e : list)
 			{
-				if(!canSuggest(reg, e))
-					continue;
 				int suggestion = reg.getNextSuggestedId(e.newId);
 				writer.write(suggestion + " " + reg.getDisplay(e, false) + "\r\n");
 			}
 			if(hasModName)
 				writer.write("\r\n");
 		}
-	}
-
-	public static boolean canSuggestList(Registry reg, List<Registry.Entry> list) 
-	{
-		for(Registry.Entry e : list)
-		{
-			if(canSuggest(reg, e))
-				return true;
-		}
-		return false;
 	}
 
 	private static boolean canSuggest(Registry reg, Entry e) 
