@@ -1,57 +1,64 @@
 package com.jredfox.confighelper.datawatcher;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 
+import com.jredfox.confighelper.reg.IAutoRegistry;
 import com.jredfox.confighelper.reg.RegistryWriter;
 
-import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.ResourceLocation;
 
-public abstract class WatcherDataType {
+public abstract class WatcherDataType<T> implements IAutoRegistry{
 	
-	public static int nextId = 7;
-	
-	public int dataType;
+	public int id = -1;
 	public Class clazz;
-	public WatcherDataType(Class clazz)
+	public ResourceLocation loc;
+	public WatcherDataType(ResourceLocation loc, Class clazz)
 	{
+		this.loc = loc;
 		this.clazz = clazz;
-		this.dataType = getNextId();
 	}
 	
-	public static NBTTagCompound autonbt;
-	public static File autonbtFile = new File(RegistryWriter.root, "auto/datawatcher-datatypes.dat");
-	private int getNextId()
-	{
-		String clazz = this.clazz.getName();
-		if(autonbt.hasKey(clazz))
-		{
-			return autonbt.getByte(clazz);
-		}
-		int id = this.nextId++;
-		autonbt.setByte(clazz, (byte) id);
-		return id;
-	}
-
-	public abstract void write(PacketBuffer buf, Object object);
-	public abstract Object read(PacketBuffer buf);
+	public abstract void write(PacketBuffer buf, T object);
+	public abstract T read(PacketBuffer buf);
 	
 	@Override
 	public boolean equals(Object other)
 	{
 		if(!(other instanceof WatcherDataType))
 			return false;
-		return this.dataType == ((WatcherDataType)other).dataType;
+		return this.id == ((WatcherDataType)other).id;
 	}
 	
 	@Override
 	public int hashCode()
 	{
-		return ((Integer)this.dataType).hashCode();
+		return ((Integer)this.id).hashCode();
+	}
+
+	@Override
+	public ResourceLocation getRegistryName() 
+	{
+		return this.loc;
+	}
+
+	@Override
+	public void setRegistryName(ResourceLocation loc) 
+	{
+		this.loc = loc;
+	}
+
+	@Override
+	public int getId()
+	{
+		return this.id;
+	}
+
+	@Override
+	public void setId(int id) 
+	{
+		this.id = id;
 	}
 
 }

@@ -55,6 +55,7 @@ public class Registries {
 	 * the last EntityPlayer data watcher object list. Warning will be null on startup
 	 */
 	public static Registry datawatchers;
+	public static AutoRegistry<WatcherDataType> datawatchertypes = new AutoRegistry<WatcherDataType>(DataType.DATAWATCHERTYPE);
 	
 	public static boolean initBiomes = false;
 	public static int nextBiome = biomes.limit;
@@ -344,53 +345,32 @@ public class Registries {
 		return e instanceof EntityPlayer ? new RegistryDatawatcher() : null;
 	}
 	
-	public static Map<Integer, WatcherDataType> reg = new HashMap(0);
 	public static void registerWatcherDataType(WatcherDataType type)
 	{
-		if(reg.containsKey(type.dataType))
-			throw new IllegalArgumentException("DataWatcher DataType id conflict!" + type.dataType);
-		else if(type.dataType < 0 || type.dataType > 254)
-			throw new IllegalArgumentException("DataWatcher DataType cannot be above" + 254 + " or less then 0");
-		reg.put(type.dataType, type);
-		DataWatcher.dataTypes.put(type.clazz, type.dataType);
+		datawatchertypes.register(type);
+		DataWatcher.dataTypes.put(type.clazz, type.id);
 	}
 	
 	public static void writeWatcher(PacketBuffer buf, int dataType, Object object) 
 	{
-		reg.get(dataType).write(buf, object);
+		datawatchertypes.get(dataType).write(buf, object);
 	}
 
 	public static Object readWatcher(PacketBuffer buf, int dataType) 
 	{
-		return reg.get(dataType).read(buf);
+		return datawatchertypes.get(dataType).read(buf);
 	}
 	
 	public static void initAuto()
 	{
-		try 
-		{
-			if(WatcherDataType.autonbtFile.exists())
-				WatcherDataType.autonbt = CompressedStreamTools.readCompressed(new FileInputStream(WatcherDataType.autonbtFile));
-			else
-				WatcherDataType.autonbt = new NBTTagCompound();
-		} 
-		catch (Exception e) 
-		{
-			e.printStackTrace();
-			WatcherDataType.autonbt = new NBTTagCompound();
-		}
+		datawatchertypes.parseAutoConfig();
+		datawatchertypes.unfreeze();
 	}
 
 	public static void saveAuto() 
 	{
-		try
-		{
-			CompressedStreamTools.writeCompressed(WatcherDataType.autonbt, new FileOutputStream(WatcherDataType.autonbtFile));
-		}
-		catch (Exception e) 
-		{
-			e.printStackTrace();
-		}
+		datawatchertypes.saveAutoConfig();
+		datawatchertypes.freeze();
 	}
 
 }

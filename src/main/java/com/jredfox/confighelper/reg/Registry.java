@@ -385,7 +385,8 @@ public class Registry {
     	DATAWATCHERTYPE(),
     	ITEM(),
     	BLOCK(),
-    	TILEENTITY();
+    	TILEENTITY(),
+    	RECIPES();
     	
 		public String getName() 
 		{

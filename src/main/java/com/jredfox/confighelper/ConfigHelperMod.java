@@ -16,6 +16,7 @@ import net.minecraft.entity.DataWatcher;
 import net.minecraft.entity.monster.EntityCreeper;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.potion.Potion;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.MinecraftForge;
@@ -27,7 +28,30 @@ public class ConfigHelperMod
     @EventHandler
     public void preinit(FMLPreInitializationEvent event)
     {	
-    	Registries.initAuto();
+    	try
+    	{
+    		Registries.initAuto();
+    	for(int i=0;i<100;i++)
+    	Registries.registerWatcherDataType(new WatcherDataType(new ResourceLocation("confighelper:test" + i), DummyMap.class)
+    	{
+			@Override
+			public void write(PacketBuffer buf, Object object) 
+			{
+				
+			}
+			
+			@Override
+			public Object read(PacketBuffer buf) 
+			{
+				return null;
+			}
+		});
+    	}
+    	catch(Throwable t)
+    	{
+    		t.printStackTrace();
+    	}
+    	
 		MinecraftForge.EVENT_BUS.register(new WatcherEvent());
     	Registries.registerBiome(BiomeGenBase.getBiomeGenArray()[161], 161, true);//fix vanilla
     	Enchantment e = Enchantment.aquaAffinity;//force Load vanilla Enchantment
