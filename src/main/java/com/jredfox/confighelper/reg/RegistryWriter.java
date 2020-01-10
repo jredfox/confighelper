@@ -196,10 +196,22 @@ public class RegistryWriter {
 			boolean hasModName = !(reg instanceof RegistryInt);
 			if(hasModName)
 				writer.write(modName + "\r\n");
-			for(Registry.Entry e : list)
+			if(RegistryConfig.suggestIdChunks)
 			{
-				int suggestion = reg.getNextSuggestedId(e.newId);
-				writer.write(suggestion + " " + reg.getDisplay(e, false) + "\r\n");
+				Set<Integer> ids = new TreeSet();
+				for(Registry.Entry e : list)
+					ids.add(reg.getNextSuggestedId(e.newId));//add all possible suggested ids in order
+				Set<IdChunk> chunks = IdChunk.configureRanges(ids);//format them into id chunks
+				for(IdChunk c : chunks)
+					writer.write(c.toString() + "\r\n");
+			}
+			else
+			{
+				for(Registry.Entry e : list)
+				{
+					int suggestion = reg.getNextSuggestedId(e.newId);
+					writer.write(suggestion + " " + reg.getDisplay(e, false) + "\r\n");
+				}
 			}
 			if(hasModName)
 				writer.write("\r\n");
@@ -374,29 +386,11 @@ public class RegistryWriter {
 	
 	private static void writeFreeIds(BufferedWriter writer, int minLimit, int limit, Set<Integer> usedIds) throws IOException
 	{
-		Iterator<Integer> it = usedIds.iterator();
-		int minId = minLimit;
-		int maxId = minLimit;
-		while(it.hasNext())
+		Set<IdChunk> chunks = IdChunk.configureAround(minLimit, limit, usedIds);
+		for(IdChunk c : chunks)
 		{
-			int usedId = it.next();
-			maxId = usedId - 1;
-			if(maxId >= minId)
-				writer.write("id(" + getIdChunk(minId, maxId) + ")\r\n");
-			minId = usedId + 1;//reset min id for the next use
+			writer.write(c.toString() + "\r\n");
 		}
-		if(minId <= limit)
-		{
-			maxId = limit;
-			writer.write("id:(" + getIdChunk(minId, maxId) + ") ------> last\r\n");
-		}
-	}
-	
-	private static String getIdChunk(int minId, int maxId) 
-	{
-		if(minId == maxId)
-			return "" + minId;
-		return "" + minId + " - " + maxId;
 	}
 
 	private static void grabWatcherNames()

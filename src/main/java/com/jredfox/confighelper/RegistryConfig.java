@@ -26,6 +26,8 @@ public class RegistryConfig {
 	public static boolean configMode = true;
 	public static boolean dumpIds;
 	public static boolean regUnregBiomes = true;
+	public static boolean suggestIdChunks = true;
+	
 	//passable ids
 	public static String[] passable = new String[]
 	{
@@ -50,7 +52,7 @@ public class RegistryConfig {
 		configMode = cfg.getBoolean("configMode", "general", configMode, "disable this when your modpack has been configured properly so it runs faster");
 		regUnregBiomes = cfg.getBoolean("regUnregBiomes", "general", regUnregBiomes, "will prevent future biome conflicts if un registerd biomes get registerd later");
 		dumpIds = cfg.getBoolean("dumpIds", "general", dumpIds, "dump original requested and memory indexed ids");
-		
+		suggestIdChunks = cfg.getBoolean("suggestIdChunks", "general", suggestIdChunks, "disable this to veiw more details");
 		passable = cfg.getStringList("conflicts", "passable", passable, "passable Classes that are allowed to conflict(replace) a registry object");
 		passableSelf = cfg.getStringList("selfConflicts", "passable", passableSelf, "passable Classes that are allowed to conflict with itself");
 		passableDimIds = getPassableIds(cfg, "conflictDimIds", "passable Dim ids(Not Provider) that are allowed to conflict. Only use if inputting the provider conflict class wasn't enough");
