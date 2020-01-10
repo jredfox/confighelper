@@ -116,7 +116,7 @@ public class Registry {
 			this.hasConflicts = true;
 			if(this.canCrash())
 			{
-				Registries.output();
+				Registries.write();
 				String cat = Registries.getCat();
 				Registries.makeCrashReport(cat, this.dataType + " Id conflict during " +  cat + " id:" + id + "=" + list.toString());
 			}

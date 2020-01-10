@@ -1,5 +1,9 @@
 package com.jredfox.confighelper.reg;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +26,8 @@ import net.minecraft.entity.DataWatcher;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
+import net.minecraft.nbt.CompressedStreamTools;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.potion.Potion;
 import net.minecraft.server.dedicated.DedicatedServer;
@@ -56,7 +62,7 @@ public class Registries {
 	{
 		if(reg || !reg && RegistryConfig.regUnregBiomes)
 		{
-			if(initBiomes && biome instanceof BiomeGenMutated)
+			if(initBiomes && RegistryConfig.autoBiomeMutated && biome instanceof BiomeGenMutated)
 				id = nextBiome--;//automate BiomeGenMutated for mods
 			return register(biome, id, biomes);
 		}
@@ -167,7 +173,7 @@ public class Registries {
 		return datawatchers != null ? datawatchers.hasConflicts : false;
 	}
 
-	public static void output()
+	public static void write()
 	{
 		new RegistryWriter(Registries.biomes).write();
 		new RegistryWriter(Registries.potions).write();
@@ -175,10 +181,10 @@ public class Registries {
 		new RegistryWriter(Registries.dimensions).write();
 		new RegistryWriter(Registries.providers).write();
 		new RegistryWriter(Registries.entities).write();
-		outputWatcher();
+		writeWatcher();
 	}
 
-	public static void outputWatcher()
+	public static void writeWatcher()
 	{
 		if(Registries.datawatchers == null)
 			return;
@@ -357,6 +363,34 @@ public class Registries {
 	public static Object readWatcher(PacketBuffer buf, int dataType) 
 	{
 		return reg.get(dataType).read(buf);
+	}
+	
+	public static void initAuto()
+	{
+		try 
+		{
+			if(WatcherDataType.autonbtFile.exists())
+				WatcherDataType.autonbt = CompressedStreamTools.readCompressed(new FileInputStream(WatcherDataType.autonbtFile));
+			else
+				WatcherDataType.autonbt = new NBTTagCompound();
+		} 
+		catch (Exception e) 
+		{
+			e.printStackTrace();
+			WatcherDataType.autonbt = new NBTTagCompound();
+		}
+	}
+
+	public static void saveAuto() 
+	{
+		try
+		{
+			CompressedStreamTools.writeCompressed(WatcherDataType.autonbt, new FileOutputStream(WatcherDataType.autonbtFile));
+		}
+		catch (Exception e) 
+		{
+			e.printStackTrace();
+		}
 	}
 
 }
