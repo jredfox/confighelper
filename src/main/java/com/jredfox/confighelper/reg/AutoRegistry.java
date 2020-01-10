@@ -42,7 +42,7 @@ public class AutoRegistry<T extends IAutoRegistry> {
 	
 	protected int getLimit()
 	{
-		return Integer.MAX_VALUE;
+		return RegistryConfig.dataWatcherTypeLimit;
 	}
 	
 	/**
@@ -54,15 +54,17 @@ public class AutoRegistry<T extends IAutoRegistry> {
 		ResourceLocation loc = obj.getRegistryName();
 		if(!isMinecraft(loc))
 			Registries.makeCrashReport("registration", "a mod as attempted to register a hard coded id with a non minecraft object!");
-		this.checkRange(index);
+		this.checkId(index);
 		obj.setId(index);
 		this.reg.put(loc, obj);
 	}
 
-	private void checkRange(int index) 
+	private void checkId(int index) 
 	{
 		if(index < this.limitLower || index > this.limit)
 			Registries.makeCrashReport("registration", "index out of bounds:" + this.dataType + ", " + index + " the id must be between" + this.limitLower + "-" + this.limit + ")");
+		if(this.contains(index))
+			Registries.makeCrashReport("registration", this.dataType.getName(false) + " id conflict" + index);
 	}
 
 	public void register(T obj)
@@ -72,7 +74,7 @@ public class AutoRegistry<T extends IAutoRegistry> {
 		if(this.contains(loc))
 			Registries.makeCrashReport("registration", "duplicate registry object " + this.dataType + " id:" + loc);
 		int nextId = this.getNextId(obj);
-		this.checkRange(nextId);
+		this.checkId(nextId);
 		obj.setId(nextId);
 		this.reg.put(loc, obj);
 	}
@@ -98,6 +100,11 @@ public class AutoRegistry<T extends IAutoRegistry> {
 	public boolean contains(ResourceLocation loc)
 	{
 		return this.reg.containsKey(loc);
+	}
+	
+	public boolean contains(int id)
+	{
+		return this.get(id) != null;
 	}
 	
 	/**
