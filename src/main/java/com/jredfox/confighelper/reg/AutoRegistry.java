@@ -16,6 +16,7 @@ public class AutoRegistry<T extends IAutoRegistry> {
 	public int limitLower;
 	public int limit;
 	protected Map<ResourceLocation, T> reg = new HashMap();
+	public boolean frozen;
 	
 	public AutoRegistry(DataType type)
 	{
@@ -43,6 +44,7 @@ public class AutoRegistry<T extends IAutoRegistry> {
 	
 	public void register(T obj)
 	{
+		this.checkFrozen();
 		ResourceLocation loc = obj.getRegistryName();
 		if(this.contains(loc))
 			Registries.makeCrashReport("registration", "duplicate registry object " + this.dataType + " id:" + loc);
@@ -54,14 +56,17 @@ public class AutoRegistry<T extends IAutoRegistry> {
 	 */
 	public void replace(T obj)
 	{
-		T old = this.unreg(obj);
+		this.checkFrozen();
+		T old = this.unregister(obj);
 		obj.setId(old.getId());
 		this.register(obj);
 	}
 
-	public T unreg(T obj) 
+	public T unregister(T obj) 
 	{
-		return this.reg.remove(obj.getRegistryName());
+		this.checkFrozen();
+		ResourceLocation loc = obj.getRegistryName();
+		return this.reg.remove(loc);
 	}
 
 	public boolean contains(ResourceLocation loc)
@@ -72,6 +77,23 @@ public class AutoRegistry<T extends IAutoRegistry> {
 	public Collection<T> values()
 	{
 		return this.reg.values();
+	}
+	
+	public void freeze()
+	{
+		this.frozen = true;
+	}
+	
+	public void unfreeze()
+	{
+		System.out.println("WARNING A mod has attempted to unfreeze a frozen registry this is usually the result of a broken mod");
+		this.frozen = false;
+	}
+	
+	protected void checkFrozen() 
+	{
+		if(this.frozen)
+			Registries.makeCrashReport("registration", "registry are frozen use designated loading times" + this.dataType);
 	}
 
 }
