@@ -166,30 +166,23 @@ public class Registries {
 	{
 		return datawatchers != null ? datawatchers.hasConflicts : false;
 	}
-	
-	public static void resetIds() 
-	{
-		Registries.biomes.resetInfoIds();
-		Registries.potions.resetInfoIds();
-		Registries.enchantments.resetInfoIds();
-		Registries.dimensions.resetInfoIds();
-		Registries.providers.resetInfoIds();
-		Registries.entities.resetInfoIds();
-	}
-	
-	public static void resetWatcherIds() 
-	{
-		Registries.datawatchers.resetInfoIds();
-	}
 
 	public static void output()
 	{
-		RegistryWriter.output();
+		new RegistryWriter(Registries.biomes).write();
+		new RegistryWriter(Registries.potions).write();
+		new RegistryWriter(Registries.enchantments).write();
+		new RegistryWriter(Registries.dimensions).write();
+		new RegistryWriter(Registries.providers).write();
+		new RegistryWriter(Registries.entities).write();
+		outputWatcher();
 	}
 
 	public static void outputWatcher()
 	{
-		RegistryWriter.outputWatcher();
+		if(Registries.datawatchers == null)
+			return;
+		new RegistryWriter(Registries.datawatchers).write();
 	}
 	
 	/**

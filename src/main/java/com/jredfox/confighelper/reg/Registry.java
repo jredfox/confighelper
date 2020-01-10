@@ -341,6 +341,11 @@ public class Registry {
 		}
 	}
 	
+   	public String getDisplay(Registry.Entry e)
+	{
+   		return this.getDisplay(e, false);
+	}
+	
    	public String getDisplay(Registry.Entry e, boolean name)
 	{
 		return "(name:" + e.name + ", " + (name ? e.modName + ", " : "") + e.clazz + ", orgId:" + e.org + ")";
