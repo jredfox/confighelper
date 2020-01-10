@@ -26,6 +26,7 @@ public class RegistryIds {
 	public static final Set<Integer> entities = new HashSet(asList(new int[]{1,2,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,200,90,91,92,93,94,95,96,97,98,99,100,120}  ));
 	public static final Set<Integer> dimensions = new HashSet(asList(new int[]{-1,0,1}));
 	public static final Set<Integer> datawatchers = new HashSet(asList(new int[] {0,1,6,7,8,9,16,17,18}));
+	public static final Set<Integer> datawatertypes = new HashSet(asList(new int[]{0,1,2,3,4,5,6}));
 	
 	public static void genIds()
 	{

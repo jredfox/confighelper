@@ -348,6 +348,7 @@ public class Registries {
 	public static void registerWatcherDataType(WatcherDataType type)
 	{
 		datawatchertypes.register(type);
+		System.out.println("reg:" + type.id);
 		DataWatcher.dataTypes.put(type.clazz, type.id);
 	}
 	

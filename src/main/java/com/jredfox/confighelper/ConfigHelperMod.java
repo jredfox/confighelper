@@ -31,7 +31,7 @@ public class ConfigHelperMod
     	try
     	{
     		Registries.initAuto();
-    	for(int i=0;i<100;i++)
+    	for(int i=0;i<10;i++)
     	Registries.registerWatcherDataType(new WatcherDataType(new ResourceLocation("confighelper:test" + i), DummyMap.class)
     	{
 			@Override

@@ -4,9 +4,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import com.evilnotch.lib.JavaUtil;
 import com.evilnotch.lib.simple.Directory;
@@ -23,7 +25,9 @@ public class AutoRegistry<T extends IAutoRegistry> {
 	public DataType dataType;
 	public int limitLower;
 	public int limit;
-	protected Map<ResourceLocation, T> reg = new HashMap();
+	protected Map<ResourceLocation, T> reg = new LinkedHashMap();//retains the order for modders debuging things
+	protected Set<Integer> vanillaIds;
+	protected Set<Integer> usedIds = new TreeSet();
 	protected boolean frozen = true;//registries should be frozen before registration event and unfrozen after till before load complete
 	
 	public NBTTagCompound auto;
@@ -33,8 +37,18 @@ public class AutoRegistry<T extends IAutoRegistry> {
 		this.dataType = type;
 		this.limitLower = this.getLimitLower();
 		this.limit = this.getLimit();
+		this.vanillaIds = this.getVanillaIds();
 	}
 	
+	private Set<Integer> getVanillaIds() 
+	{
+		if(this.dataType == DataType.DATAWATCHERTYPE)
+		{
+			return RegistryIds.datawatertypes;
+		}
+		return null;
+	}
+
 	protected int getLimitLower()
 	{
 		return 0;
@@ -45,26 +59,23 @@ public class AutoRegistry<T extends IAutoRegistry> {
 		return RegistryConfig.dataWatcherTypeLimit;
 	}
 	
-	/**
-	 * internal vanilla registration to ensure same ids
-	 */
-	public void register(int index, T obj)
-	{
-		this.check(obj);
-		ResourceLocation loc = obj.getRegistryName();
-		if(!isMinecraft(loc))
-			Registries.makeCrashReport("registration", "a mod as attempted to register a hard coded id with a non minecraft object!");
-		this.checkId(index);
-		obj.setId(index);
-		this.reg.put(loc, obj);
-	}
-
 	private void checkId(int index) 
 	{
 		if(index < this.limitLower || index > this.limit)
 			Registries.makeCrashReport("registration", "index out of bounds:" + this.dataType + ", " + index + " the id must be between" + this.limitLower + "-" + this.limit + ")");
 		if(this.contains(index))
-			Registries.makeCrashReport("registration", this.dataType.getName(false) + " id conflict" + index);
+			Registries.makeCrashReport("registration", this.dataType.getName(false) + " id conflict " + index);
+	}
+	
+	/**
+	 * internal use for vanilla registration do not use
+	 */
+	public void register(int id, T obj)
+	{
+		if(!isMinecraft(obj.getRegistryName()))
+			Registries.makeCrashReport("registration","hard coded id! " + this.dataType + " id:" + id);
+		obj.setId(id);
+		this.register(obj);
 	}
 
 	public void register(T obj)
@@ -73,9 +84,9 @@ public class AutoRegistry<T extends IAutoRegistry> {
 		ResourceLocation loc = obj.getRegistryName();
 		if(this.contains(loc))
 			Registries.makeCrashReport("registration", "duplicate registry object " + this.dataType + " id:" + loc);
-		int nextId = this.getNextId(obj);
-		this.checkId(nextId);
-		obj.setId(nextId);
+		int id = obj.getId() == -1 ? this.getId(obj) : obj.getId();
+		this.checkId(id);
+		obj.setId(id);
 		this.reg.put(loc, obj);
 	}
 
@@ -84,10 +95,9 @@ public class AutoRegistry<T extends IAutoRegistry> {
 	 */
 	public void replace(T obj)
 	{
-		this.check(obj);
 		T old = this.unregister(obj);
 		obj.setId(old.getId());
-		this.reg.put(obj.getRegistryName(), obj);
+		this.register(obj);
 	}
 
 	public T unregister(T obj) 
@@ -149,7 +159,7 @@ public class AutoRegistry<T extends IAutoRegistry> {
 		if(loc == null)
 			Registries.makeCrashReport("registration", "null registry name(resource location) for object:" + obj);
 		else if(this.frozen)
-			Registries.makeCrashReport("registration", "registry are frozen use designated loading times registry:" + this.dataType + ", " + loc);
+			Registries.makeCrashReport("registration", "registry:" + this.dataType + " is frozen used designated loading times! tried to register:" + loc);
 	}
 	
 	public static boolean isMinecraft(ResourceLocation loc) 
@@ -157,15 +167,31 @@ public class AutoRegistry<T extends IAutoRegistry> {
 		return loc.getResourceDomain().equals("minecraft");
 	}
 	
-	public int nextId;
-	public int getNextId(T obj)
+	protected int getId(T obj)
 	{
 		String key = obj.getRegistryName().toString();
 		if(this.auto.hasKey(key))
 			return this.auto.getInteger(key);
-		int id = nextId++;
-		this.auto.setInteger(key, id);
-		return id;
+		return this.getNewId();
+	}
+	
+	public int newId;
+	protected int getNewId()
+	{
+		for(int index=this.newId;index<=this.limit;index++)
+		{
+			if(!this.isUsed(this.newId))
+			{
+				return this.newId++;
+			}
+			this.newId++;
+		}
+		return -1;
+	}
+	
+	protected boolean isUsed(int id)
+	{
+		return this.vanillaIds.contains(id) || this.usedIds.contains(id);
 	}
 	
 	public void parseAutoConfig()
@@ -174,18 +200,23 @@ public class AutoRegistry<T extends IAutoRegistry> {
 		this.autoFile = new File(dir, "ids.dat");
 		long start = System.currentTimeMillis();
 		this.auto = this.getOrCreateNBT(this.autoFile);
-		this.removeInvalidIds();
+		this.removeInvalidConfigIds();
+		this.usedIds.clear();
+		for(Object key : this.auto.func_150296_c())
+		{
+			this.usedIds.add(this.auto.getInteger((String)key));
+		}
 		JavaUtil.printTime(start, "parsing auto ids took:");
 	}
 	
-	private void removeInvalidIds()
+	private void removeInvalidConfigIds()
 	{
 		Iterator<String> it = this.auto.func_150296_c().iterator();
 		while(it.hasNext())
 		{
 			String key = it.next();
 			ResourceLocation loc = new ResourceLocation(key);
-			if(this.get(loc) == null)
+			if(!Loader.isModLoaded(loc.getResourceDomain()))
 			{
 				it.remove();
 			}
@@ -194,6 +225,12 @@ public class AutoRegistry<T extends IAutoRegistry> {
 
 	public void saveAutoConfig()
 	{
+		NBTTagCompound nbt = new NBTTagCompound();
+		for(Map.Entry<ResourceLocation, T> pair : this.reg.entrySet())
+		{
+			nbt.setInteger(pair.getKey().toString(), pair.getValue().getId());
+		}
+		this.auto = nbt;
 		this.saveNBT(this.auto, this.autoFile);
 	}
 	
