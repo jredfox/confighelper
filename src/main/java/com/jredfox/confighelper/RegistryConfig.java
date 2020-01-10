@@ -19,6 +19,7 @@ public class RegistryConfig {
 	public static int enchantmentsLimit = 255;
 	public static int entities = 255;
 	public static int dataWatchersLimit = Integer.MAX_VALUE;
+	public static int dataWatcherTypeLimit = 254;
 	public static int dimLimitUpper = Integer.MAX_VALUE;
 	public static int dimLimitLower = Integer.MIN_VALUE;
 	

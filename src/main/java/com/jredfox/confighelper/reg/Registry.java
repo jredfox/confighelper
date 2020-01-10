@@ -382,6 +382,7 @@ public class Registry {
     	PROVIDER(),
     	ENTITY(),
     	DATAWATCHER(),
+    	DATAWATCHERTYPE(),
     	ITEM(),
     	BLOCK(),
     	TILEENTITY();
