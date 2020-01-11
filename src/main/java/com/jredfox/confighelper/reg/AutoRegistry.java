@@ -229,7 +229,11 @@ public class AutoRegistry<T extends IAutoRegistry> {
 		NBTTagCompound nbt = new NBTTagCompound();
 		for(Map.Entry<ResourceLocation, T> pair : this.reg.entrySet())
 		{
-			nbt.setInteger(pair.getKey().toString(), pair.getValue().getId());
+			ResourceLocation loc = pair.getKey();
+			int id = pair.getValue().getId();
+			if(isMinecraft(loc))
+				continue;
+			nbt.setInteger(loc.toString(), id);
 		}
 		this.auto = nbt;
 		this.saveNBT(this.auto, this.autoFile);

@@ -1,6 +1,7 @@
 package com.jredfox.confighelper.datawatcher;
 
 import java.io.File;
+import java.io.IOException;
 
 import com.jredfox.confighelper.reg.AutoRegistry;
 import com.jredfox.confighelper.reg.IAutoRegistry;
@@ -21,8 +22,8 @@ public abstract class WatcherDataType<T> implements IAutoRegistry{
 		this.clazz = clazz;
 	}
 	
-	public abstract void write(PacketBuffer buf, T object);
-	public abstract T read(PacketBuffer buf);
+	public abstract void write(PacketBuffer buf, T object) throws IOException;
+	public abstract T read(PacketBuffer buf) throws IOException;
 	
 	@Override
 	public boolean equals(Object other)

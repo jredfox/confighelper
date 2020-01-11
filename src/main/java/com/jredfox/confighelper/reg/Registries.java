@@ -11,7 +11,14 @@ import java.util.Map;
 import com.evilnotch.lib.JavaUtil;
 import com.google.common.collect.ListMultimap;
 import com.jredfox.confighelper.RegistryConfig;
+import com.jredfox.confighelper.datawatcher.WatcherByte;
+import com.jredfox.confighelper.datawatcher.WatcherChunkCoords;
 import com.jredfox.confighelper.datawatcher.WatcherDataType;
+import com.jredfox.confighelper.datawatcher.WatcherFloat;
+import com.jredfox.confighelper.datawatcher.WatcherInteger;
+import com.jredfox.confighelper.datawatcher.WatcherItemStack;
+import com.jredfox.confighelper.datawatcher.WatcherShort;
+import com.jredfox.confighelper.datawatcher.WatcherString;
 import com.jredfox.confighelper.proxy.ClientProxy;
 import com.jredfox.confighelper.proxy.ServerProxy;
 import com.jredfox.confighelper.reg.Registry.DataType;
@@ -348,29 +355,60 @@ public class Registries {
 	public static void registerWatcherDataType(WatcherDataType type)
 	{
 		datawatchertypes.register(type);
-		System.out.println("reg:" + type.id);
 		DataWatcher.dataTypes.put(type.clazz, type.id);
 	}
 	
-	public static void writeWatcher(PacketBuffer buf, int dataType, Object object) 
+	public static void writeWatcher(PacketBuffer buf, int dataType, Object object) throws IOException 
 	{
 		datawatchertypes.get(dataType).write(buf, object);
 	}
 
-	public static Object readWatcher(PacketBuffer buf, int dataType) 
+	public static Object readWatcher(PacketBuffer buf, int dataType) throws IOException 
 	{
 		return datawatchertypes.get(dataType).read(buf);
 	}
 	
 	public static void initAuto()
 	{
-		datawatchertypes.parseAutoConfig();
-		datawatchertypes.unfreeze();
+		parseAuto();
+		unfreeze();
+		regVanilla();
 	}
 
+	private static void regVanilla() 
+	{
+		datawatchertypes.register(0, new WatcherByte());
+		datawatchertypes.register(1, new WatcherShort());
+		datawatchertypes.register(2, new WatcherInteger());
+		datawatchertypes.register(3, new WatcherFloat());
+		datawatchertypes.register(4, new WatcherString());
+		datawatchertypes.register(5, new WatcherItemStack());
+		datawatchertypes.register(6, new WatcherChunkCoords());
+	}
+
+	public static void completeAuto() 
+	{
+		saveAuto();
+		freeze();
+	}
+
+	public static void parseAuto() 
+	{
+		datawatchertypes.parseAutoConfig();
+	}
+	
 	public static void saveAuto() 
 	{
 		datawatchertypes.saveAutoConfig();
+	}
+	
+	public static void unfreeze()
+	{
+		datawatchertypes.unfreeze();
+	}
+	
+	public static void freeze()
+	{
 		datawatchertypes.freeze();
 	}
 
