@@ -2,6 +2,7 @@ package com.jredfox.confighelper.datawatcher;
 
 import java.io.File;
 
+import com.jredfox.confighelper.reg.AutoRegistry;
 import com.jredfox.confighelper.reg.IAutoRegistry;
 import com.jredfox.confighelper.reg.RegistryWriter;
 
@@ -11,7 +12,7 @@ import net.minecraft.util.ResourceLocation;
 
 public abstract class WatcherDataType<T> implements IAutoRegistry{
 	
-	public int id = -1;
+	public int id = AutoRegistry.unset;
 	public Class clazz;
 	public ResourceLocation loc;
 	public WatcherDataType(ResourceLocation loc, Class clazz)

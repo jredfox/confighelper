@@ -6,6 +6,9 @@ public interface IAutoRegistry {
 	
 	public ResourceLocation getRegistryName();
 	public void setRegistryName(ResourceLocation loc);
+	/**
+	 * the value must return -1 if it hasn't been set yet
+	 */
 	public int getId();
 	public void setId(int id);
 

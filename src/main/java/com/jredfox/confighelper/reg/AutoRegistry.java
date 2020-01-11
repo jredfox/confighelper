@@ -22,6 +22,7 @@ import net.minecraft.util.ResourceLocation;
 
 public class AutoRegistry<T extends IAutoRegistry> {
 	
+	public static final int unset = -2;
 	public DataType dataType;
 	public int limitLower;
 	public int limit;
@@ -84,7 +85,7 @@ public class AutoRegistry<T extends IAutoRegistry> {
 		ResourceLocation loc = obj.getRegistryName();
 		if(this.contains(loc))
 			Registries.makeCrashReport("registration", "duplicate registry object " + this.dataType + " id:" + loc);
-		int id = obj.getId() == -1 ? this.getId(obj) : obj.getId();
+		int id = obj.getId() == unset ? this.getId(obj) : obj.getId();
 		this.checkId(id);
 		obj.setId(id);
 		this.reg.put(loc, obj);
