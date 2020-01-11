@@ -41,9 +41,7 @@ public class DataWatcherPatcher {
 			ASMHelper.removeInsn(addObject, start, end);
 		}
 		else
-		{
 			System.out.println("confighelper asm DataWatcher#addObject cannot delete line: \"Integer integer = (Integer) dataTypes.get(obj.getClass());\"");
-		}
 		
 		//inject line: Integer integer = Registries.getWatcherTypeId(obj.getClass());
 		LineNumberNode line = ASMHelper.getFirstInstruction(addObject);

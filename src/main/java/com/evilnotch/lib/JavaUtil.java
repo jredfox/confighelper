@@ -927,7 +927,7 @@ public class JavaUtil {
 	/**
 	 * Equivalent to Files.readAllLines() but, works way faster
 	 */
-	public static List<String> getFileLines(File f,boolean utf8)
+	public static List<String> getFileLines(File f, boolean utf8)
 	{
 		BufferedReader reader = null;
 		List<String> list = null;

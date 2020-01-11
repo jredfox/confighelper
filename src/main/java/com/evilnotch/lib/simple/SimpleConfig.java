@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -14,7 +15,7 @@ import com.evilnotch.lib.JavaUtil;
 
 public class SimpleConfig {
 	
-	public Map<String, Object> list = new TreeMap();
+	public Map<String, Object> list = new HashMap();
 	public File file;
 	public static final String[] types = {"B", "S", "I", "L", "F", "D", "Z", "Str"};
 	public static final String extension = ".scfg";
@@ -60,10 +61,15 @@ public class SimpleConfig {
 	
 	public void parse() throws IOException
 	{
+		if(!this.file.exists())
+			return;
 		BufferedReader reader = new BufferedReader(new FileReader(this.file));
 		String line = reader.readLine();
-		while(line != null)
+		while(true)
 		{
+			line = reader.readLine();
+			if(line == null)
+				break;
 			line = line.trim();
 			if(line.indexOf('#') == 0)
 				continue;
@@ -75,21 +81,21 @@ public class SimpleConfig {
 			String strValue = reg[1];
 			Object value = this.parseObj(type, strValue);
 			this.list.put(key, value);
-			
-			line = reader.readLine();
 		}
 		reader.close();
 	}
 	
 	public void save() throws IOException
 	{
+		if(!this.file.getParentFile().exists())
+			this.file.getParentFile().mkdirs();
 		BufferedWriter writer = new BufferedWriter(new FileWriter(this.file));
-		writer.write("#build:" + version);
+		writer.write("#build:" + version + "\r\n");
 		for(String key : this.list.keySet())
 		{
 			Object value = this.list.get(key);
 			String type = this.getType(value);
-			writer.write(type + ":" + "\"" + key + "\"=" + value.toString());
+			writer.write(type + ":" + "\"" + key + "\"=" + value.toString() + "\r\n");
 		}
 		writer.close();
 	}

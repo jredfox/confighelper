@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -26,7 +27,8 @@ public class AutoRegistry<T extends IAutoRegistry> {
 	public DataType dataType;
 	public int limitLower;
 	public int limit;
-	protected Map<ResourceLocation, T> reg = new LinkedHashMap();//retains the order for modders debuging things
+	protected Map<ResourceLocation, T> reg = new HashMap<ResourceLocation, T>();//retains the order for modders debuging things
+	protected Map<Integer, T> idreg = new HashMap<Integer, T>();
 	protected Set<Integer> vanillaIds;
 	protected Set<Integer> usedIds = new TreeSet();
 	protected boolean frozen = true;//registries should be frozen before registration event and unfrozen after till before load complete
@@ -57,7 +59,8 @@ public class AutoRegistry<T extends IAutoRegistry> {
 	
 	protected int getLimit()
 	{
-		return RegistryConfig.dataWatcherTypeLimit;
+		return Integer.MAX_VALUE;
+//		return RegistryConfig.dataWatcherTypeLimit;
 	}
 	
 	private void checkId(int index) 
@@ -81,14 +84,15 @@ public class AutoRegistry<T extends IAutoRegistry> {
 
 	public void register(T obj)
 	{
-		this.check(obj);
 		ResourceLocation loc = obj.getRegistryName();
+		this.check(loc);
 		if(this.contains(loc))
 			Registries.makeCrashReport("registration", "duplicate registry object " + this.dataType + " id:" + loc);
 		int id = obj.getId() == unset ? this.getId(obj) : obj.getId();
 		this.checkId(id);
 		obj.setId(id);
 		this.reg.put(loc, obj);
+		this.idreg.put(id, obj);
 	}
 
 	/**
@@ -96,16 +100,18 @@ public class AutoRegistry<T extends IAutoRegistry> {
 	 */
 	public void replace(T obj)
 	{
-		T old = this.unregister(obj);
+		T old = this.unregister(obj.getRegistryName());
 		obj.setId(old.getId());
 		this.register(obj);
 	}
 
-	public T unregister(T obj) 
+	public T unregister(ResourceLocation loc) 
 	{
-		this.check(obj);
-		ResourceLocation loc = obj.getRegistryName();
-		return this.reg.remove(loc);
+		this.check(loc);
+		T old = this.reg.remove(loc);
+		if(old != null)
+			this.idreg.remove(old.getId());
+		return old;
 	}
 
 	public boolean contains(ResourceLocation loc)
@@ -115,7 +121,7 @@ public class AutoRegistry<T extends IAutoRegistry> {
 	
 	public boolean contains(int id)
 	{
-		return this.get(id) != null;
+		return this.idreg.containsKey(id);
 	}
 	
 	/**
@@ -131,12 +137,7 @@ public class AutoRegistry<T extends IAutoRegistry> {
 	 */
 	public T get(int id)
 	{
-		for(T obj : this.reg.values())
-		{
-			if(id == obj.getId())
-				return obj;
-		}
-		return null;
+		return this.idreg.get(id);
 	}
 	
 	public Collection<T> values()
@@ -154,11 +155,10 @@ public class AutoRegistry<T extends IAutoRegistry> {
 		this.frozen = false;
 	}
 	
-	protected void check(T obj) 
+	protected void check(ResourceLocation loc) 
 	{
-		ResourceLocation loc = obj.getRegistryName();
 		if(loc == null)
-			Registries.makeCrashReport("registration", "null registry name(resource location) for object:" + obj);
+			Registries.makeCrashReport("registration", "null registry name(resource location) for object:" + loc);
 		else if(this.frozen)
 			Registries.makeCrashReport("registration", "registry:" + this.dataType + " is frozen used designated loading times! tried to register:" + loc);
 	}
@@ -227,10 +227,10 @@ public class AutoRegistry<T extends IAutoRegistry> {
 	public void saveAutoConfig()
 	{
 		NBTTagCompound nbt = new NBTTagCompound();
-		for(Map.Entry<ResourceLocation, T> pair : this.reg.entrySet())
+		for(T obj : this.reg.values())
 		{
-			ResourceLocation loc = pair.getKey();
-			int id = pair.getValue().getId();
+			ResourceLocation loc = obj.getRegistryName();
+			int id = obj.getId();
 			if(isMinecraft(loc))
 				continue;
 			nbt.setInteger(loc.toString(), id);

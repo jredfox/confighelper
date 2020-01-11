@@ -1,11 +1,15 @@
 package com.jredfox.confighelper;
 
+import java.io.File;
+
 import com.evilnotch.lib.JavaUtil;
 import com.evilnotch.lib.simple.DummyMap;
+import com.evilnotch.lib.simple.SimpleConfig;
 import com.evilnotch.mod.PatchedClassLoader;
 import com.jredfox.confighelper.datawatcher.WatcherDataType;
 import com.jredfox.confighelper.event.WatcherEvent;
 import com.jredfox.confighelper.reg.Registries;
+import com.jredfox.confighelper.reg.RegistryWriter;
 
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
@@ -28,30 +32,7 @@ public class ConfigHelperMod
     @EventHandler
     public void preinit(FMLPreInitializationEvent event)
     {	
-    	try
-    	{
-    		Registries.initAuto();
-    	for(int i=0;i<10;i++)
-    	Registries.registerWatcherDataType(new WatcherDataType(new ResourceLocation("confighelper:test" + i), DummyMap.class)
-    	{
-			@Override
-			public void write(PacketBuffer buf, Object object) 
-			{
-				
-			}
-			
-			@Override
-			public Object read(PacketBuffer buf) 
-			{
-				return null;
-			}
-		});
-    	}
-    	catch(Throwable t)
-    	{
-    		t.printStackTrace();
-    	}
-    	
+		Registries.initAuto();
 		MinecraftForge.EVENT_BUS.register(new WatcherEvent());
     	Registries.registerBiome(BiomeGenBase.getBiomeGenArray()[161], 161, true);//fix vanilla
     	Enchantment e = Enchantment.aquaAffinity;//force Load vanilla Enchantment
