@@ -352,10 +352,19 @@ public class Registries {
 		return e instanceof EntityPlayer ? new RegistryDatawatcher() : null;
 	}
 	
+	public static Integer getWatcherTypeId(Class<? extends Object> clazz) 
+	{
+		for(WatcherDataType watcher : datawatchertypes.reg.values())
+		{
+			if(watcher.clazz.equals(clazz))
+				return watcher.id;
+		}
+		return null;
+	}
+	
 	public static void registerWatcherDataType(WatcherDataType type)
 	{
 		datawatchertypes.register(type);
-		DataWatcher.dataTypes.put(type.clazz, type.id);
 	}
 	
 	public static void writeWatcher(PacketBuffer buf, int dataType, Object object) throws IOException 

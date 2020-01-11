@@ -555,10 +555,9 @@ public class ASMHelper
 		return null;
 	}
 	
-	public static FieldInsnNode getFieldInsnNode(MethodNode node, int opcode, String owner, String name, String desc)
+	public static FieldInsnNode getFieldInsnNode(MethodNode node, FieldInsnNode compare)
 	{
 		AbstractInsnNode[] arr = node.instructions.toArray();
-		FieldInsnNode compare = new FieldInsnNode(opcode, owner, name, desc);
 		for(AbstractInsnNode ab : arr)
 		{
 			if(ab instanceof FieldInsnNode && ASMHelper.equals(compare, (FieldInsnNode)ab))

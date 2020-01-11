@@ -1,5 +1,6 @@
 package com.jredfox.confighelper.asm;
 
+import org.apache.logging.log4j.core.appender.SyslogAppender;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
@@ -7,6 +8,7 @@ import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.IntInsnNode;
 import org.objectweb.asm.tree.JumpInsnNode;
+import org.objectweb.asm.tree.LineNumberNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
@@ -30,6 +32,28 @@ public class DataWatcherPatcher {
 	public static void patchAddObject(ClassNode classNode) 
 	{
 		MethodNode addObject = ASMHelper.getMethodNode(classNode, new MCPSidedString("addObject", "func_75682_a").toString(), "(ILjava/lang/Object;)V");
+		
+		//delete line Integer integer = (Integer) dataTypes.get(obj.getClass());
+		AbstractInsnNode start = ASMHelper.getFieldInsnNode(addObject, new FieldInsnNode(Opcodes.GETSTATIC, "net/minecraft/entity/DataWatcher", "dataTypes", "Ljava/util/HashMap;"));
+		if(start != null)
+		{
+			AbstractInsnNode end = ASMHelper.nextInsn(start, Opcodes.ASTORE);
+			ASMHelper.removeInsn(addObject, start, end);
+		}
+		else
+		{
+			System.out.println("confighelper asm DataWatcher#addObject cannot delete line: \"Integer integer = (Integer) dataTypes.get(obj.getClass());\"");
+		}
+		
+		//inject line: Integer integer = Registries.getWatcherTypeId(obj.getClass());
+		LineNumberNode line = ASMHelper.getFirstInstruction(addObject);
+		InsnList list0 = new InsnList();
+		list0.add(new VarInsnNode(Opcodes.ALOAD, 2));
+		list0.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "java/lang/Object", "getClass", "()Ljava/lang/Class;", false));
+		list0.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/jredfox/confighelper/reg/Registries", "getWatcherTypeId", "(Ljava/lang/Class;)Ljava/lang/Integer;", false));
+		list0.add(new VarInsnNode(Opcodes.ASTORE, 3));
+		addObject.instructions.insert(line, list0);
+		
 		InsnList list = new InsnList();
 		//inject line: id = Registries.registerDataWatcher(this.field_151511_a, id, this.reg);
 		list.add(new VarInsnNode(Opcodes.ALOAD, 0));
@@ -39,7 +63,7 @@ public class DataWatcherPatcher {
 		list.add(new FieldInsnNode(Opcodes.GETFIELD, "net/minecraft/entity/DataWatcher", "reg", "Lcom/jredfox/confighelper/reg/Registry;"));
 		list.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/jredfox/confighelper/reg/Registries", "registerDataWatcher", "(Lnet/minecraft/entity/Entity;ILcom/jredfox/confighelper/reg/Registry;)I", false));
 		list.add(new VarInsnNode(Opcodes.ISTORE, 1));
-		addObject.instructions.insert(ASMHelper.getFirstInstruction(addObject), list);
+		addObject.instructions.insert(line, list);
 		
 		//disable throwable if the id > 31
 		JumpInsnNode todisable = null;
