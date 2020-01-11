@@ -3,17 +3,17 @@ package com.jredfox.confighelper.datawatcher;
 import java.io.File;
 import java.io.IOException;
 
-import com.jredfox.confighelper.reg.AutoRegistry;
-import com.jredfox.confighelper.reg.IAutoRegistry;
+import com.jredfox.confighelper.reg.CentralRegistry;
+import com.jredfox.confighelper.reg.IRegisterable;
 import com.jredfox.confighelper.reg.RegistryWriter;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
 
-public abstract class WatcherDataType<T> implements IAutoRegistry{
+public abstract class WatcherDataType<T> implements IRegisterable{
 	
-	public int id = AutoRegistry.unset;
+	public int id = CentralRegistry.unset;
 	public Class clazz;
 	public ResourceLocation loc;
 	public WatcherDataType(ResourceLocation loc, Class clazz)

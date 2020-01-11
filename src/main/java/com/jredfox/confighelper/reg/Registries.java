@@ -62,7 +62,7 @@ public class Registries {
 	 * the last EntityPlayer data watcher object list. Warning will be null on startup
 	 */
 	public static Registry datawatchers;
-	public static AutoRegistry<WatcherDataType> datawatchertypes = new AutoRegistry<WatcherDataType>(DataType.DATAWATCHERTYPE);
+	public static CentralRegistry<WatcherDataType> datawatchertypes = new CentralRegistry<WatcherDataType>(DataType.DATAWATCHERTYPE);
 	
 	public static boolean initBiomes = false;
 	public static int nextBiome = biomes.limit;
@@ -360,11 +360,6 @@ public class Registries {
 				return watcher.id;
 		}
 		return null;
-	}
-	
-	public static void registerWatcherDataType(WatcherDataType type)
-	{
-		datawatchertypes.register(type);
 	}
 	
 	public static void writeWatcher(PacketBuffer buf, int dataType, Object object) throws IOException 

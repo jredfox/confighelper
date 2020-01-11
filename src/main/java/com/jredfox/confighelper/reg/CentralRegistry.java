@@ -21,9 +21,13 @@ import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 
-public class AutoRegistry<T extends IAutoRegistry> {
+public class CentralRegistry<T extends IRegisterable> implements Iterable{
 	
+	/**
+	 * the default value that the registry object should be set to by default
+	 */
 	public static final int unset = -2;
+	
 	public DataType dataType;
 	public int limitLower;
 	public int limit;
@@ -35,7 +39,7 @@ public class AutoRegistry<T extends IAutoRegistry> {
 	
 	public NBTTagCompound auto;
 	public File autoFile;
-	public AutoRegistry(DataType type)
+	public CentralRegistry(DataType type)
 	{
 		this.dataType = type;
 		this.limitLower = this.getLimitLower();
@@ -59,16 +63,7 @@ public class AutoRegistry<T extends IAutoRegistry> {
 	
 	protected int getLimit()
 	{
-		return Integer.MAX_VALUE;
-//		return RegistryConfig.dataWatcherTypeLimit;
-	}
-	
-	private void checkId(int index) 
-	{
-		if(index < this.limitLower || index > this.limit)
-			Registries.makeCrashReport("registration", "index out of bounds:" + this.dataType + ", " + index + " the id must be between" + this.limitLower + "-" + this.limit + ")");
-		if(this.contains(index))
-			Registries.makeCrashReport("registration", this.dataType.getName(false) + " id conflict " + index);
+		return RegistryConfig.dataWatcherTypeLimit;
 	}
 	
 	/**
@@ -161,6 +156,14 @@ public class AutoRegistry<T extends IAutoRegistry> {
 			Registries.makeCrashReport("registration", "null registry name(resource location) for object:" + loc);
 		else if(this.frozen)
 			Registries.makeCrashReport("registration", "registry:" + this.dataType + " is frozen used designated loading times! tried to register:" + loc);
+	}
+	
+	private void checkId(int index) 
+	{
+		if(index < this.limitLower || index > this.limit)
+			Registries.makeCrashReport("registration", "index out of bounds:" + this.dataType + ", " + index + " the id must be between" + this.limitLower + "-" + this.limit + ")");
+		if(this.contains(index))
+			Registries.makeCrashReport("registration", this.dataType.getName(false) + " id conflict " + index);
 	}
 	
 	public static boolean isMinecraft(ResourceLocation loc) 
@@ -267,6 +270,12 @@ public class AutoRegistry<T extends IAutoRegistry> {
 		{
 			e.printStackTrace();
 		}
+	}
+
+	@Override
+	public Iterator<T> iterator() 
+	{
+		return this.reg.values().iterator();
 	}
 
 }

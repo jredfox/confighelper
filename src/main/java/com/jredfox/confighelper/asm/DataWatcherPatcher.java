@@ -34,7 +34,7 @@ public class DataWatcherPatcher {
 		MethodNode addObject = ASMHelper.getMethodNode(classNode, new MCPSidedString("addObject", "func_75682_a").toString(), "(ILjava/lang/Object;)V");
 		
 		//delete line Integer integer = (Integer) dataTypes.get(obj.getClass());
-		AbstractInsnNode start = ASMHelper.getFieldInsnNode(addObject, new FieldInsnNode(Opcodes.GETSTATIC, "net/minecraft/entity/DataWatcher", "dataTypes", "Ljava/util/HashMap;"));
+		AbstractInsnNode start = ASMHelper.getFieldInsnNode(addObject, new FieldInsnNode(Opcodes.GETSTATIC, "net/minecraft/entity/DataWatcher", new MCPSidedString("dataTypes", "field_75697_a").toString(), "Ljava/util/HashMap;"));
 		if(start != null)
 		{
 			AbstractInsnNode end = ASMHelper.nextInsn(start, Opcodes.ASTORE);
