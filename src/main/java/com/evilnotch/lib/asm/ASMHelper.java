@@ -4,7 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -27,6 +29,9 @@ import org.objectweb.asm.tree.TypeInsnNode;
 
 import com.evilnotch.lib.reflect.MCPSidedString;
 import com.evilnotch.lib.reflect.ReflectionHandler;
+
+import net.minecraft.launchwrapper.IClassTransformer;
+import net.minecraft.launchwrapper.Launch;
 
 public class ASMHelper 
 {	

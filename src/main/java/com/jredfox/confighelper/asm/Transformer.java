@@ -19,6 +19,7 @@ import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
 import com.evilnotch.lib.asm.ASMHelper;
+import com.evilnotch.lib.asm.ITransformer;
 import com.evilnotch.lib.asm.ObfHelper;
 import com.evilnotch.lib.reflect.MCPSidedString;
 import com.evilnotch.mod.PatchedClassLoader;
@@ -29,14 +30,9 @@ import com.jredfox.confighelper.ModReference;
 
 import net.minecraft.launchwrapper.IClassTransformer;
 import net.minecraft.launchwrapper.Launch;
+import net.minecraft.util.ResourceLocation;
 
-public class Transformer implements IClassTransformer{
-	
-	static
-	{
-		PatchedClassLoader.stopMemoryOverflow(Launch.classLoader);
-	}
-
+public class Transformer implements ITransformer{
 	
 	public static final List<String> clazzes = RegistryIds.asList(new String[]
 	{
@@ -49,14 +45,23 @@ public class Transformer implements IClassTransformer{
 	});
 	
 	@Override
-	public byte[] transform(String oldName, String actualName, byte[] bytes)
+	public ResourceLocation id()
 	{
-		try
-		{
+		return new ResourceLocation("confighelper:transformer");
+	}
+
+	@Override
+	public List<String> getClasses() 
+	{
+		return clazzes;
+	}
+	
+	@Override
+	public void transform(String actualName, ClassNode classNode)
+	{
 		int index = clazzes.indexOf(actualName);
 		if(index != -1)
 		{
-			ClassNode classNode = ASMHelper.getClassNode(bytes);
 			switch(index)
 			{
 				case 0:
@@ -83,17 +88,7 @@ public class Transformer implements IClassTransformer{
 					patchDatawatcher(classNode);
 				break;
 			}
-			byte[] custom = ASMHelper.getClassWriter(classNode).toByteArray();
-			ASMHelper.dumpFile(actualName, custom);
-			return custom;
 		}
-		
-		}
-		catch(Throwable t)
-		{
-			t.printStackTrace();
-		}
-		return bytes;
 	}
 
 	/**

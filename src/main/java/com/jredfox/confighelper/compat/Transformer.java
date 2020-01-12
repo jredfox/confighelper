@@ -9,11 +9,13 @@ import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 
 import com.evilnotch.lib.asm.ASMHelper;
+import com.evilnotch.lib.asm.ITransformer;
 import com.jredfox.confighelper.reg.RegistryIds;
 
 import net.minecraft.launchwrapper.IClassTransformer;
+import net.minecraft.util.ResourceLocation;
 
-public class Transformer implements IClassTransformer{
+public class Transformer implements ITransformer{
 	
 	public static List<String> clazzes = RegistryIds.asList(
 	new String[]
@@ -21,37 +23,37 @@ public class Transformer implements IClassTransformer{
 		"com.shinoow.abyssalcraft.AbyssalCraft",
 		"erebus.ModBiomes"
 	});
+	
+	@Override
+	public ResourceLocation id() 
+	{
+		return new ResourceLocation("confighelper:compat");
+	}
 
 	@Override
-	public byte[] transform(String name, String actualName, byte[] bytes) 
+	public List<String> getClasses() 
 	{
-		try
+		return clazzes;
+	}
+
+	@Override
+	public void transform(String actualName, ClassNode classNode) 
+	{
+		int index = clazzes.indexOf(actualName);
+		if(index != -1)
 		{
-			int index = clazzes.indexOf(actualName);
-			if(index != -1)
+			System.out.println("config helper compat patching:" + actualName);
+			switch(index)
 			{
-				System.out.println("config helper compat patching:" + actualName);
-				ClassNode classNode = ASMHelper.getClassNode(bytes);
-				switch(index)
-				{
-					case 0:
-						patchAbyssalcraft(classNode);
-					break;
-					
-					case 1:
-						patchErebus(classNode);
-					break;
-				}
-				byte[] custom = ASMHelper.getClassWriter(classNode).toByteArray();
-				ASMHelper.dumpFile(actualName, custom);
-				return custom;
+				case 0:
+					patchAbyssalcraft(classNode);
+				break;
+				
+				case 1:
+					patchErebus(classNode);
+				break;
 			}
 		}
-		catch(Throwable t)
-		{
-			t.printStackTrace();
-		}
-		return bytes;
 	}
 	
 	private void patchErebus(ClassNode classNode) 

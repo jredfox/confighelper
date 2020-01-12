@@ -356,10 +356,18 @@ public class Registries {
 		return datawatchertypes.get(dataType).read(buf);
 	}
 	
-	public static void initCentralReg()
+	public static void preinit()
 	{
 		unfreeze();
 		regVanilla();
+	}
+	
+	public static void loadComplete() 
+	{
+    	Registries.freeze();
+		Registries.biomes.securityCheck();
+		Registries.potions.securityCheck();
+		Registries.enchantments.securityCheck();//security check static[] capeable registries again to ensure registry saftey in case something screwed it up in post init
 	}
 
 	private static void regVanilla() 

@@ -34,7 +34,7 @@ public class ConfigHelperMod
     @EventHandler
     public void preinit(FMLPreInitializationEvent event)
     {	
-		Registries.initCentralReg();
+		Registries.preinit();
 		MinecraftForge.EVENT_BUS.register(new WatcherEvent());
     	Registries.registerBiome(BiomeGenBase.getBiomeGenArray()[161], 161, true);//fix vanilla
     	Enchantment e = Enchantment.aquaAffinity;//force Load vanilla Enchantment
@@ -49,10 +49,7 @@ public class ConfigHelperMod
     public void loadComplete(FMLLoadCompleteEvent event)
     {
     	PatchedClassLoader.checkClassLoader(this.getClass().getClassLoader());
-    	Registries.freeze();
-		Registries.biomes.securityCheck();
-		Registries.potions.securityCheck();
-		Registries.enchantments.securityCheck();
+    	Registries.loadComplete();
     	Registries.nextDimFrozen = Registries.nextDim;
     	Registries.loading = false;
     	Registries.strictRegs();

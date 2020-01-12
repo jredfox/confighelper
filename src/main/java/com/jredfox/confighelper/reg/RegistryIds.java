@@ -32,7 +32,7 @@ public class RegistryIds {
 	public static int limitBiomes = 255;
 	public static int limitPotions = Short.MAX_VALUE;//127;
 	public static int limitEnchantments = Short.MAX_VALUE;
-	public static int limitEntities = 255;
+	public static int limitEntities = Short.MAX_VALUE;
 	public static int limitDatawatchers = Integer.MAX_VALUE;
 	public static int limitDatawatcherType = 254;
 	public static int limitDim = Integer.MAX_VALUE;
