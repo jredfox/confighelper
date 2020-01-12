@@ -13,7 +13,8 @@ public interface ITransformer {
 	 */
 	public ResourceLocation id();
 	/**
-	 * return the list of classes you want to transform here
+	 * do not return a new list every time used a cached one
+	 * return a list of classes in which you intend to modify
 	 */
 	public List<String> getClasses();
 	public void transform(String actualName, ClassNode node);

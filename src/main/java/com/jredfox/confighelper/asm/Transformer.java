@@ -117,28 +117,7 @@ public class Transformer implements ITransformer{
 	 * inject line Registries.registerPotion(this, id)
 	 */
 	private static void patchPotion(ClassNode classNode) 
-	{
-		//extend potion id limit to signed byte(0-127)
-		MethodNode clinit = ASMHelper.getClassInitNode(classNode);
-		for(AbstractInsnNode ab : clinit.instructions.toArray())
-		{
-			if(Opcodes.BIPUSH == ab.getOpcode())
-			{
-				IntInsnNode i = (IntInsnNode)ab;
-				FieldInsnNode f = new FieldInsnNode(Opcodes.PUTSTATIC, "net/minecraft/potion/Potion", new MCPSidedString("potionTypes", "field_76425_a").toString(), "[Lnet/minecraft/potion/Potion;");
-				if(ASMHelper.equals(f, ASMHelper.nextFieldInsnNode(i)) )
-				{
-					int value = 127 + 1;
-					if(i.operand < value)
-					{
-						i.setOpcode(Opcodes.SIPUSH);
-						i.operand = value;//needs the +1 because arrays use size not indexes
-						break;
-					}
-				}
-			}
-		}
-		
+	{	
 		//inject line: Registries.registerPotion(this, id);
 		MethodNode constructor = ASMHelper.getConstructionNode(classNode, "(IZI)V");
 		InsnList list = new InsnList();
@@ -193,18 +172,6 @@ public class Transformer implements ITransformer{
 		list2.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/jredfox/confighelper/reg/Registries", "registerDimension", "(II)I", false));
 		list2.add(new VarInsnNode(Opcodes.ISTORE, 0));
 		dimensions.instructions.insert(ASMHelper.getFirstInstruction(dimensions), list2);
-		//remove bitset map call
-		AbstractInsnNode a = ASMHelper.getLastFieldInsn(dimensions, new FieldInsnNode(Opcodes.GETSTATIC, "net/minecraftforge/common/DimensionManager", "dimensionMap", "Ljava/util/BitSet;"));
-		if(a != null)
-			ASMHelper.removeInsn(dimensions, a, 3);
-		else
-			System.out.println("unable to remove reference for dimMap game might crash!");
-		
-		//replace DimensionManager nextId methods
-		String input = ASMHelper.getInputStream(ModReference.MODID, "DimensionManager");
-		ASMHelper.replaceMethod(classNode, input, "getNextFreeDimId", "()I");
-		ASMHelper.replaceMethod(classNode, input, "saveDimensionDataMap", "()Lnet/minecraft/nbt/NBTTagCompound;");
-		ASMHelper.replaceMethod(classNode, input, "loadDimensionDataMap", "(Lnet/minecraft/nbt/NBTTagCompound;)V");
 		
 		//inject line: Registries.unregisterProvider(id);
 		MethodNode unregProvider = ASMHelper.getMethodNode(classNode, "unregisterProviderType", "(I)[I");
@@ -219,22 +186,6 @@ public class Transformer implements ITransformer{
 		list4.add(new VarInsnNode(Opcodes.ILOAD, 0));
 		list4.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/jredfox/confighelper/reg/Registries", "unregisterDimension", "(I)V", false));
 		unregDim.instructions.insert(ASMHelper.getFirstInstruction(unregDim), list4);
-		
-		//remove initialization of the BitSet as it's bad
-		ASMHelper.removeField(classNode, "dimensionMap");
-		MethodNode clinit = ASMHelper.getClassInitNode(classNode);
-		for(AbstractInsnNode ab : clinit.instructions.toArray())
-		{
-			if(ab.getOpcode() == Opcodes.NEW)
-			{
-				TypeInsnNode type = (TypeInsnNode)ab;
-				if(type.desc.equals("java/util/BitSet"))
-				{
-					ASMHelper.removeInsn(clinit, type, 5);
-					break;
-				}
-			}
-		}
 	}
 	
 	private void patchEntityList(ClassNode classNode) 
@@ -264,13 +215,28 @@ public class Transformer implements ITransformer{
 	
 	private void patchDatawatcher(ClassNode classNode) 
 	{
+		//add field
 		ASMHelper.addFeild(classNode, "reg", "Lcom/jredfox/confighelper/reg/Registry;");
-		DataWatcherPatcher.patchConstructor(classNode);
-		DataWatcherPatcher.patchAddObject(classNode);
-		DataWatcherPatcher.patchWriteList(classNode);
-		String input = ASMHelper.getInputStream(ModReference.MODID, "DataWatcher"); //"assets/confighelper/asm/" + (ObfHelper.isObf ? "srg/" : "deob/") + "DataWatcher";
-		ASMHelper.replaceMethod(classNode, input, new MCPSidedString("writeWatchableObjectToPacketBuffer", "func_151510_a").toString(), "(Lnet/minecraft/network/PacketBuffer;Lnet/minecraft/entity/DataWatcher$WatchableObject;)V");
-		ASMHelper.replaceMethod(classNode, input, new MCPSidedString("readWatchedListFromPacketBuffer", "func_151508_b").toString(), "(Lnet/minecraft/network/PacketBuffer;)Ljava/util/List;");
+		//patch constructor
+		MethodNode construct = ASMHelper.getConstructionNode(classNode, "(Lnet/minecraft/entity/Entity;)V");
+		InsnList list0 = new InsnList();
+		list0.add(new VarInsnNode(Opcodes.ALOAD, 0));
+		list0.add(new VarInsnNode(Opcodes.ALOAD, 1));
+		list0.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/jredfox/confighelper/reg/Registries", "createWatcherReg", "(Lnet/minecraft/entity/Entity;)Lcom/jredfox/confighelper/reg/Registry;", false));
+		list0.add(new FieldInsnNode(Opcodes.PUTFIELD, "net/minecraft/entity/DataWatcher", "reg", "Lcom/jredfox/confighelper/reg/Registry;"));
+		construct.instructions.insert(ASMHelper.getLastPutField(construct), list0);
+		
+		MethodNode addObject = ASMHelper.getMethodNode(classNode, new MCPSidedString("addObject", "func_75682_a").toString(), "(ILjava/lang/Object;)V");
+		//inject line: id = Registries.registerDataWatcher(this.field_151511_a, id, this.reg);
+		InsnList list2 = new InsnList();
+		list2.add(new VarInsnNode(Opcodes.ALOAD, 0));
+		list2.add(new FieldInsnNode(Opcodes.GETFIELD, "net/minecraft/entity/DataWatcher", new MCPSidedString("field_151511_a", "field_151511_a").toString(), "Lnet/minecraft/entity/Entity;"));
+		list2.add(new VarInsnNode(Opcodes.ILOAD, 1));
+		list2.add(new VarInsnNode(Opcodes.ALOAD, 0));
+		list2.add(new FieldInsnNode(Opcodes.GETFIELD, "net/minecraft/entity/DataWatcher", "reg", "Lcom/jredfox/confighelper/reg/Registry;"));
+		list2.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/jredfox/confighelper/reg/Registries", "registerDataWatcher", "(Lnet/minecraft/entity/Entity;ILcom/jredfox/confighelper/reg/Registry;)I", false));
+		list2.add(new VarInsnNode(Opcodes.ISTORE, 1));
+		addObject.instructions.insert(ASMHelper.getFirstInstruction(addObject), list2);
 	}
 
 }

@@ -32,9 +32,9 @@ public class TransformsReg {
 		return false;
 	}
 	
-	public static void setClassNode(ClassNode node)
+	public static void setClassNode(ClassNode newNode)
 	{
-		Transformer.node = node;
+		Transformer.node = newNode;
 	}
 
 }

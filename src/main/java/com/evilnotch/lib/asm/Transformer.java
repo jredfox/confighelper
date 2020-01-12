@@ -19,7 +19,9 @@ public class Transformer implements IClassTransformer{
 			node = ASMHelper.getClassNode(bytes);
 			for(ITransformer transformer : TransformsReg.transformers)
 				transformer.transform(actualName, node);
-			return ASMHelper.getClassWriter(node).toByteArray();
+			byte[] custom = ASMHelper.getClassWriter(node).toByteArray();
+			ASMHelper.dumpFile(actualName, bytes);
+			return custom;
 		}
 		catch(Throwable t)
 		{

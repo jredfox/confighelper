@@ -18,6 +18,7 @@ public class Plugin implements IFMLLoadingPlugin{
 		PatchedClassLoader.stopMemoryOverflow(Launch.classLoader);
 		TransformsReg.registerTransformer("com.jredfox.confighelper.asm.Transformer");
 		TransformsReg.registerTransformer("com.jredfox.confighelper.compat.Transformer");
+		TransformsReg.registerTransformer("com.jredfox.shortids.asm.Transformer");
 	}
 	
 	@Override
