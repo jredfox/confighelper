@@ -1,7 +1,6 @@
 package com.jredfox.confighelper.reg;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -14,17 +13,11 @@ import com.evilnotch.lib.JavaUtil;
 import com.google.common.base.Objects;
 import com.google.common.collect.Iterables;
 import com.jredfox.confighelper.RegistryConfig;
-import com.jredfox.confighelper.reg.Registry.DataType;
-import com.jredfox.confighelper.reg.Registry.Entry;
 
-import cpw.mods.fml.common.Loader;
 import net.minecraft.enchantment.Enchantment;
-import net.minecraft.entity.EntityList;
-import net.minecraft.launchwrapper.Launch;
 import net.minecraft.potion.Potion;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.biome.BiomeGenBase;
-import net.minecraft.world.biome.BiomeGenMutated;
 
 public class Registry implements Iterable<Registry.Entry>{
 	
@@ -130,6 +123,7 @@ public class Registry implements Iterable<Registry.Entry>{
 	
 	public void securityCheck() 
 	{
+		long time = System.currentTimeMillis();
 		int size = this.size();
 		if(this.dataType == DataType.BIOME && BiomeGenBase.biomeList.length < size)
 		{
@@ -162,7 +156,7 @@ public class Registry implements Iterable<Registry.Entry>{
 			Enchantment.enchantmentsList = newEnchantments;
 		}
 	}
-	
+
 	public int size()
 	{
 		return this.limit + 1;

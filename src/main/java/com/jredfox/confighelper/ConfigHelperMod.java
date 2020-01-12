@@ -47,7 +47,7 @@ public class ConfigHelperMod
      */
     @EventHandler
     public void loadComplete(FMLLoadCompleteEvent event)
-    {	 		
+    {
     	PatchedClassLoader.checkClassLoader(this.getClass().getClassLoader());
     	Registries.freeze();
 		Registries.biomes.securityCheck();
