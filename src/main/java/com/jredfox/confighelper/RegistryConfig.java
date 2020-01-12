@@ -13,16 +13,6 @@ import net.minecraftforge.common.config.Configuration;
 
 public class RegistryConfig {
 	
-	//registry config
-	public static int biomeLimit = 255;
-	public static int potionsLimit = 127;
-	public static int enchantmentsLimit = 255;
-	public static int entities = 255;
-	public static int dataWatchersLimit = Integer.MAX_VALUE;
-	public static int dataWatcherTypeLimit = 254;
-	public static int dimLimitUpper = Integer.MAX_VALUE;
-	public static int dimLimitLower = Integer.MIN_VALUE;
-	
 	//mod config
 	public static boolean configMode = true;
 	public static boolean suggestIdChunks = true;
@@ -61,12 +51,6 @@ public class RegistryConfig {
 		passableSelf = cfg.getStringList("selfConflicts", "passable", passableSelf, "passable Classes that are allowed to conflict with itself");
 		passableDimIds = getPassableIds(cfg, "conflictDimIds", "passable Dim ids(Not Provider) that are allowed to conflict. Only use if inputting the provider conflict class wasn't enough");
 		passableWatcherIds = getPassableIds(cfg, "conflictWatcherIds", "passable ids that data watchers are allowed to conflict with");
-		
-		cfg.addCustomCategoryComment("limit", "changing these will not increase/decrease the limit of the ids. This is just so If a mod does extend the ids you can change them");
-		biomeLimit = cfg.get("limit", "biome", biomeLimit).getInt();
-		potionsLimit = cfg.get("limit", "potions", potionsLimit).getInt();
-		enchantmentsLimit = cfg.get("limit", "enchantments", enchantmentsLimit).getInt();
-		entities = cfg.get("limit", "entities", entities).getInt();
 		
 		unloadModDimIds = cfg.getBoolean("unloadModDimIds", "optimization", unloadModDimIds, "enabled: (less laggy)");
 		cfg.save();

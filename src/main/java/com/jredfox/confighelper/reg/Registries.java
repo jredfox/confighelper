@@ -198,23 +198,6 @@ public class Registries {
 			return;
 		new RegistryWriter(Registries.datawatchers).write();
 	}
-	
-	/**
-	 * fix derp potion vanilla registry if another mod attempts to do this
-	 */
-	public static void potionSecurity() 
-	{
-		Potion[] potions = Potion.potionTypes;
-		int limit =  Byte.MAX_VALUE + 1;
-		if(potions.length > limit && potions.length < 256 + 1)
-		{
-			System.out.println("Fixing Potion array to be a signed byte 0-127!");
-			Potion[] fixed = new Potion[limit];
-			for(int i=0; i < fixed.length; i++)
-				fixed[i] = potions[i];
-			Potion.potionTypes = fixed;
-		}
-	}
 
 	public static void makeCrashReport(String cat, String msg) 
 	{
@@ -372,9 +355,8 @@ public class Registries {
 		return datawatchertypes.get(dataType).read(buf);
 	}
 	
-	public static void initAuto()
+	public static void initCentralReg()
 	{
-		parseAuto();
 		unfreeze();
 		regVanilla();
 	}
@@ -388,22 +370,6 @@ public class Registries {
 		datawatchertypes.register(4, new WatcherString());
 		datawatchertypes.register(5, new WatcherItemStack());
 		datawatchertypes.register(6, new WatcherChunkCoords());
-	}
-
-	public static void completeAuto() 
-	{
-		saveAuto();
-		freeze();
-	}
-
-	public static void parseAuto() 
-	{
-		datawatchertypes.parseAutoConfig();
-	}
-	
-	public static void saveAuto() 
-	{
-		datawatchertypes.saveAutoConfig();
 	}
 	
 	public static void unfreeze()

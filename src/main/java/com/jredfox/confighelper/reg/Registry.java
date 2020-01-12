@@ -18,12 +18,13 @@ import com.jredfox.confighelper.reg.Registry.DataType;
 import cpw.mods.fml.common.Loader;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.EntityList;
+import net.minecraft.launchwrapper.Launch;
 import net.minecraft.potion.Potion;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraft.world.biome.BiomeGenMutated;
 
-public class Registry {
+public class Registry implements Iterable{
 	
 	public Map<Integer,List<Registry.Entry>> reg = new LinkedHashMap<Integer,List<Registry.Entry>>();
 	public Set<Integer> vanillaIds = new HashSet();//the full list of vanilla ids per Registry
@@ -44,24 +45,24 @@ public class Registry {
 	protected int getLimitLower()
 	{
 		if(this.dataType == DataType.DIMENSION || this.dataType == DataType.PROVIDER)
-			return RegistryConfig.dimLimitLower;
+			return RegistryIds.limitDimLower;
 		return 0;
 	}
 
 	protected int getLimit()
 	{
 		if(dataType == DataType.BIOME)
-			return RegistryConfig.biomeLimit;
+			return RegistryIds.limitBiomes;
 		else if(dataType == DataType.POTION)
-			return RegistryConfig.potionsLimit;
+			return RegistryIds.limitPotions;
 		else if(dataType == DataType.ENCHANTMENT)
-			return RegistryConfig.enchantmentsLimit;
+			return RegistryIds.limitEnchantments;
 		else if(dataType == DataType.PROVIDER || dataType == DataType.DIMENSION)
-			return RegistryConfig.dimLimitUpper;
+			return RegistryIds.limitDim;
 		else if(dataType == DataType.ENTITY)
-			return RegistryConfig.entities;
+			return RegistryIds.limitEntities;
 		else if(dataType == DataType.DATAWATCHER)
-			return RegistryConfig.dataWatchersLimit;
+			return RegistryIds.limitDatawatchers;
 		return -1;
 	}
 	
@@ -84,6 +85,7 @@ public class Registry {
 
 	public int reg(Object obj, int id)
 	{
+		this.securityCheck();
 		this.checkId(obj, id);
 		List<Entry> list = this.getEntryOrg(id);
 		if(list == null)
@@ -124,6 +126,46 @@ public class Registry {
 		return entry.newId;
 	}
 	
+	public void securityCheck() 
+	{
+		int size = this.size();
+		if(this.dataType == DataType.BIOME && BiomeGenBase.biomeList.length < size)
+		{
+			System.out.println("patching " + this.dataType + "[] array as it's been corrupted!");
+			BiomeGenBase[] newBiomes = new BiomeGenBase[size];
+			for(Registry.Entry e : this.getAllEntries())
+			{
+				newBiomes[e.newId] = (BiomeGenBase)e.obj;
+			}
+			BiomeGenBase.biomeList = newBiomes;
+		}
+		else if(this.dataType == DataType.POTION && Potion.potionTypes.length < size)
+		{
+			System.out.println("patching " + this.dataType + "[] array as it's been corrupted!");
+			Potion[] newPotions = new Potion[size];
+			for(Registry.Entry e : this.getAllEntries())
+			{
+				newPotions[e.newId] = (Potion)e.obj;
+			}
+			Potion.potionTypes = newPotions;
+		}
+		else if(this.dataType == DataType.ENCHANTMENT && Enchantment.enchantmentsList.length < size)
+		{
+			System.out.println("patching " + this.dataType + "[] array as it's been corrupted!");
+			Enchantment[] newEnchantments = new Enchantment[size];
+			for(Registry.Entry e : this.getAllEntries())
+			{
+				newEnchantments[e.newId] = (Enchantment)e.obj;
+			}
+			Enchantment.enchantmentsList = newEnchantments;
+		}
+	}
+	
+	public int size()
+	{
+		return this.limit + 1;
+	}
+
 	public void checkId(Object obj, int id)
 	{
 		if(id < this.limitLower || id > this.limit)
@@ -386,7 +428,8 @@ public class Registry {
     	ITEM(),
     	BLOCK(),
     	TILEENTITY(),
-    	RECIPES();
+    	RECIPES(),
+    	CUSTOM();//custom non vanilla registries used for modded objects
     	
 		public String getName() 
 		{
@@ -523,4 +566,10 @@ public class Registry {
     {
     	return this.reg.toString();
     }
+
+	@Override
+	public Iterator iterator() 
+	{
+		return this.getAllEntries().iterator();
+	}
 }

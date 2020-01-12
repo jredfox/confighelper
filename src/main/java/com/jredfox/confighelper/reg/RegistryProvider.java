@@ -25,7 +25,7 @@ public class RegistryProvider extends Registry{
 		}
 		else
 		{
-			for(int i=this.lower;i>=RegistryConfig.dimLimitLower;i--)
+			for(int i=this.lower;i>=RegistryIds.limitDimLower;i--)
 			{
 				if(!this.containsId(this.lower) && !this.isVanillaId(this.lower))
 				{
@@ -45,7 +45,7 @@ public class RegistryProvider extends Registry{
 			return super.getNextFreeId(id);
 		else
 		{
-			for(int i=this.lowerFreeId;i>=RegistryConfig.dimLimitLower;i--)
+			for(int i=this.lowerFreeId;i>=RegistryIds.limitDimLower;i--)
 			{
 				if(!this.containsOrg(this.lowerFreeId))
 				{
@@ -81,7 +81,7 @@ public class RegistryProvider extends Registry{
 		{
 			if(this.vanillaIds.contains(newId))
 				return newId;
-			for(int i=this.lowerV;i>=RegistryConfig.dimLimitLower;i--)
+			for(int i=this.lowerV;i>=RegistryIds.limitDimLower;i--)
 			{
 				if(!this.isVanillaId(this.lowerV))
 				{

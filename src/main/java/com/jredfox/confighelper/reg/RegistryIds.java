@@ -20,6 +20,7 @@ import net.minecraftforge.common.DimensionManager;
 
 public class RegistryIds {
 	
+	public static final String MCVERSION = "1.7.10";//what version do these vanilla ids support?
 	public static final Set<Integer> biomes = new HashSet(asList(new int[]{0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,129,130,131,132,133,134,140,149,151,155,156,157,158,160,161,162,163,164,165,166,167}));
 	public static final Set<Integer> potions = new HashSet(asList(new int[] {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23} ));
 	public static final Set<Integer> enchantments = new HashSet(asList(new int[]{0,1,2,3,4,5,6,7,16,17,18,19,20,21,32,33,34,35,48,49,50,51,61,62}));
@@ -27,6 +28,15 @@ public class RegistryIds {
 	public static final Set<Integer> dimensions = new HashSet(asList(new int[]{-1,0,1}));
 	public static final Set<Integer> datawatchers = new HashSet(asList(new int[] {0,1,6,7,8,9,16,17,18}));
 	public static final Set<Integer> datawatertypes = new HashSet(asList(new int[]{0,1,2,3,4,5,6}));
+	
+	public static int limitBiomes = 255;
+	public static int limitPotions = Short.MAX_VALUE;//127;
+	public static int limitEnchantments = Short.MAX_VALUE;
+	public static int limitEntities = 255;
+	public static int limitDatawatchers = Integer.MAX_VALUE;
+	public static int limitDatawatcherType = 254;
+	public static int limitDim = Integer.MAX_VALUE;
+	public static int limitDimLower = Integer.MIN_VALUE;
 	
 	public static void genIds()
 	{
