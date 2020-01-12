@@ -12,8 +12,10 @@ import java.util.TreeSet;
 
 import com.evilnotch.lib.JavaUtil;
 import com.google.common.base.Objects;
+import com.google.common.collect.Iterables;
 import com.jredfox.confighelper.RegistryConfig;
 import com.jredfox.confighelper.reg.Registry.DataType;
+import com.jredfox.confighelper.reg.Registry.Entry;
 
 import cpw.mods.fml.common.Loader;
 import net.minecraft.enchantment.Enchantment;
@@ -24,7 +26,7 @@ import net.minecraft.world.WorldProvider;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraft.world.biome.BiomeGenMutated;
 
-public class Registry {
+public class Registry implements Iterable<Registry.Entry>{
 	
 	public Map<Integer,List<Registry.Entry>> reg = new LinkedHashMap<Integer,List<Registry.Entry>>();
 	public Set<Integer> vanillaIds = new HashSet();//the full list of vanilla ids per Registry
@@ -133,7 +135,7 @@ public class Registry {
 		{
 			System.out.println("patching " + this.dataType + "[] array as it's been corrupted!");
 			BiomeGenBase[] newBiomes = new BiomeGenBase[size];
-			for(Registry.Entry e : this.getAllEntries())
+			for(Registry.Entry e : this)
 			{
 				newBiomes[e.newId] = (BiomeGenBase)e.obj;
 			}
@@ -143,7 +145,7 @@ public class Registry {
 		{
 			System.out.println("patching " + this.dataType + "[] array as it's been corrupted!");
 			Potion[] newPotions = new Potion[size];
-			for(Registry.Entry e : this.getAllEntries())
+			for(Registry.Entry e : this)
 			{
 				newPotions[e.newId] = (Potion)e.obj;
 			}
@@ -153,7 +155,7 @@ public class Registry {
 		{
 			System.out.println("patching " + this.dataType + "[] array as it's been corrupted!");
 			Enchantment[] newEnchantments = new Enchantment[size];
-			for(Registry.Entry e : this.getAllEntries())
+			for(Registry.Entry e : this)
 			{
 				newEnchantments[e.newId] = (Enchantment)e.obj;
 			}
@@ -183,17 +185,9 @@ public class Registry {
 	public Set<Integer> getNewIds()
 	{
 		Set<Integer> newIds = new TreeSet<Integer>();
-		for(Registry.Entry entry : this.getAllEntries())
+		for(Registry.Entry entry : this)
 				newIds.add(entry.newId);
 		return newIds;
-	}
-	
-	public List<Registry.Entry> getAllEntries()
-	{
-		List<Registry.Entry> list = new ArrayList<Registry.Entry>();
-		for(List<Registry.Entry> entries : this.reg.values())
-			list.addAll(entries);
-		return list;
 	}
 	
 	public boolean isPassable(String clazz, int id) 
@@ -287,7 +281,7 @@ public class Registry {
 	 */
 	public boolean containsId(int newId)
 	{
-		for(Registry.Entry entry : this.getAllEntries())
+		for(Registry.Entry entry : this)
 		{
 			if(entry.newId == newId)
 				return true;
@@ -339,10 +333,21 @@ public class Registry {
 	 */
 	public Registry.Entry getEntry(int newId)
 	{
-		for(Registry.Entry e : this.getAllEntries())
+		for(Registry.Entry e : this)
 			if(e.newId == newId)
 				return e;
 		return null;
+	}
+	
+	/**
+	 * get a list view of the Registry that can be sorted without messing with indexes here
+	 */
+	public List<Entry> getEntriesSortable() 
+	{
+		List<Registry.Entry> list = new ArrayList();
+		for(Registry.Entry entry : this)
+			list.add(entry);
+		return list;
 	}
 	
 	/**
@@ -401,13 +406,13 @@ public class Registry {
    	
    	public void setNames()
    	{
-   		for(Registry.Entry e : this.getAllEntries())
+   		for(Registry.Entry e : this)
    			e.setName(this.grabName(e));
    	}
    	
    	public void setModNames()
    	{
-   		for(Registry.Entry e : this.getAllEntries())
+   		for(Registry.Entry e : this)
 			e.setModName();
    	}
    	
@@ -559,4 +564,10 @@ public class Registry {
     {
     	return this.reg.toString();
     }
+
+	@Override
+	public Iterator<Registry.Entry> iterator() 
+	{
+		return Iterables.concat(this.reg.values()).iterator();
+	}
 }

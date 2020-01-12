@@ -196,7 +196,7 @@ public class RegistryWriter {
 	private void writeIds() throws IOException
 	{
 		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(this.dirDump, dumpIdsNew + extension)));
-		List<Registry.Entry> entries = this.reg.getAllEntries();
+		List<Registry.Entry> entries = this.reg.getEntriesSortable();
 		Collections.sort(entries, new Comparator<Registry.Entry>()
 		{
 			@Override
