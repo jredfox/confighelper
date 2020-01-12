@@ -9,6 +9,7 @@ import com.evilnotch.mod.PatchedClassLoader;
 import com.jredfox.confighelper.datawatcher.WatcherDataType;
 import com.jredfox.confighelper.event.WatcherEvent;
 import com.jredfox.confighelper.reg.Registries;
+import com.jredfox.confighelper.reg.Registry;
 import com.jredfox.confighelper.reg.RegistryWriter;
 
 import cpw.mods.fml.common.Mod;

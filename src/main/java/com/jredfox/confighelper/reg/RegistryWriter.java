@@ -75,13 +75,13 @@ public class RegistryWriter {
 	{
 		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(this.dir, conflicts + conflictExtension)));
 		JSONObject filejson = new JSONObject();
-		for(Integer id : reg.getOrgIds())
+		for(Integer id : this.reg.getOrgIds())
 		{
 			if(reg.isConflicting(id))
 			{
 				JSONArray arr = new JSONArray();
 				filejson.put(reg.dataType.getName() + "-id:" + id, arr);
-				for(Registry.Entry entry : reg.getEntryOrg(id))
+				for(Registry.Entry entry : this.reg.getEntryOrg(id))
 				{
 					JSONObject json = new JSONObject();
 					arr.add(json);
@@ -125,7 +125,7 @@ public class RegistryWriter {
 		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(this.dir, suggested + extension)));
 		Map<String,List<Registry.Entry>> entries = new TreeMap();//modname, list of entries
 		//sort the entries based on mod
-		for(List<Registry.Entry> list : reg.reg.values())
+		for(List<Registry.Entry> list : this.reg.reg.values())
 		{
 			for(Registry.Entry entry : list)
 			{
@@ -196,7 +196,7 @@ public class RegistryWriter {
 	private void writeIds() throws IOException
 	{
 		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(this.dirDump, dumpIdsNew + extension)));
-		List<Registry.Entry> entries = reg.getAllEntries();
+		List<Registry.Entry> entries = this.reg.getAllEntries();
 		Collections.sort(entries, new Comparator<Registry.Entry>()
 		{
 			@Override

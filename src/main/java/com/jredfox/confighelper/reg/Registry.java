@@ -24,7 +24,7 @@ import net.minecraft.world.WorldProvider;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraft.world.biome.BiomeGenMutated;
 
-public class Registry implements Iterable{
+public class Registry {
 	
 	public Map<Integer,List<Registry.Entry>> reg = new LinkedHashMap<Integer,List<Registry.Entry>>();
 	public Set<Integer> vanillaIds = new HashSet();//the full list of vanilla ids per Registry
@@ -87,16 +87,16 @@ public class Registry implements Iterable{
 	{
 		this.securityCheck();
 		this.checkId(obj, id);
-		List<Entry> list = this.getEntryOrg(id);
+		List<Registry.Entry> list = this.getEntryOrg(id);
 		if(list == null)
 		{
-			list = new ArrayList<Entry>();
+			list = new ArrayList<Registry.Entry>();
 			this.reg.put(id, list);
 		}
 		
 		String clazz = getClass(obj).getName();
 		boolean conflicting = this.containsId(id);
-		Entry entry = new Entry(this.dataType, obj, clazz, id);
+		Entry entry = new Entry(obj, clazz, id);
 		if(this.isPassableSelf(clazz) && list.contains(entry))
 		{
 			Registry.Entry old = list.get(list.indexOf(entry));
@@ -182,16 +182,15 @@ public class Registry implements Iterable{
 	
 	public Set<Integer> getNewIds()
 	{
-		Set<Integer> newIds = new TreeSet();
-		for(List<Registry.Entry> list : this.reg.values())
-			for(Registry.Entry entry : list)
+		Set<Integer> newIds = new TreeSet<Integer>();
+		for(Registry.Entry entry : this.getAllEntries())
 				newIds.add(entry.newId);
 		return newIds;
 	}
 	
 	public List<Registry.Entry> getAllEntries()
 	{
-		List<Registry.Entry> list = new ArrayList();
+		List<Registry.Entry> list = new ArrayList<Registry.Entry>();
 		for(List<Registry.Entry> entries : this.reg.values())
 			list.addAll(entries);
 		return list;
@@ -288,8 +287,7 @@ public class Registry implements Iterable{
 	 */
 	public boolean containsId(int newId)
 	{
-		for(List<Registry.Entry> li : this.reg.values())
-		for(Registry.Entry entry : li)
+		for(Registry.Entry entry : this.getAllEntries())
 		{
 			if(entry.newId == newId)
 				return true;
@@ -310,7 +308,7 @@ public class Registry implements Iterable{
 		return this.strict;
 	}
 	
-	public static Class getClass(Object entry)
+	public Class getClass(Object entry)
 	{
 		if(entry instanceof EntryEntity)
 			return ((EntryEntity)entry).clazz;
@@ -341,10 +339,9 @@ public class Registry implements Iterable{
 	 */
 	public Registry.Entry getEntry(int newId)
 	{
-		for(List<Registry.Entry> li : this.reg.values())
-			for(Registry.Entry e : li)
-				if(e.newId == newId)
-					return e;
+		for(Registry.Entry e : this.getAllEntries())
+			if(e.newId == newId)
+				return e;
 		return null;
 	}
 	
@@ -404,17 +401,65 @@ public class Registry implements Iterable{
    	
    	public void setNames()
    	{
-   		for(List<Registry.Entry> li : this.reg.values())
-   			for(Registry.Entry e : li)
-   				e.setName();
+   		for(Registry.Entry e : this.getAllEntries())
+   			e.setName(this.grabName(e));
    	}
    	
    	public void setModNames()
    	{
-   		for(List<Registry.Entry> li : this.reg.values())
-   			for(Registry.Entry e : li)
-   				e.setModName();
+   		for(Registry.Entry e : this.getAllEntries())
+			e.setModName();
    	}
+   	
+	protected String grabName(Registry.Entry entry)
+	{
+		try
+		{
+			if(this.dataType == DataType.BIOME)
+			{
+				return ((BiomeGenBase)entry.obj).biomeName;
+			}
+			else if(this.dataType == DataType.POTION)
+			{
+				return ((Potion)entry.obj).getName();
+			}
+			else if(this.dataType == DataType.ENCHANTMENT)
+			{
+				return ((Enchantment)entry.obj).getName();
+			}
+			else if(this.dataType == DataType.PROVIDER)
+			{
+				WorldProvider provider = (WorldProvider) ((Class)entry.obj).newInstance();
+				try
+				{
+					int dimOrgId = Registries.guessDimOrgId(entry.newId);
+					provider.setDimension(dimOrgId);
+				}
+				catch(Throwable t)
+				{
+					t.printStackTrace();
+				}
+				return provider.getDimensionName();
+			}
+			else if(this.dataType == DataType.DIMENSION)
+			{
+				return Registries.dimensions.isVanillaId(entry.newId) ? "vanilla" : "modded";
+			}
+			else if(this.dataType == DataType.ENTITY)
+			{
+				return ((EntryEntity)entry.obj).name;
+			}
+			else if(this.dataType == DataType.DATAWATCHER)
+			{
+				return Registries.datawatchers.isVanillaId(entry.newId) ? "vanilla" : "modded";
+			}
+		}
+		catch(Throwable t)
+		{
+			t.printStackTrace();
+		}
+		return null;
+	}
     
     public static enum DataType{
     	BIOME(),
@@ -441,7 +486,7 @@ public class Registry implements Iterable{
 			String str = this.toString().toLowerCase();
 			if(plural)
 			{
-				if(str.endsWith("y"))
+				if(this == DataType.ENTITY)
 					str = str.substring(0, str.length()-1) + "ies";
 				else
 					str += "s";
@@ -452,7 +497,6 @@ public class Registry implements Iterable{
     
     public static class Entry
     {
-    	public DataType dataType;//the dataType of the object
     	public Object obj;//the object to register
     	public int org;//the original id
     	public int newId;//the id in memory
@@ -461,68 +505,17 @@ public class Registry implements Iterable{
     	public String name;//display name
     	public String modName;//display mod name
     	
-    	public Entry(DataType type, Object obj, String c, int org)
+    	public Entry(Object obj, String c, int org)
     	{
-       		this.dataType = type;
     		this.obj = obj;
     		this.clazz = c;
     		this.org = org;
     		this.newId = org;
     	}
     	
-    	public void setName()
+    	public void setName(String name)
     	{
-    		this.name = "" + this.grabName();
-    	}
-    	
-    	private String grabName()
-    	{
-    		try
-    		{
-    			if(this.dataType == DataType.BIOME)
-    			{
-    				return ((BiomeGenBase)this.obj).biomeName;
-    			}
-    			else if(this.dataType == DataType.POTION)
-    			{
-    				return ((Potion)this.obj).getName();
-    			}
-    			else if(this.dataType == DataType.ENCHANTMENT)
-    			{
-    				return ((Enchantment)this.obj).getName();
-    			}
-    			else if(this.dataType == DataType.PROVIDER)
-    			{
-    				WorldProvider provider = (WorldProvider) ((Class)this.obj).newInstance();
-    				try
-    				{
-    					int dimOrgId = Registries.guessDimOrgId(this.newId);
-    					provider.setDimension(dimOrgId);
-    				}
-    				catch(Throwable t)
-    				{
-    					t.printStackTrace();
-    				}
-    				return provider.getDimensionName();
-    			}
-    			else if(this.dataType == DataType.DIMENSION)
-    			{
-    				return Registries.dimensions.isVanillaId(this.newId) ? "vanilla" : "modded";
-    			}
-    			else if(this.dataType == DataType.ENTITY)
-    			{
-    				return ((EntryEntity)this.obj).name;
-    			}
-    			else if(this.dataType == DataType.DATAWATCHER)
-    			{
-    				return Registries.datawatchers.isVanillaId(this.newId) ? "vanilla" : "modded";
-    			}
-    		}
-    		catch(Throwable t)
-    		{
-    			t.printStackTrace();
-    		}
-    		return null;
+    		this.name = "" + name;
     	}
     	
 		public void setModName()
@@ -566,10 +559,4 @@ public class Registry implements Iterable{
     {
     	return this.reg.toString();
     }
-
-	@Override
-	public Iterator iterator() 
-	{
-		return this.getAllEntries().iterator();
-	}
 }
