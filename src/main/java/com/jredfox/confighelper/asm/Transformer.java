@@ -57,9 +57,9 @@ public class Transformer implements ITransformer{
 	}
 	
 	@Override
-	public void transform(String actualName, ClassNode classNode)
+	public void transform(String name, ClassNode classNode)
 	{
-		int index = clazzes.indexOf(actualName);
+		int index = clazzes.indexOf(name);
 		if(index != -1)
 		{
 			switch(index)

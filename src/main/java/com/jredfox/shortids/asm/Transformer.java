@@ -23,12 +23,6 @@ import com.jredfox.confighelper.reg.RegistryIds;
 import net.minecraft.util.ResourceLocation;
 
 public class Transformer implements ITransformer{
-
-	@Override
-	public ResourceLocation id() 
-	{
-		return new ResourceLocation("shortids:transformer");
-	}
 	
 	public static final List<String> clazzes = RegistryIds.asList(new String[]
 	{
@@ -41,15 +35,21 @@ public class Transformer implements ITransformer{
 	});
 
 	@Override
+	public ResourceLocation id() 
+	{
+		return new ResourceLocation("shortids:transformer");
+	}
+
+	@Override
 	public List<String> getClasses() 
 	{
 		return clazzes;
 	}
 
 	@Override
-	public void transform(String actualName, ClassNode node) 
+	public void transform(String name, ClassNode node) 
 	{
-		int index = clazzes.indexOf(actualName);
+		int index = clazzes.indexOf(name);
 		if(index != -1)
 		{
 			switch(index)
@@ -84,16 +84,17 @@ public class Transformer implements ITransformer{
 	private void patchDatawatcher(ClassNode node) 
 	{
 		patchWatcherWrite(node);
-		MethodNode addObject = ASMHelper.getMethodNode(node, new MCPSidedString("addObject", "func_75682_a").toString(), "(ILjava/lang/Object;)V");
+		
 		//delete line Integer integer = (Integer) dataTypes.get(obj.getClass());
+		MethodNode addObject = ASMHelper.getMethodNode(node, new MCPSidedString("addObject", "func_75682_a").toString(), "(ILjava/lang/Object;)V");
 		AbstractInsnNode start = ASMHelper.getFieldInsnNode(addObject, new FieldInsnNode(Opcodes.GETSTATIC, "net/minecraft/entity/DataWatcher", new MCPSidedString("dataTypes", "field_75697_a").toString(), "Ljava/util/HashMap;"));
-		if(start != null)
-		{
+//		if(start != null)
+//		{
 			AbstractInsnNode end = ASMHelper.nextInsn(start, Opcodes.ASTORE);
 			ASMHelper.removeInsn(addObject, start, end);
-		}
-		else
-			System.out.println("confighelper asm DataWatcher#addObject cannot delete line: \"Integer integer = (Integer) dataTypes.get(obj.getClass());\"");
+//		}
+//		else
+//			System.out.println("confighelper asm DataWatcher#addObject cannot delete line: \"Integer integer = (Integer) dataTypes.get(obj.getClass());\"");
 		
 		//inject line: Integer integer = Registries.getWatcherTypeId(obj.getClass());
 		InsnList list = new InsnList();

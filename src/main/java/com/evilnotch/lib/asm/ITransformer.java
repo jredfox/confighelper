@@ -17,6 +17,17 @@ public interface ITransformer {
 	 * return a list of classes in which you intend to modify
 	 */
 	public List<String> getClasses();
-	public void transform(String actualName, ClassNode node);
+	/**
+	 * the transformer for your asm
+	 */
+	public void transform(String name, ClassNode node);
+	
+	/**
+	 * return true if your transformer needs to run every class
+	 */
+	public default boolean isDynamic()
+	{
+		return false;
+	}
 
 }

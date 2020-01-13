@@ -225,6 +225,21 @@ public class ASMHelper
 	}
 	
 	/**
+	 * if you use the ITransformer library call this method to replace a full class
+	 */
+	public static ClassNode replaceClassNode(String input) throws IOException
+	{
+		 ClassNode node = ASMHelper.getClassNode(replaceClass(input));
+		 setClassNode(node);
+		 return node;
+	}
+	
+	public static void setClassNode(ClassNode node)
+	{
+		TransformsReg.setClassNode(node);
+	}
+	
+	/**
 	 * add an interface to a class
 	 */
 	public static void addInterface(ClassNode node,String theInterface)
@@ -487,7 +502,7 @@ public class ASMHelper
 	 */
 	public static void dumpFile(String name, ClassWriter classWriter) throws IOException 
 	{
-		dumpFile(name,classWriter.toByteArray());
+		dumpFile(name, classWriter.toByteArray());
 	}
 	
 	/**

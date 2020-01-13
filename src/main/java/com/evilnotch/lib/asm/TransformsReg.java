@@ -27,7 +27,7 @@ public class TransformsReg {
 	public static boolean canTransform(String name)
 	{
 		for(ITransformer t : transformers)
-			if(t.getClasses().contains(name))
+			if(t.isDynamic() || t.getClasses().contains(name))
 				return true;
 		return false;
 	}

@@ -37,20 +37,20 @@ public class Transformer implements ITransformer{
 	}
 
 	@Override
-	public void transform(String actualName, ClassNode classNode) 
+	public void transform(String name, ClassNode node) 
 	{
-		int index = clazzes.indexOf(actualName);
+		int index = clazzes.indexOf(name);
 		if(index != -1)
 		{
-			System.out.println("config helper compat patching:" + actualName);
+			System.out.println("config helper compat patching:" + node.name);
 			switch(index)
 			{
 				case 0:
-					patchAbyssalcraft(classNode);
+					patchAbyssalcraft(node);
 				break;
 				
 				case 1:
-					patchErebus(classNode);
+					patchErebus(node);
 				break;
 			}
 		}

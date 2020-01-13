@@ -8,19 +8,17 @@ public class Transformer implements IClassTransformer{
 
 	public static ClassNode node = null;
 	@Override
-	public byte[] transform(String name, String actualName, byte[] bytes) 
+	public byte[] transform(String oldName, String name, byte[] bytes) 
 	{
-		if(TransformsReg.transformers.isEmpty())
-		System.out.println("loading:" + actualName + ", " + TransformsReg.transformers.size());
-		if(!TransformsReg.canTransform(actualName))
+		if(!TransformsReg.canTransform(name))
 			return bytes;
 		try
 		{
 			node = ASMHelper.getClassNode(bytes);
 			for(ITransformer transformer : TransformsReg.transformers)
-				transformer.transform(actualName, node);
+				transformer.transform(name, node);
 			byte[] custom = ASMHelper.getClassWriter(node).toByteArray();
-			ASMHelper.dumpFile(actualName, bytes);
+			ASMHelper.dumpFile(name, custom);
 			return custom;
 		}
 		catch(Throwable t)
