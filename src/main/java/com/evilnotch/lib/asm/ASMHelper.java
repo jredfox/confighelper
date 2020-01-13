@@ -745,6 +745,7 @@ public class ASMHelper
 				}
 			}
 		}
-		ASMHelper.removeInsn(method, start, end);
+		if(start != null)
+			ASMHelper.removeInsn(method, start, end);
 	}
 }

@@ -194,10 +194,14 @@ public class Registry implements Iterable<Registry.Entry>{
 		return JavaUtil.contains(RegistryConfig.passableSelf, clazz);
 	}
 	
+	public int getNewId()
+	{
+		return this.getNewId(0);
+	}
+	
 	public int newId;//the newId(semi-auto) index
 	/**
-	 * get the next newId in case the original id is conflicting
-	 * MODS SHOULD CALL THIS For automated ids
+	 * gets the next id
 	 */
 	public int getNewId(int org)
 	{

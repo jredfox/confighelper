@@ -6,6 +6,7 @@ import java.util.List;
 import org.objectweb.asm.tree.ClassNode;
 
 import net.minecraft.launchwrapper.Launch;
+import net.minecraft.util.ResourceLocation;
 
 public class TransformsReg {
 	
@@ -35,6 +36,23 @@ public class TransformsReg {
 	public static void setClassNode(ClassNode newNode)
 	{
 		Transformer.node = newNode;
+	}
+	
+	public static String printIds()
+	{
+		StringBuilder b = new StringBuilder();
+		String space = "\n";
+		for(ITransformer t : transformers)
+			b.append(space + "ITransformer:(" + t.id() + ")");
+		return b.toString();
+	}
+
+	public static List<ResourceLocation> getIds() 
+	{
+		List<ResourceLocation> li = new ArrayList();
+		for(ITransformer t : transformers)
+			li.add(t.id());
+		return li;
 	}
 
 }
