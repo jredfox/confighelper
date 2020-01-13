@@ -31,12 +31,13 @@ public class ShortObj extends Number implements IModNumber{
 	}
 	
 	@Override
-	public byte byteValue(){
-		return JavaUtil.castByte(this.value);
-	}
-	@Override
 	public short shortValue(){
 		return this.value;
+	}
+	
+	@Override
+	public byte byteValue(){
+		return JavaUtil.castByte(this.value);
 	}
 
 	@Override

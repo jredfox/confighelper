@@ -11,32 +11,39 @@ public class ByteObj extends Number implements IModNumber{
 	}
 
 	@Override
-	public double doubleValue() {
+	public double doubleValue() 
+	{
 		return (double)this.value;
 	}
 
 	@Override
-	public float floatValue() {
+	public float floatValue()
+	{
 		return (float)this.value;
 	}
 
 	@Override
-	public int intValue() {
+	public int intValue()
+	{
 		return (int)this.value;
 	}
 
 	@Override
-	public long longValue() {
+	public long longValue() 
+	{
 		return (long)this.value;
 	}
 	
 	@Override
-	public byte byteValue(){
-		return this.value;
-	}
-	@Override
-	public short shortValue(){
+	public short shortValue()
+	{
 		return (short)this.value;
+	}
+	
+	@Override
+	public byte byteValue()
+	{
+		return this.value;
 	}
 	
 	@Override
