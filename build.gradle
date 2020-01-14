@@ -21,6 +21,11 @@ version = "1.0"
 group= "com.yourname.modid" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "modid"
 
+sourceCompatibility = targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
+compileJava {
+    sourceCompatibility = targetCompatibility = '1.8'
+}
+
 minecraft {
     version = "1.7.10-10.13.4.1614-1.7.10"
     runDir = "eclipse"
@@ -64,7 +69,7 @@ processResources
 }
 jar {
     manifest {
-        attributes 'FMLCorePlugin': 'com.jredfox.confighelper.asm.Plugin',
+        attributes 'FMLCorePlugin': 'jml.evilnotch.lib.asm.ASMPlugin',
         'FMLCorePluginContainsFMLMod': 'false',
 	    'FMLAT': 'confighelper_at.cfg'
     }
