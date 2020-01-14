@@ -108,7 +108,7 @@ public class RegistryIds {
 	private static String getDims() {
 		StringBuilder b = new StringBuilder();
 		b.append('[');
-		HashMap<Integer,Integer> dimensions = (HashMap<Integer, Integer>) ReflectionHandler.get(ReflectionHandler.getField(DimensionManager.class,"dimensions"), null);
+		HashMap<Integer,Integer> dimensions = (HashMap<Integer, Integer>) ReflectionHandler.get(ReflectionHandler.getField(DimensionManager.class, "dimensions"), null);
 		for(Integer i : dimensions.keySet())
 			b.append(i + ",");
 		b.append(']');

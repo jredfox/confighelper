@@ -2,7 +2,7 @@ package net.minecraftforge.common;
 
 import java.util.Hashtable;
 
-import com.jredfox.confighelper.Registries;
+import jml.confighelper.reg.Registries;
 
 import net.minecraft.nbt.NBTTagCompound;
 

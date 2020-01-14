@@ -100,7 +100,7 @@ public class RegTransformer implements ITransformer{
 		list.add(new VarInsnNode(Opcodes.ALOAD, 0));
 		list.add(new VarInsnNode(Opcodes.ILOAD, 1));
 		list.add(new VarInsnNode(Opcodes.ILOAD, 2));
-		list.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/jredfox/confighelper/reg/Registries", "registerBiome", "(Lnet/minecraft/world/biome/BiomeGenBase;IZ)I", false));
+		list.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "jml/confighelper/reg/Registries", "registerBiome", "(Lnet/minecraft/world/biome/BiomeGenBase;IZ)I", false));
 		list.add(new VarInsnNode(Opcodes.ISTORE, 1));
 		FieldInsnNode field = new FieldInsnNode(Opcodes.PUTFIELD, "net/minecraft/world/biome/BiomeGenBase", new MCPSidedString("topBlock", "field_76752_A").toString(), "Lnet/minecraft/block/Block;");
 		node.instructions.insert(ASMHelper.getFirstInstruction(node, Opcodes.INVOKESPECIAL), list);
@@ -108,7 +108,7 @@ public class RegTransformer implements ITransformer{
 		MethodNode clinit = ASMHelper.getClassInitNode(classNode);
 		InsnList list2 = new InsnList();
 		list2.add(new InsnNode(Opcodes.ICONST_1));
-		list2.add(new FieldInsnNode(Opcodes.PUTSTATIC, "com/jredfox/confighelper/reg/Registries", "initBiomes", "Z"));
+		list2.add(new FieldInsnNode(Opcodes.PUTSTATIC, "jml/confighelper/reg/Registries", "initBiomes", "Z"));
 		clinit.instructions.insertBefore(ASMHelper.getLastInstruction(clinit, Opcodes.RETURN), list2);
 	}
 	
@@ -122,7 +122,7 @@ public class RegTransformer implements ITransformer{
 		InsnList list = new InsnList();
 		list.add(new VarInsnNode(Opcodes.ALOAD, 0));
 		list.add(new VarInsnNode(Opcodes.ILOAD, 1));
-		list.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/jredfox/confighelper/reg/Registries", "registerPotion", "(Lnet/minecraft/potion/Potion;I)I", false));
+		list.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "jml/confighelper/reg/Registries", "registerPotion", "(Lnet/minecraft/potion/Potion;I)I", false));
 		list.add(new VarInsnNode(Opcodes.ISTORE, 1));
 		constructor.instructions.insert(ASMHelper.getFirstInstruction(constructor, Opcodes.INVOKESPECIAL), list);
 	}
@@ -136,7 +136,7 @@ public class RegTransformer implements ITransformer{
 		InsnList list = new InsnList();
 		list.add(new VarInsnNode(Opcodes.ALOAD, 0));
 		list.add(new VarInsnNode(Opcodes.ILOAD, 1));
-		list.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/jredfox/confighelper/reg/Registries", "registerEnchantment", "(Lnet/minecraft/enchantment/Enchantment;I)I", false));
+		list.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "jml/confighelper/reg/Registries", "registerEnchantment", "(Lnet/minecraft/enchantment/Enchantment;I)I", false));
 		list.add(new VarInsnNode(Opcodes.ISTORE, 1));
 		node.instructions.insert(ASMHelper.getFirstInstruction(node, Opcodes.INVOKESPECIAL), list);
 	}
@@ -149,12 +149,12 @@ public class RegTransformer implements ITransformer{
 		InsnList list = new InsnList();
 		list.add(new VarInsnNode(Opcodes.ALOAD, 1));
 		list.add(new VarInsnNode(Opcodes.ILOAD, 0));
-		list.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/jredfox/confighelper/reg/Registries", "registerProvider", "(Ljava/lang/Class;I)I", false));
+		list.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "jml/confighelper/reg/Registries", "registerProvider", "(Ljava/lang/Class;I)I", false));
 		list.add(new VarInsnNode(Opcodes.ISTORE, 0));
 		//keepLoaded = Registries.keepDimLoaded(id, keepLoaded);
 		list.add(new VarInsnNode(Opcodes.ILOAD, 0));
 		list.add(new VarInsnNode(Opcodes.ILOAD, 2));
-		list.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/jredfox/confighelper/reg/Registries", "keepDimLoaded", "(IZ)Z", false));
+		list.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "jml/confighelper/reg/Registries", "keepDimLoaded", "(IZ)Z", false));
 		list.add(new VarInsnNode(Opcodes.ISTORE, 2));
 		provider.instructions.insert(ASMHelper.getFirstInstruction(provider), list);
 		
@@ -163,12 +163,12 @@ public class RegTransformer implements ITransformer{
 		InsnList list2 = new InsnList();
 		//providerId = Registries.guessProviderId(providerId);
 		list2.add(new VarInsnNode(Opcodes.ILOAD, 1));
-		list2.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/jredfox/confighelper/reg/Registries", "guessProviderId", "(I)I", false));
+		list2.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "jml/confighelper/reg/Registries", "guessProviderId", "(I)I", false));
 		list2.add(new VarInsnNode(Opcodes.ISTORE, 1));
 		//Regitries.register(providerId, dimid);
 		list2.add(new VarInsnNode(Opcodes.ILOAD, 1));
 		list2.add(new VarInsnNode(Opcodes.ILOAD, 0));
-		list2.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/jredfox/confighelper/reg/Registries", "registerDimension", "(II)I", false));
+		list2.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "jml/confighelper/reg/Registries", "registerDimension", "(II)I", false));
 		list2.add(new VarInsnNode(Opcodes.ISTORE, 0));
 		dimensions.instructions.insert(ASMHelper.getFirstInstruction(dimensions), list2);
 		
@@ -176,14 +176,14 @@ public class RegTransformer implements ITransformer{
 		MethodNode unregProvider = ASMHelper.getMethodNode(classNode, "unregisterProviderType", "(I)[I");
 		InsnList list3 = new InsnList();
 		list3.add(new VarInsnNode(Opcodes.ILOAD, 0));
-		list3.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/jredfox/confighelper/reg/Registries", "unregisterProvider", "(I)V", false));
+		list3.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "jml/confighelper/reg/Registries", "unregisterProvider", "(I)V", false));
 		unregProvider.instructions.insert(ASMHelper.getFirstInstruction(unregProvider), list3);
 		
 		//inject line Registries.unregisterDimension(id);
 		MethodNode unregDim = ASMHelper.getMethodNode(classNode, "unregisterDimension", "(I)V");
 		InsnList list4 = new InsnList();
 		list4.add(new VarInsnNode(Opcodes.ILOAD, 0));
-		list4.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/jredfox/confighelper/reg/Registries", "unregisterDimension", "(I)V", false));
+		list4.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "jml/confighelper/reg/Registries", "unregisterDimension", "(I)V", false));
 		unregDim.instructions.insert(ASMHelper.getFirstInstruction(unregDim), list4);
 	}
 	
@@ -195,7 +195,7 @@ public class RegTransformer implements ITransformer{
 		list.add(new VarInsnNode(Opcodes.ALOAD, 0));
 		list.add(new VarInsnNode(Opcodes.ALOAD, 1));
 		list.add(new VarInsnNode(Opcodes.ILOAD, 2));
-		list.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/jredfox/confighelper/reg/Registries", "registerEntity", "(Ljava/lang/Class;Ljava/lang/String;I)I", false));
+		list.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "jml/confighelper/reg/Registries", "registerEntity", "(Ljava/lang/Class;Ljava/lang/String;I)I", false));
 		list.add(new VarInsnNode(Opcodes.ISTORE, 2));
 		node.instructions.insert(ASMHelper.getFirstInstruction(node), list);
 		
@@ -209,20 +209,20 @@ public class RegTransformer implements ITransformer{
 		list2.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "java/lang/Integer", "intValue", "()I", false));
 		list2.add(new VarInsnNode(Opcodes.ISTORE, 2));
 		MethodInsnNode check = new MethodInsnNode(Opcodes.INVOKESTATIC, "net/minecraft/entity/EntityList", new MCPSidedString("addMapping", "func_75618_a").toString(), "(Ljava/lang/Class;Ljava/lang/String;I)V", false);
-		egg.instructions.insert(ASMHelper.getFirstMethodInsn(egg, check), list2);
+		egg.instructions.insert(ASMHelper.findMethodInsn(egg, check), list2);
 	}
 	
 	private void patchDatawatcher(ClassNode classNode) 
 	{
 		//add field
-		ASMHelper.addFeild(classNode, "reg", "Lcom/jredfox/confighelper/reg/Registry;");
+		ASMHelper.addFeild(classNode, "reg", "Ljml/confighelper/reg/Registry;");
 		//patch constructor
 		MethodNode construct = ASMHelper.getConstructionNode(classNode, "(Lnet/minecraft/entity/Entity;)V");
 		InsnList list0 = new InsnList();
 		list0.add(new VarInsnNode(Opcodes.ALOAD, 0));
 		list0.add(new VarInsnNode(Opcodes.ALOAD, 1));
-		list0.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/jredfox/confighelper/reg/Registries", "createWatcherReg", "(Lnet/minecraft/entity/Entity;)Lcom/jredfox/confighelper/reg/Registry;", false));
-		list0.add(new FieldInsnNode(Opcodes.PUTFIELD, "net/minecraft/entity/DataWatcher", "reg", "Lcom/jredfox/confighelper/reg/Registry;"));
+		list0.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "jml/confighelper/reg/Registries", "createWatcherReg", "(Lnet/minecraft/entity/Entity;)Ljml/confighelper/reg/Registry;", false));
+		list0.add(new FieldInsnNode(Opcodes.PUTFIELD, "net/minecraft/entity/DataWatcher", "reg", "Ljml/confighelper/reg/Registry;"));
 		construct.instructions.insert(ASMHelper.getLastPutField(construct), list0);
 		
 		MethodNode addObject = ASMHelper.getMethodNode(classNode, new MCPSidedString("addObject", "func_75682_a").toString(), "(ILjava/lang/Object;)V");
@@ -232,8 +232,8 @@ public class RegTransformer implements ITransformer{
 		list2.add(new FieldInsnNode(Opcodes.GETFIELD, "net/minecraft/entity/DataWatcher", new MCPSidedString("field_151511_a", "field_151511_a").toString(), "Lnet/minecraft/entity/Entity;"));
 		list2.add(new VarInsnNode(Opcodes.ILOAD, 1));
 		list2.add(new VarInsnNode(Opcodes.ALOAD, 0));
-		list2.add(new FieldInsnNode(Opcodes.GETFIELD, "net/minecraft/entity/DataWatcher", "reg", "Lcom/jredfox/confighelper/reg/Registry;"));
-		list2.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/jredfox/confighelper/reg/Registries", "registerDataWatcher", "(Lnet/minecraft/entity/Entity;ILcom/jredfox/confighelper/reg/Registry;)I", false));
+		list2.add(new FieldInsnNode(Opcodes.GETFIELD, "net/minecraft/entity/DataWatcher", "reg", "Ljml/confighelper/reg/Registry;"));
+		list2.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "jml/confighelper/reg/Registries", "registerDataWatcher", "(Lnet/minecraft/entity/Entity;ILjml/confighelper/reg/Registry;)I", false));
 		list2.add(new VarInsnNode(Opcodes.ISTORE, 1));
 		addObject.instructions.insert(ASMHelper.getFirstInstruction(addObject), list2);
 	}

@@ -86,7 +86,7 @@ public class IdsTransformer implements ITransformer{
 		
 		//delete line Integer integer = (Integer) dataTypes.get(obj.getClass());
 		MethodNode addObject = ASMHelper.getMethodNode(node, new MCPSidedString("addObject", "func_75682_a").toString(), "(ILjava/lang/Object;)V");
-		AbstractInsnNode start = ASMHelper.getFieldInsnNode(addObject, new FieldInsnNode(Opcodes.GETSTATIC, "net/minecraft/entity/DataWatcher", new MCPSidedString("dataTypes", "field_75697_a").toString(), "Ljava/util/HashMap;"));
+		AbstractInsnNode start = ASMHelper.findFieldInsn(addObject, new FieldInsnNode(Opcodes.GETSTATIC, "net/minecraft/entity/DataWatcher", new MCPSidedString("dataTypes", "field_75697_a").toString(), "Ljava/util/HashMap;"));
 //		if(start != null)
 //		{
 			AbstractInsnNode end = ASMHelper.nextInsn(start, Opcodes.ASTORE);
@@ -99,7 +99,7 @@ public class IdsTransformer implements ITransformer{
 		InsnList list = new InsnList();
 		list.add(new VarInsnNode(Opcodes.ALOAD, 2));
 		list.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "java/lang/Object", "getClass", "()Ljava/lang/Class;", false));
-		list.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/jredfox/confighelper/reg/Registries", "getWatcherTypeId", "(Ljava/lang/Class;)Ljava/lang/Integer;", false));
+		list.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "jml/confighelper/reg/Registries", "getWatcherTypeId", "(Ljava/lang/Class;)Ljava/lang/Integer;", false));
 		list.add(new VarInsnNode(Opcodes.ASTORE, 3));
 		addObject.instructions.insert(ASMHelper.getFirstInstruction(addObject), list);
 		
@@ -116,7 +116,7 @@ public class IdsTransformer implements ITransformer{
 			}
 		}
 		InsnList append = new InsnList();
-		append.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/evilnotch/lib/JavaUtil", "returnFalse", "()Z", false));
+		append.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "jml/evilnotch/lib/JavaUtil", "returnFalse", "()Z", false));
 		append.add(new JumpInsnNode(Opcodes.IFEQ, todisable.label));
 		addObject.instructions.insertBefore(push.getPrevious(), append);
 		
