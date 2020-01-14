@@ -632,12 +632,20 @@ public class ASMHelper
 
 	public static void clearVoidMethod(MethodNode method) 
 	{
+		clearMethod(method);
+		method.instructions.add(new InsnNode(Opcodes.RETURN));
+	}
+
+	/**
+	 * warning if you clear a method you must input the return type manually
+	 */
+	public static void clearMethod(MethodNode method) 
+	{
 		LineNumberNode line = ASMHelper.getFirstInstruction(method);
 		method.instructions.clear();
 		LabelNode label = new LabelNode();
 		method.instructions.add(label);
 		method.instructions.add(new LineNumberNode(line.line, label));
-		method.instructions.add(new InsnNode(Opcodes.RETURN));
 	}
 
 	public static AbstractInsnNode nextInsn(AbstractInsnNode ab, int opcode) 

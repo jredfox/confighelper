@@ -40,7 +40,8 @@ public class RegTransformer implements ITransformer{
 		"net.minecraft.enchantment.Enchantment",
 		"net.minecraftforge.common.DimensionManager",
 		"net.minecraft.entity.EntityList",
-		"net.minecraft.entity.DataWatcher"
+		"net.minecraft.entity.DataWatcher",
+		"cpw.mods.fml.common.registry.EntityRegistry"
 	});
 	
 	@Override
@@ -76,7 +77,7 @@ public class RegTransformer implements ITransformer{
 				break;
 				
 				case 3:
-					patchForgeDimensions(classNode);
+					patchForgeDims(classNode);
 				break;
 				
 				case 4:
@@ -86,8 +87,21 @@ public class RegTransformer implements ITransformer{
 				case 5:
 					patchDatawatcher(classNode);
 				break;
+				
+				case 6:
+					patchForgeEntityReg(classNode);
+				break;
 			}
 		}
+	}
+
+	private static void patchForgeEntityReg(ClassNode classNode) 
+	{
+		String input = ASMHelper.getInputStream(ModReference.MODID, "EntityRegistry");
+		ASMHelper.replaceMethod(classNode, input, "<init>", "()V");
+		ASMHelper.replaceMethod(classNode, input, "validateAndClaimId", "(I)I");
+		ASMHelper.replaceMethod(classNode, input, "findGlobalUniqueEntityId", "()I");
+		ASMHelper.replaceMethod(classNode, input, "registerGlobalEntityID", "(Ljava/lang/Class;Ljava/lang/String;III)V");
 	}
 
 	/**
@@ -141,7 +155,7 @@ public class RegTransformer implements ITransformer{
 		node.instructions.insert(ASMHelper.getFirstInstruction(node, Opcodes.INVOKESPECIAL), list);
 	}
 	
-	private static void patchForgeDimensions(ClassNode classNode) 
+	private static void patchForgeDims(ClassNode classNode) 
 	{
 		//inject provider lines
 		MethodNode provider = ASMHelper.getMethodNode(classNode, "registerProviderType", "(ILjava/lang/Class;Z)Z");

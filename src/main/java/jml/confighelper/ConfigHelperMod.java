@@ -1,28 +1,23 @@
 package jml.confighelper;
 
-import java.io.File;
+import java.util.Map;
+
+import com.google.common.collect.ListMultimap;
 
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.event.FMLLoadCompleteEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import cpw.mods.fml.common.registry.EntityRegistry;
-import jml.confighelper.datawatcher.WatcherDataType;
+import cpw.mods.fml.common.patcher.ClassPatch;
+import cpw.mods.fml.common.patcher.ClassPatchManager;
 import jml.confighelper.event.WatcherEvent;
 import jml.confighelper.reg.Registries;
-import jml.confighelper.reg.Registry;
-import jml.confighelper.reg.RegistryWriter;
 import jml.evilnotch.lib.JavaUtil;
-import jml.evilnotch.lib.asm.MCWriter;
 import jml.evilnotch.lib.asm.PatchedClassLoader;
-import jml.evilnotch.lib.simple.DummyMap;
-import jml.evilnotch.lib.simple.SimpleConfig;
+import jml.evilnotch.lib.reflect.ReflectionHandler;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.DataWatcher;
 import net.minecraft.entity.monster.EntityCreeper;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.potion.Potion;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.MinecraftForge;

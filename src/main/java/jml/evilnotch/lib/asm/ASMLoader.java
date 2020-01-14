@@ -29,8 +29,8 @@ public class ASMLoader implements IClassTransformer{
 				return bytes;
 			
 			byte[] custom = ASMHelper.getClassWriter(node).toByteArray();
-//			if(ObfHelper.isDeob)
-//				ASMHelper.dumpFile(name, custom);
+			if(ObfHelper.isDeob)
+				ASMHelper.dumpFile(name, custom);
 			return custom;
 		}
 		catch(Throwable t)

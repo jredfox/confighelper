@@ -195,7 +195,13 @@ public class Registry implements Iterable<Registry.Entry>{
 	
 	public int getNewId()
 	{
-		return this.getNewId(0);
+		return this.getNewId(true);
+	}
+	
+	public int getNewId(boolean positive)
+	{
+		int id = positive ? 0 : -1;
+		return this.getNewId(id);
 	}
 	
 	public int newId;//the newId(semi-auto) index
@@ -389,7 +395,7 @@ public class Registry implements Iterable<Registry.Entry>{
 	
    	public String getDisplay(Registry.Entry e, boolean name)
 	{
-		return "(name:" + e.name + ", " + (name ? e.modName + ", " : "") + e.clazz + ", orgId:" + e.org + ")";
+		return "(" + (e.replaced ? "replaced:" + e.replaced + ", " : "") + "name:" + e.name + ", " + (name ? e.modName + ", " : "") + e.clazz + ", orgId:" + e.org + ")";
 	}
    	
    	/**

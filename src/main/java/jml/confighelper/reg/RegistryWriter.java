@@ -202,7 +202,7 @@ public class RegistryWriter {
 			}
 		});
 		for(Registry.Entry entry : entries)
-			writer.write("" + entry.newId + " " + this.reg.getDisplay(entry, true) + "\r\n");
+			writer.write(entry.newId + " " + this.reg.getDisplay(entry, true) + "\r\n");
 		writer.close();
 	}
 
