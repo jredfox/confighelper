@@ -13,6 +13,7 @@ import jml.confighelper.reg.Registries;
 import jml.confighelper.reg.Registry;
 import jml.confighelper.reg.RegistryWriter;
 import jml.evilnotch.lib.JavaUtil;
+import jml.evilnotch.lib.asm.MCWriter;
 import jml.evilnotch.lib.asm.PatchedClassLoader;
 import jml.evilnotch.lib.simple.DummyMap;
 import jml.evilnotch.lib.simple.SimpleConfig;
