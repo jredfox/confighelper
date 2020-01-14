@@ -11,7 +11,7 @@ public class Validate {
 	public static void isNull(Object obj)
 	{
 		if(obj != null)
-			throw new IllegalStateException("Object isn't null"); 
+			throw new IllegalStateException("Object is not null"); 
 	}
 	
 	public static void isFalse(Boolean b)

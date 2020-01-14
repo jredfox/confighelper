@@ -8,13 +8,8 @@ import jml.evilnotch.lib.reflect.ReflectionHandler;
 
 public class ObfHelper
 {
-	public static final Boolean isObf;
-	static
-	{
-		Boolean k = !ReflectionHandler.getBoolean(ReflectionHandler.getField(CoreModManager.class, "deobfuscatedEnvironment"), null);
-		Validate.nonNull(k);
-		isObf = k;
-	}
+	public static final boolean isDeob = ReflectionHandler.getBoolean(ReflectionHandler.getField(CoreModManager.class, "deobfuscatedEnvironment"), null);
+	public static final boolean isObf = !isDeob;
 
 	/**
 	 * Deobfuscates an obfuscated class name if {@link #isObfuscated()}.

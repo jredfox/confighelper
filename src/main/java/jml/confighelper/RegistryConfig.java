@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 import jml.evilnotch.lib.JavaUtil;
+import jml.evilnotch.lib.asm.ASMHelper;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraftforge.common.config.Configuration;
 
@@ -38,7 +39,7 @@ public class RegistryConfig {
 	
 	static
 	{
-		Configuration cfg = new Configuration(new File(Launch.minecraftHome, "config/confighelper/main.cfg"));
+		Configuration cfg = new Configuration(new File(ASMHelper.getConfig(), "confighelper/main.cfg"));
 		cfg.load();
 		configMode = cfg.getBoolean("configMode", "general", configMode, "disable this when your modpack has been configured properly so it runs faster");
 		regUnregBiomes = cfg.getBoolean("regUnregBiomes", "general", regUnregBiomes, "will prevent future biome conflicts if un registerd biomes get registerd later");

@@ -494,9 +494,19 @@ public class ASMHelper
 	public static void dumpFile(String name, byte[] bytes) throws IOException 
 	{
     	name = name.replace('.', '/');
-    	File f = new File(Launch.minecraftHome + "/asm/dumps/" + name + ".class");
+    	File f = new File(getHome(), "asm/dumps/" + name + ".class");
     	f.getParentFile().mkdirs();
     	FileUtils.writeByteArrayToFile(f, bytes);
+	}
+	
+	public static File getHome()
+	{
+		return Launch.minecraftHome != null ? Launch.minecraftHome : new File(System.getProperty("user.dir"));
+	}
+	
+	public static File getConfig()
+	{
+		return new File(getHome(), "config");
 	}
 
 	public static String getMethodDescriptor(Class clazz, String name, Class... params)

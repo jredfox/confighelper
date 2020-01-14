@@ -29,14 +29,14 @@ public class ASMLoader implements IClassTransformer{
 				return bytes;
 			
 			byte[] custom = ASMHelper.getClassWriter(node).toByteArray();
-			if(!ObfHelper.isObf)
+			if(ObfHelper.isDeob)
 				ASMHelper.dumpFile(name, custom);
 			return custom;
 		}
 		catch(Throwable t)
 		{
 			t.printStackTrace();
-			System.out.println("Blamed Transformer:\t" + (last != null ? last.id() : null) + "\nLoaded Transformers:" + TransformsReg.printIds());
+			System.out.print("Blamed Transformer:\t" + (last != null ? last.id() : null) + "\nLoaded Transformers:" + TransformsReg.printIds() + "\n");
 		}
 		return bytes;
 	}
