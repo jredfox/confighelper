@@ -8,7 +8,7 @@ import net.minecraft.launchwrapper.Launch;
 @IFMLLoadingPlugin.SortingIndex(1001)
 @IFMLLoadingPlugin.Name("ASMPlugin")
 @IFMLLoadingPlugin.MCVersion("1.7.10")
-@IFMLLoadingPlugin.TransformerExclusions("evilnotch.lib.asm.")
+@IFMLLoadingPlugin.TransformerExclusions("jml.evilnotch.lib.asm.")
 public class ASMPlugin implements IFMLLoadingPlugin{
 
 	static

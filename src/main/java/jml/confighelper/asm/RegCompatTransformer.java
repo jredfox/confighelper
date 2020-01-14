@@ -1,6 +1,8 @@
 package jml.confighelper.asm;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
@@ -9,6 +11,7 @@ import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 
 import jml.confighelper.reg.RegistryIds;
+import jml.evilnotch.lib.JavaUtil;
 import jml.evilnotch.lib.asm.ASMHelper;
 import jml.evilnotch.lib.asm.ITransformer;
 import net.minecraft.launchwrapper.IClassTransformer;
@@ -16,7 +19,7 @@ import net.minecraft.util.ResourceLocation;
 
 public class RegCompatTransformer implements ITransformer{
 	
-	public static List<String> clazzes = RegistryIds.asList(
+	public static List<String> clazzes = JavaUtil.asList(
 	new String[]
 	{
 		"com.shinoow.abyssalcraft.AbyssalCraft",

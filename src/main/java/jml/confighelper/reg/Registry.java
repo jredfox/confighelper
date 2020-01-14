@@ -123,7 +123,6 @@ public class Registry implements Iterable<Registry.Entry>{
 	
 	public void securityCheck() 
 	{
-		long time = System.currentTimeMillis();
 		int size = this.size();
 		if(this.dataType == DataType.BIOME && BiomeGenBase.biomeList.length < size)
 		{

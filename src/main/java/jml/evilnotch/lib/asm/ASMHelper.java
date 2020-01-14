@@ -109,27 +109,37 @@ public class ASMHelper
 	}
 	
 	/**
-	 * do not use for proper asm
+	 * if you use the ITransformer library call this method to replace a full class from another
 	 */
-	public static byte[] replaceClass(String inputStream) throws IOException 
+	public static void replaceClassNode(ClassNode org, String input) throws IOException
 	{
-		InputStream initialStream = ASMHelper.class.getClassLoader().getResourceAsStream(inputStream);
-		return IOUtils.toByteArray(initialStream);
+		replaceClassNode(org, getClassNode(input));
 	}
 	
 	/**
-	 * if you use the ITransformer library call this method to replace a full class
+	 * if you use the ITransformer library call this method to replace a full class from another
 	 */
-	public static ClassNode replaceClassNode(String input) throws IOException
+	public static void replaceClassNode(ClassNode org, ClassNode node) throws IOException
 	{
-		 ClassNode node = ASMHelper.getClassNode(input);
-		 setClassNode(node);
-		 return node;
-	}
-	
-	public static void setClassNode(ClassNode node)
-	{
-		TransformsReg.setClassNode(node);
+		 org.access = node.access;
+		 org.attrs = node.attrs;
+		 org.fields = node.fields;
+		 org.innerClasses = node.innerClasses;
+		 org.interfaces = node.interfaces;
+		 org.invisibleAnnotations = node.invisibleAnnotations;
+		 org.invisibleTypeAnnotations = node.invisibleTypeAnnotations;
+		 org.methods = node.methods;
+		 org.name = node.name;
+		 org.outerClass = node.outerClass;
+		 org.outerMethod = node.outerMethod;
+		 org.outerMethodDesc = node.outerMethodDesc;
+		 org.signature = node.signature;
+		 org.sourceDebug = node.sourceDebug;
+		 org.sourceFile = node.sourceFile;
+		 org.superName = node.superName;
+		 org.version = node.version;
+		 org.visibleAnnotations = node.visibleAnnotations;
+		 org.visibleTypeAnnotations = node.visibleTypeAnnotations;
 	}
 	
 	public static MCWriter getClassWriter(ClassNode classNode) 

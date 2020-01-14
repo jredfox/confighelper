@@ -8,21 +8,13 @@ import jml.evilnotch.lib.reflect.ReflectionHandler;
 public class ObfHelper
 {
 	public static final boolean isObf = !ReflectionHandler.getBoolean(ReflectionHandler.getField(CoreModManager.class, "deobfuscatedEnvironment"), null);
-	
-	/**
-	 * @return Whether or not the current environment contains obfuscated Minecraft code
-	 */
-	public static boolean isObfuscated()
-	{
-		return isObf;
-	}
 
 	/**
 	 * Deobfuscates an obfuscated class name if {@link #isObfuscated()}.
 	 */
 	public static String toDeobfClassName(String obfClassName)
 	{
-		if (!isObfuscated())
+		if (!isObf)
 			return forceToDeobfClassName(obfClassName);
 		else
 			return obfClassName.replace('.', '/');
@@ -33,7 +25,7 @@ public class ObfHelper
 	 */
 	public static String toObfClassName(String deobfClassName)
 	{
-		if (isObfuscated())
+		if (isObf)
 			return forceToObfClassName(deobfClassName);
 		else
 			return deobfClassName.replace('.', '/');

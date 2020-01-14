@@ -6,29 +6,37 @@ import net.minecraft.launchwrapper.IClassTransformer;
 
 public class ASMLoader implements IClassTransformer{
 
-	public static ClassNode node = null;
 	@Override
 	public byte[] transform(String oldName, String name, byte[] bytes) 
 	{
-		if(!TransformsReg.canTransform(name))
-			return bytes;
+		if(bytes == null)
+			return bytes;//do not parse null classes
+		
+		ClassNode node = null;
 		ITransformer last = null;
 		try
 		{
-			node = ASMHelper.getClassNode(bytes);
 			for(ITransformer transformer : TransformsReg.transformers)
 			{
+				if(!transformer.canTransform(name))
+					continue;
+				if(node == null)
+					node = ASMHelper.getClassNode(bytes);
 				last = transformer;
 				transformer.transform(name, node);
 			}
+			if(last == null)
+				return bytes;
+			
 			byte[] custom = ASMHelper.getClassWriter(node).toByteArray();
-			ASMHelper.dumpFile(name, custom);
+			if(!ObfHelper.isObf)
+				ASMHelper.dumpFile(name, custom);
 			return custom;
 		}
 		catch(Throwable t)
 		{
-			System.out.print("Blamed Transformer:\t" + last.id() + "\nLoaded Transformers:" + TransformsReg.printIds() + "\n");
 			t.printStackTrace();
+			System.out.print("Blamed Transformer:\t" + (last != null ? last.id() : null) + "\nLoaded Transformers:" + TransformsReg.printIds() + "\n");
 		}
 		return bytes;
 	}

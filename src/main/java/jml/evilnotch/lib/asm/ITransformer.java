@@ -1,6 +1,7 @@
 package jml.evilnotch.lib.asm;
 
 import java.util.List;
+import java.util.Set;
 
 import org.objectweb.asm.tree.ClassNode;
 
@@ -14,7 +15,7 @@ public interface ITransformer {
 	public ResourceLocation id();
 	/**
 	 * do not return a new list every time used a cached one
-	 * return a list of classes in which you intend to modify
+	 * @return a list of classes in which your transformer will transform
 	 */
 	public List<String> getClasses();
 	/**
@@ -28,6 +29,11 @@ public interface ITransformer {
 	public default boolean isDynamic()
 	{
 		return false;
+	}
+	
+	public default boolean canTransform(String name)
+	{
+		return this.isDynamic() || this.getClasses().contains(name);
 	}
 
 }

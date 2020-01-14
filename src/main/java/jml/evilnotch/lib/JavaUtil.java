@@ -897,9 +897,15 @@ public class JavaUtil {
 			str += "" + i + ",";
 		return str.substring(0, str.length()-1);
 	}
+	
+	public static List asList(Object[] objs)
+	{
+		List li = new ArrayList();
+		for(Object obj : objs)
+			li.add(obj);
+		return li;
+	}
 	public static List asList(Set set) {
-		if(set == null)
-			return null;
 		List list = new ArrayList();
 		for(Object obj : set)
 			list.add(obj);
