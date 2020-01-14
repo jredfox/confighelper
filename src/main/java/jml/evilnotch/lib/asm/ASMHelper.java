@@ -74,6 +74,14 @@ public class ASMHelper
 		return node;
 	}
 	
+	/**
+	 * after editing one class call this for cleanup
+	 */
+	public static void clear() 
+	{
+		classNodes.clear();
+	}
+	
 	public static ClassNode getClassNode(String input) throws IOException 
 	{
 		InputStream stream = ASMHelper.class.getClassLoader().getResourceAsStream(input);
@@ -87,14 +95,6 @@ public class ASMHelper
 	{
 		byte[] newbyte = IOUtils.toByteArray(stream);
 		return getClassNode(newbyte);
-	}
-	
-	/**
-	 * after editing one class call this for cleanup
-	 */
-	public static void clear() 
-	{
-		classNodes.clear();
 	}
 	
 	/**
