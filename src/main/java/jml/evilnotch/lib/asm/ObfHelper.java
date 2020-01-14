@@ -2,12 +2,19 @@ package jml.evilnotch.lib.asm;
 
 import cpw.mods.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
 import cpw.mods.fml.relauncher.CoreModManager;
+import jml.evilnotch.lib.Validate;
 import jml.evilnotch.lib.reflect.MCPSidedString;
 import jml.evilnotch.lib.reflect.ReflectionHandler;
 
 public class ObfHelper
 {
-	public static final boolean isObf = !ReflectionHandler.getBoolean(ReflectionHandler.getField(CoreModManager.class, "deobfuscatedEnvironment"), null);
+	public static final Boolean isObf;
+	static
+	{
+		Boolean k = !ReflectionHandler.getBoolean(ReflectionHandler.getField(CoreModManager.class, "deobfuscatedEnvironment"), null);
+		Validate.nonNull(k);
+		isObf = k;
+	}
 
 	/**
 	 * Deobfuscates an obfuscated class name if {@link #isObfuscated()}.

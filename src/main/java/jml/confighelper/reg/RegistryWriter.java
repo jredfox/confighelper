@@ -79,12 +79,12 @@ public class RegistryWriter {
 			if(reg.isConflicting(id))
 			{
 				JSONArray arr = new JSONArray();
-				filejson.put(reg.dataType.getName() + "-id:" + id, arr);
+				filejson.put(this.reg.dataType.getName() + "-id:" + id, arr);
 				for(Registry.Entry entry : this.reg.getEntryOrg(id))
 				{
 					JSONObject json = new JSONObject();
 					arr.add(json);
-					boolean nonInt = !(reg instanceof RegistryInt);
+					boolean nonInt = !(this.reg instanceof RegistryInt);
 					if(nonInt)
 					{
 						json.put("name", entry.name);
@@ -93,7 +93,7 @@ public class RegistryWriter {
 					if(entry.replaced)
 						json.put("replaced", true);
 					if(entry.newId != entry.org)
-						json.put("freeId", reg.getNextFreeId(entry.newId));
+						json.put("freeId", this.reg.getNextFreeId(entry.newId));
 					if(!nonInt)
 						json.put("memoryIndex", entry.newId);
 					if(nonInt)
@@ -123,12 +123,10 @@ public class RegistryWriter {
 	{
 		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(this.dir, suggested + extension)));
 		Map<String,List<Registry.Entry>> entries = new TreeMap();//modname, list of entries
-		//sort the entries based on mod
-		for(List<Registry.Entry> list : this.reg.reg.values())
+		//filter all entries by mod name
+		for(Registry.Entry entry : this.reg)
 		{
-			for(Registry.Entry entry : list)
-			{
-				if(!canSuggest(reg, entry))
+				if(!canSuggest(this.reg, entry))
 					continue;
 				String modname = entry.modName;
 				List<Registry.Entry> map = entries.get(modname);
@@ -138,9 +136,8 @@ public class RegistryWriter {
 					entries.put(modname, map);
 				}
 				map.add(entry);
-			}
 		}
-		//sort the list of mod entries by name
+		//sort the entries alphabetical order per modlist
 		for(List<Registry.Entry> list : entries.values())
 		{
 			Collections.sort(list, new Comparator()
@@ -159,14 +156,14 @@ public class RegistryWriter {
 		{
 			String modName = map.getKey();
 			List<Registry.Entry> list = map.getValue();
-			boolean hasModName = !(reg instanceof RegistryInt);
+			boolean hasModName = !(this.reg instanceof RegistryInt);
 			if(hasModName)
 				writer.write(modName + "\r\n");
 			if(RegistryConfig.suggestIdChunks)
 			{
 				Set<Integer> ids = new TreeSet();
 				for(Registry.Entry e : list)
-					ids.add(reg.getNextSuggestedId(e.newId));//add all possible suggested ids in order
+					ids.add(this.reg.getNextSuggestedId(e.newId));//add all possible suggested ids in order
 				Set<IdChunk> chunks = IdChunk.configureRanges(ids);//format them into id chunks
 				for(IdChunk c : chunks)
 					writer.write(c.toString() + "\r\n");
@@ -175,8 +172,8 @@ public class RegistryWriter {
 			{
 				for(Registry.Entry e : list)
 				{
-					int suggestion = reg.getNextSuggestedId(e.newId);
-					writer.write(suggestion + " " + reg.getDisplay(e, false) + "\r\n");
+					int suggestion = this.reg.getNextSuggestedId(e.newId);
+					writer.write(suggestion + " " + this.reg.getDisplay(e, false) + "\r\n");
 				}
 			}
 			if(hasModName)
@@ -205,7 +202,7 @@ public class RegistryWriter {
 			}
 		});
 		for(Registry.Entry entry : entries)
-			writer.write("" + entry.newId + " " + reg.getDisplay(entry, true) + "\r\n");
+			writer.write("" + entry.newId + " " + this.reg.getDisplay(entry, true) + "\r\n");
 		writer.close();
 	}
 

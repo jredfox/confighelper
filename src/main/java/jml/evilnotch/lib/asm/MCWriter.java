@@ -249,15 +249,16 @@ public class MCWriter extends ClassWriter {
     	return super.toByteArray();
     }
 
-	private static final boolean RECALC_FRAMES = Boolean.parseBoolean(System.getProperty("FORGE_FORCE_FRAME_RECALC", "false"));
-    private static final int READER_FLAGS = RECALC_FRAMES ? ClassReader.SKIP_FRAMES : ClassReader.EXPAND_FRAMES;
+    //when computing class higharchy do not read code visit sourses or compute frames
+    private static final int READER_FLAGS = ClassReader.SKIP_CODE | ClassReader.SKIP_DEBUG | ClassReader.SKIP_FRAMES;
    
     /**
      * deob the class without loading more classes and also attached any transformed interfaces
      */
     private ClassReader patchClass(ClassReader reader) 
 	{
-		ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);//don't load compute frames it's not necessary for running forge's transformer and would causes recursion/class circulatory errors
+    	//do not do any class reading/writing except for the class header
+		ClassWriter classWriter = new ClassWriter(READER_FLAGS);
         RemappingClassAdapter remapAdapter = new FMLRemappingAdapter(classWriter);
 		reader.accept(remapAdapter, READER_FLAGS);
 		

@@ -36,7 +36,7 @@ public class ASMLoader implements IClassTransformer{
 		catch(Throwable t)
 		{
 			t.printStackTrace();
-			System.out.print("Blamed Transformer:\t" + (last != null ? last.id() : null) + "\nLoaded Transformers:" + TransformsReg.printIds() + "\n");
+			System.out.println("Blamed Transformer:\t" + (last != null ? last.id() : null) + "\nLoaded Transformers:" + TransformsReg.printIds());
 		}
 		return bytes;
 	}

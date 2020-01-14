@@ -55,7 +55,7 @@ public class IdChunk {
 		int index;
 		for(Integer i : ids)
 		{
-			index = chunks.size()-1;
+			index = chunks.size() - 1;
 			if(index == -1)
 			{
 				chunks.add(new IdChunk(i, i));
