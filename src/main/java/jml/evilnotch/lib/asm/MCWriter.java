@@ -245,7 +245,7 @@ public class MCWriter extends ClassWriter {
     public byte[] toByteArray()
     {
     	offMemoryCache.clear();
-    	ASMHelper.clearCacheNodes();
+    	ASMHelper.clear();
     	return super.toByteArray();
     }
 
