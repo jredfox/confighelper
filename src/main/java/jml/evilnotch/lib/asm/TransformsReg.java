@@ -44,12 +44,4 @@ public class TransformsReg {
 		return li;
 	}
 
-	public static boolean canTransform(String name) 
-	{
-		for(ITransformer t : transformers)
-			if(t.canTransform(name))
-				return true;
-		return false;
-	}
-
 }
