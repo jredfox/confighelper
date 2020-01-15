@@ -9,6 +9,7 @@ import org.apache.commons.lang3.ClassUtils;
 
 import jml.evilnotch.lib.JavaUtil;
 import jml.evilnotch.lib.Validate;
+import jml.evilnotch.lib.asm.ITransformer;
 import net.minecraftforge.common.util.EnumHelper;
 
 public class ReflectionHandler {
@@ -103,11 +104,10 @@ public class ReflectionHandler {
     	return clazz.getClassLoader();
     }
     
-    public static Annotation getClassAnnotation(Class clazz, Class test)
+    public static Annotation getClassAnnotation(Class clazz, Class<? extends Annotation> test)
     {
     	try
     	{
-      		Validate.isTrue(test.isAnnotation());
     		Annotation[] annotations = clazz.getDeclaredAnnotations();
     		for(Annotation an : annotations)
     		{
@@ -147,7 +147,7 @@ public class ReflectionHandler {
     	return false;
     }
     
-    public static Enum getEnum(Class clazz, String name)
+    public static Enum getEnum(Class<? extends Enum> clazz, String name)
     {
     	try
     	{
@@ -158,6 +158,29 @@ public class ReflectionHandler {
     		t.printStackTrace();
     	}
     	return null;
+    }
+    
+    public static boolean containsEnum(Class<? extends Enum> clazz, String name)
+    {
+    	return getEnum(clazz, name) != null;
+    }
+    
+    public static <T extends Enum> T addEnum(Class<T> enumClass, String enumName, Object... params)
+    {
+    	try
+    	{
+    		Validate.isNull(containsEnum(enumClass, enumName));//make sure you are not adding a duplicate local variable
+    	}
+    	catch(Throwable t)
+    	{
+    		t.printStackTrace();
+    	}
+    	return null;
+    }
+    
+    public static void removeEnum(Class clazz, String enumName)
+    {
+    	
     }
     
     public static Object get(Field field)
