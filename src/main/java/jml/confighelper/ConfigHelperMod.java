@@ -53,6 +53,7 @@ public class ConfigHelperMod
     	Validate.nonNull(e);
     	Validate.isTrue(e == Registry.DataType.BIOME);
     	Validate.isTrue(inft);
+    	ReflectionHandler.invoke(null, new Object());
 	}
 
 	/**

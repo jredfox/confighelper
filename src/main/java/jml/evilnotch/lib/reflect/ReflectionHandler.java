@@ -1,6 +1,7 @@
 package jml.evilnotch.lib.reflect;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -70,6 +71,21 @@ public class ReflectionHandler {
             t.printStackTrace();
         }
         return null;
+    }
+    
+    public static Constructor getConstructor(Class clazz, Class... params)
+    {
+    	try
+    	{
+    		Constructor ctr =  clazz.getDeclaredConstructor(params);
+    		ctr.setAccessible(true);
+    		return ctr;
+    	}
+    	catch(Throwable t)
+    	{
+    		t.printStackTrace();
+    	}
+		return null;
     }
     
     public static Class getClass(String className)
@@ -169,7 +185,7 @@ public class ReflectionHandler {
     {
     	try
     	{
-    		Validate.isNull(containsEnum(enumClass, enumName));//make sure you are not adding a duplicate local variable
+    		Validate.isNull(containsEnum(enumClass, enumName));//make sure you are not adding a duplicate enum
     	}
     	catch(Throwable t)
     	{
@@ -236,7 +252,7 @@ public class ReflectionHandler {
     	return null;
     }
 
-    //Starting here downwards is to grab primitive values from the fields
+    //fields
 	public static Boolean getBoolean(Field field, Object instance) 
 	{
 		return (Boolean) get(field, instance);
@@ -262,11 +278,17 @@ public class ReflectionHandler {
 		return (Long) get(field, instance);
 	}
 	
+	public static Float getFloat(Field field, Object instance)
+	{
+		return (Float) get(field, instance);
+	}
+	
 	public static Double getDouble(Field field, Object instance)
 	{
 		return (Double) get(field, instance);
 	}
 	
+	//static fields
 	public static Boolean getBoolean(Field field) 
 	{
 		return (Boolean) get(field);
@@ -292,9 +314,13 @@ public class ReflectionHandler {
 		return (Long) get(field);
 	}
 	
+	public static Float getFloat(Field field)
+	{
+		return (Float) get(field);
+	}
+	
 	public static Double getDouble(Field field)
 	{
 		return (Double) get(field);
 	}
-
 }
