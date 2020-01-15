@@ -234,7 +234,7 @@ public class ReflectionHandler {
 		} 
     }
     
-    public static Object invoke(Method method, Object... params)
+    public static Object invokeStatic(Method method, Object... params)
     {
     	return invoke(method, null, params);
     }
@@ -323,4 +323,76 @@ public class ReflectionHandler {
 	{
 		return (Double) get(field);
 	}
+	
+	//method
+    public static Boolean invokeBoolean(Method method, Object instance, Object... params)
+    {
+    	return (Boolean) invoke(method, instance, params);
+    }
+    
+    public static Byte invokeByte(Method method, Object instance, Object... params)
+    {
+    	return (Byte) invoke(method, instance, params);
+    }
+    
+    public static Short invokeShort(Method method, Object instance, Object... params)
+    {
+    	return (Short) invoke(method, instance, params);
+    }
+    
+    public static Integer invokeInt(Method method, Object instance, Object... params)
+    {
+    	return (Integer) invoke(method, instance, params);
+    }
+    
+    public static Long invokeLong(Method method, Object instance, Object... params)
+    {
+    	return (Long) invoke(method, instance, params);
+    }
+    
+    public static Float invokeFloat(Method method, Object instance, Object... params)
+    {
+    	return (Float) invoke(method, instance, params);
+    }
+    
+    public static Double invokeDouble(Method method, Object instance, Object... params)
+    {
+    	return (Double) invoke(method, instance, params);
+    }
+    
+    //method static
+    public static Boolean invokeStaticBoolean(Method method, Object... params)
+    {
+    	return (Boolean) invokeStatic(method, params);
+    }
+    
+    public static Byte invokeStaticByte(Method method, Object... params)
+    {
+    	return (Byte) invokeStatic(method, params);
+    }
+    
+    public static Short invokeStaticShort(Method method, Object... params)
+    {
+    	return (Short) invokeStatic(method, params);
+    }
+    
+    public static Integer invokeStaticInt(Method method, Object... params)
+    {
+    	return (Integer) invokeStatic(method, params);
+    }
+    
+    public static Long invokeStaticLong(Method method, Object... params)
+    {
+    	return (Long) invokeStatic(method, params);
+    }
+    
+    public static Float invokeStaticFloat(Method method, Object... params)
+    {
+    	return (Float) invokeStatic(method, params);
+    }
+    
+    public static Double invokeStaticDouble(Method method, Object... params)
+    {
+    	return (Double) invokeStatic(method, params);
+    }
 }
