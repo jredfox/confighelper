@@ -152,7 +152,7 @@ public class EnumHacks {
     	{
 			Class<? extends Enum> clazz = (Class<? extends Enum>) enums[0].getClass();
     		sanityEnumCheck(enums);
-    		Field fieldValues = getField(clazz);
+    		Field fieldValues = getEnumHolder(clazz);
     		
     		//copy new enums to the field
     		Enum[] oldValues = (Enum[]) fieldValues.get(null);
@@ -172,7 +172,7 @@ public class EnumHacks {
     	}
     }
 	
-	private static Field getField(Class<? extends Enum> clazz)
+	private static Field getEnumHolder(Class<? extends Enum> clazz)
 	{
 		Field fieldValues = ReflectionHandler.findField(clazz, "$VALUES", "ENUM$VALUES");
 		if(fieldValues == null)
@@ -247,7 +247,7 @@ public class EnumHacks {
 		{
 			Class<? extends Enum> clazz = toRemove[0].getClass();
 			sanityCheckRemove(toRemove);
-			Field fieldValues = getField(clazz);
+			Field fieldValues = getEnumHolder(clazz);
 			Enum[] oldValues = (Enum[]) fieldValues.get(null);
 			//remove all the ones I need to remove
 			for(Enum eh : toRemove)

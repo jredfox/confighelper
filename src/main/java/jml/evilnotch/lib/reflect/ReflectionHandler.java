@@ -222,7 +222,7 @@ public class ReflectionHandler {
     	return EnumHacks.getEnum(clazz, name);
     }
     
-    public static Object get(Field field)
+    public static Object getStatic(Field field)
     {
     	return get(field, null);
     }
@@ -240,7 +240,7 @@ public class ReflectionHandler {
     	return null;
     }
     
-    public static void set(Field field, Object toset)
+    public static void setStatic(Field field, Object toset)
     {
     	set(field, null, toset);
     }
@@ -312,39 +312,39 @@ public class ReflectionHandler {
 	}
 	
 	//static fields
-	public static Boolean getBoolean(Field field) 
+	public static Boolean getStaticBoolean(Field field) 
 	{
-		return (Boolean) get(field);
+		return (Boolean) getStatic(field);
 	}
 	
-	public static Byte getByte(Field field)
+	public static Byte getStaticByte(Field field)
 	{
-		return (Byte) get(field);
+		return (Byte) getStatic(field);
 	}
 	
-	public static Short getShort(Field field)
+	public static Short getStaticShort(Field field)
 	{
-		return (Short) get(field);
+		return (Short) getStatic(field);
 	}
 	
-	public static Integer getInt(Field field)
+	public static Integer getStaticInt(Field field)
 	{
-		return (Integer) get(field);
+		return (Integer) getStatic(field);
 	}
 	
-	public static Long getLong(Field field)
+	public static Long getStaticLong(Field field)
 	{
-		return (Long) get(field);
+		return (Long) getStatic(field);
 	}
 	
-	public static Float getFloat(Field field)
+	public static Float getStaticFloat(Field field)
 	{
-		return (Float) get(field);
+		return (Float) getStatic(field);
 	}
 	
-	public static Double getDouble(Field field)
+	public static Double getStaticDouble(Field field)
 	{
-		return (Double) get(field);
+		return (Double) getStatic(field);
 	}
 	
 	//method
