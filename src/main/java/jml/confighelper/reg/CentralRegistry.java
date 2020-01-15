@@ -150,9 +150,11 @@ public class CentralRegistry<T extends IRegisterable> implements Iterable{
 	protected void check(ResourceLocation loc) 
 	{
 		if(loc == null)
-			Registries.makeCrashReport("registration", "null registry name(resource location) for object:" + loc);
+			Registries.makeCrashReport("registration", "registry:" + this.dataType + " null registry name(resource location) for object:" + loc);
 		else if(this.frozen)
-			Registries.makeCrashReport("registration", "registry:" + this.dataType + " is frozen used designated loading times! tried to register:" + loc);
+			Registries.makeCrashReport("registration", "registry:" + this.dataType + " is frozen. Use designated loading times! tried to register:" + loc);
+		else if(!Registries.isModLoaded(loc.getResourceDomain()))
+			Registries.makeCrashReport("registration", "registry:" + this.dataType + " registry domain is not loaded:" + loc.getResourceDomain() + " registry name:" + loc);
 	}
 	
 	private void checkId(int index) 

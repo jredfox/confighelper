@@ -1,8 +1,15 @@
 package jml.evilnotch.lib.reflect;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+
+import org.apache.commons.lang3.ClassUtils;
+
+import jml.evilnotch.lib.JavaUtil;
+import jml.evilnotch.lib.Validate;
+import net.minecraftforge.common.util.EnumHelper;
 
 public class ReflectionHandler {
 	
@@ -62,6 +69,96 @@ public class ReflectionHandler {
             t.printStackTrace();
         }
         return null;
+    }
+    
+    public static Class getClass(String className)
+    {
+    	try
+    	{
+    		return Class.forName(className);
+    	}
+    	catch(Throwable t)
+    	{
+    		t.printStackTrace();
+    	}
+    	return null;
+    }
+    
+    
+    public static Class getClass(String name, boolean clinit, ClassLoader loader)
+    {
+    	try
+    	{
+    		return Class.forName(name, clinit, loader);
+    	}
+    	catch(Throwable t)
+    	{
+    		t.printStackTrace();
+    	}
+    	return null;
+    } 
+    
+    public static ClassLoader getClassLoader(Class clazz)
+    {
+    	return clazz.getClassLoader();
+    }
+    
+    public static Annotation getClassAnnotation(Class clazz, Class test)
+    {
+    	try
+    	{
+      		Validate.isTrue(test.isAnnotation());
+    		Annotation[] annotations = clazz.getDeclaredAnnotations();
+    		for(Annotation an : annotations)
+    		{
+    			if(an.annotationType().equals(test))
+    				return an;
+    		}
+    	}
+    	catch(Throwable t)
+    	{
+    		t.printStackTrace();
+    	}
+    	return null;
+    }
+    
+    public static Class getAnotationClass(Annotation an)
+    {
+    	return an.annotationType();
+    }
+    
+    public static boolean containsInterface(Class clazz, Class intf)
+    {
+    	try
+    	{
+    		Validate.isTrue(intf.isInterface());
+    		if(clazz.isInterface())
+    			return JavaUtil.isClassExtending(intf, clazz);
+    		for(Class c : ClassUtils.getAllInterfaces(clazz))
+    		{
+    			Validate.isTrue(c.isInterface());
+    			if(JavaUtil.isClassExtending(intf, c))
+    				return true;
+    		}
+    	}
+    	catch(Throwable t)
+    	{
+    		t.printStackTrace();
+    	}
+    	return false;
+    }
+    
+    public static Enum getEnum(Class clazz, String name)
+    {
+    	try
+    	{
+    		return Enum.valueOf(clazz, name);
+    	}
+    	catch(Throwable t)
+    	{
+    		t.printStackTrace();
+    	}
+    	return null;
     }
     
     public static Object get(Field field)

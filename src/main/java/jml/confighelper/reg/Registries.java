@@ -359,7 +359,7 @@ public class Registries {
 	public static void preinit()
 	{
 		unfreeze();
-		regVanilla();
+		registerVanillaMc();
 	}
 	
 	public static void loadComplete() 
@@ -370,7 +370,7 @@ public class Registries {
 		Registries.enchantments.securityCheck();//security check static[] capeable registries again to ensure registry saftey in case something screwed it up in post init
 	}
 
-	private static void regVanilla() 
+	private static void registerVanillaMc() 
 	{
 		datawatchertypes.register(0, new WatcherByte());
 		datawatchertypes.register(1, new WatcherShort());
@@ -389,6 +389,13 @@ public class Registries {
 	public static void freeze()
 	{
 		datawatchertypes.freeze();
+	}
+
+	public static boolean isModLoaded(String modid) 
+	{
+		if(modid.equals("minecraft"))
+			return true;
+		return Loader.isModLoaded(modid);
 	}
 
 }
