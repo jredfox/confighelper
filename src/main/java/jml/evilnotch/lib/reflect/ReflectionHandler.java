@@ -111,7 +111,7 @@ public class ReflectionHandler {
     		Annotation[] annotations = clazz.getDeclaredAnnotations();
     		for(Annotation an : annotations)
     		{
-    			if(an.annotationType().equals(test))
+    			if(getAnnotationClass(an).equals(test))
     				return an;
     		}
     	}
@@ -122,7 +122,7 @@ public class ReflectionHandler {
     	return null;
     }
     
-    public static Class getAnotationClass(Annotation an)
+    public static Class getAnnotationClass(Annotation an)
     {
     	return an.annotationType();
     }
@@ -136,7 +136,6 @@ public class ReflectionHandler {
     			return JavaUtil.isClassExtending(intf, clazz);
     		for(Class c : ClassUtils.getAllInterfaces(clazz))
     		{
-    			Validate.isTrue(c.isInterface());
     			if(JavaUtil.isClassExtending(intf, c))
     				return true;
     		}

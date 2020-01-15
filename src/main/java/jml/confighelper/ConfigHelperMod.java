@@ -17,6 +17,7 @@ import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.DataWatcher;
 import net.minecraft.entity.monster.EntityCreeper;
 import net.minecraft.entity.monster.IMob;
+import net.minecraft.entity.passive.IAnimals;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.MinecraftForge;
@@ -44,12 +45,14 @@ public class ConfigHelperMod
     	Annotation an = ReflectionHandler.getClassAnnotation(ConfigHelperMod.class, Mod.class);
     	boolean containsIntf = ReflectionHandler.containsInterface(EntityCreeper.class, IMob.class);
     	Enum e = ReflectionHandler.getEnum(Registry.DataType.class, "BIOME");
+    	boolean inft = ReflectionHandler.containsInterface(IMob.class, IAnimals.class);
     	Validate.nonNull(c);
     	Validate.nonNull(c2);
     	Validate.nonNull(an);
     	Validate.isTrue(containsIntf);
     	Validate.nonNull(e);
     	Validate.isTrue(e == Registry.DataType.BIOME);
+    	Validate.isTrue(inft);
 	}
 
 	/**
