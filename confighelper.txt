@@ -1,16 +1,61 @@
-TODO:
-enchantments not writing suggestions and throwing a null point exception
-suggested ids are displaying minecraft for modded biome gen mutated
-if multiple mods exist in one jar and one is example mod it will display example mod
-logic for net.minecraft. is flawed fix it
-re-format suggested file to be more friendly
+Confighelper TODO:
+add/remove enum support for ReflectionHandler
+finish forge EntityRegistry
+potion security if value of array extended past my limit do something
+cleanup IdExtensions transformer
+optimize RegistryWriter to use less ms
+extend potion ids > REDO
+extend enchantment ids > REDO
+extend entity ids
+extend item ids
+extend block ids
+extend biome ids
 
-After beta-1.1 test:
-clean up RegistryWriter more
-cachedClasses > dummy map
-resourceCache > dummy map
-packageManifests > dummy map
-Replace LaunchClassLoader.class by using the Launch.class to not use getClassBytes() twice
-implement id chunks(example:40-118) for writing free ids
-since id chunks redo integer max and min value searches for dimensions/providers
-convert to asm
+Done:
+cleaned up code
+removed auto config parsing
+added vanilla static[] array security if a mod attempts to increase vanilla but is less then mine it will patch it
+made Registry objects Iterable meaning they can be used in the for each loop
+seperated id extension and confighelper into two different modules
+evil notch lib cleaned up reflection
+evil notch lib fixed primitive modifyable objects and simplified them
+evil notch lib Modular ASM transformer system 10x easiar then past ways to get asm setup working and faster
+evil notch lib cleaned up ASMHelper class
+evil notch lib added method to replace a class in asm helper with my new system
+evil notch lib optimized class writer to ClassReader.SKIP_CODE | ClassReader.SKIP_DEBUG | ClassReader.SKIP_FRAMES which saves hundreds of ms on just config helper alone actual seconds if more transformers were used
+evil notch lib fixed file dumping system to use launch.minecraft home when avalible
+evil notch lib only dump asm if deob
+evil notch lib massive update to ReflectionHandler view source for all the new methods added
+fixed RegistryWriter doesn't tell you if the dumped entry is replaced
+fixed forge EntityRegistry to automate ids and optimize it
+fixed forge EntityRegistry auto ids being unoptimized
+central registry enforced loaded resource domain to be a loaded modid
+
+JML:
+ASMLibrary(ITransformer, MCWriter, ASMHelper)
+Lan UPNP
+Config Helper
+Id extender
+Skin Fixer
+UUID fixer
+Core Bug Fixes
+Menu Lib
+IItemRenderer
+Mob Spawnage(JML ? only core module no config : full)
+Dungeon tweaks(JML ? only core module no config : full)
+options.txt > seperated into keybinds and options
+rplib
+if save and quit world entities don't take proper fall damage
+
+Modpack essentials:
+memory cleaner, memory optimizations(optifine,launch class loader, clean up memory)
+remove / add recipes<crafting table, furnace, etc...>
+remove / add mob drops
+add ore dictionaries
+add oregen
+edit block properties
+blacklist Mobs per dimension biome, global
+blacklist of server sided items
+ForgeNBTEdit
+output recipe conflicts
+Add Items with no functionality used for resolving recipe conflicts

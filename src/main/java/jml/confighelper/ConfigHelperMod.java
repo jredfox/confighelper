@@ -46,6 +46,7 @@ public class ConfigHelperMod
     	boolean containsIntf = ReflectionHandler.containsInterface(EntityCreeper.class, IMob.class);
     	Enum e = ReflectionHandler.getEnum(Registry.DataType.class, "BIOME");
     	boolean inft = ReflectionHandler.containsInterface(IMob.class, IAnimals.class);
+    	boolean containsEnum = ReflectionHandler.containsEnum(Registry.DataType.class, "BIOME");
     	Validate.nonNull(c);
     	Validate.nonNull(c2);
     	Validate.nonNull(an);
@@ -53,7 +54,7 @@ public class ConfigHelperMod
     	Validate.nonNull(e);
     	Validate.isTrue(e == Registry.DataType.BIOME);
     	Validate.isTrue(inft);
-    	ReflectionHandler.invoke(null, new Object());
+    	Validate.isTrue(containsEnum);
 	}
 
 	/**
