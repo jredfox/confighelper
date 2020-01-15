@@ -3,16 +3,17 @@ package jml.evilnotch.lib.reflect;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Arrays;
 
 import org.apache.commons.lang3.ClassUtils;
 
 import jml.evilnotch.lib.JavaUtil;
 import jml.evilnotch.lib.Validate;
-import jml.evilnotch.lib.asm.ITransformer;
-import net.minecraftforge.common.util.EnumHelper;
 
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class ReflectionHandler {
 	
 	public static Field modifiersField;
@@ -41,10 +42,7 @@ public class ReflectionHandler {
     {
         try
         {
-            Field field = clazz.getDeclaredField(name);
-            field.setAccessible(true);
-            modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
-            return field;
+        	return grabField(clazz, name);
         }
         catch(Throwable t)
         {
@@ -53,7 +51,34 @@ public class ReflectionHandler {
         return null;
     }
     
-    public static Method getMethod(Class clazz, MCPSidedString mcp)
+    /**
+     * use if you have multiple possible fields doesn't output errors
+     */
+    public static Field findField(Class clazz, String... names)
+    {
+    	for(String name : names)
+    	{
+    		try
+    		{
+    			return grabField(clazz, name);
+    		}
+    		catch(Throwable t)
+    		{
+    			
+    		}
+    	}
+    	return null;
+    }
+    
+    private static Field grabField(Class clazz, String name) throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException 
+    {
+    	Field field = clazz.getDeclaredField(name);
+		field.setAccessible(true);
+		modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
+		return field;
+	}
+
+	public static Method getMethod(Class clazz, MCPSidedString mcp)
     {
     	return getMethod(clazz, mcp.toString());
     }
@@ -163,40 +188,38 @@ public class ReflectionHandler {
     	return false;
     }
     
-    public static Enum getEnum(Class<? extends Enum> clazz, String name)
+    /**
+     * like forges but, can be applied to any enum
+     */
+    public static Enum addEnum(Class<? extends Enum> clazz, String name, Object... params)
     {
-    	try
-    	{
-    		return Enum.valueOf(clazz, name);
-    	}
-    	catch(Throwable t)
-    	{
-    		t.printStackTrace();
-    	}
-    	return null;
+    	Enum e = EnumHacks.createEnum(clazz, name, params);
+    	EnumHacks.addEnum(e);
+    	return e;
+    }
+    
+    /**
+     * create an enum without instantiating it into class enum arrays
+     */
+    public static Enum newEnum(Class<? extends Enum> clazz, String name, Object... params)
+    {
+    	Enum e = EnumHacks.createEnum(clazz, name, params);
+    	return e;
+    }
+    
+    public static void addEnum(Enum... enums)
+    {
+    	EnumHacks.addEnum(enums);
     }
     
     public static boolean containsEnum(Class<? extends Enum> clazz, String name)
     {
-    	return getEnum(clazz, name) != null;
+    	return EnumHacks.containsEnum(clazz, name);
     }
     
-    public static <T extends Enum> T addEnum(Class<T> enumClass, String enumName, Object... params)
+    public static Enum getEnum(Class<? extends Enum> clazz, String name)
     {
-    	try
-    	{
-    		Validate.isNull(containsEnum(enumClass, enumName));//make sure you are not adding a duplicate enum
-    	}
-    	catch(Throwable t)
-    	{
-    		t.printStackTrace();
-    	}
-    	return null;
-    }
-    
-    public static void removeEnum(Class clazz, String enumName)
-    {
-    	
+    	return EnumHacks.getEnum(clazz, name);
     }
     
     public static Object get(Field field)
@@ -394,5 +417,17 @@ public class ReflectionHandler {
     public static Double invokeStaticDouble(Method method, Object... params)
     {
     	return (Double) invokeStatic(method, params);
+    }
+    
+	/**
+     * if your java security for some reason is high call this method each time before using a field in reflection
+     * REPORT IT AS A BUG TO ME IF YOU EVER NEED TO USE THIS!
+     */
+    public static void makeAccessible(Field field) throws Exception 
+    {
+        field.setAccessible(true);
+        Field modifiersField = Field.class.getDeclaredField("modifiers");
+        modifiersField.setAccessible(true);
+        modifiersField.setInt(field, field.getModifiers() & ~ Modifier.FINAL);
     }
 }

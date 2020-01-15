@@ -9,6 +9,7 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import jml.confighelper.event.WatcherEvent;
 import jml.confighelper.reg.Registries;
 import jml.confighelper.reg.Registry;
+import jml.confighelper.reg.Registry.DataType;
 import jml.evilnotch.lib.JavaUtil;
 import jml.evilnotch.lib.Validate;
 import jml.evilnotch.lib.asm.PatchedClassLoader;
@@ -55,6 +56,11 @@ public class ConfigHelperMod
     	Validate.isTrue(e == Registry.DataType.BIOME);
     	Validate.isTrue(inft);
     	Validate.isTrue(containsEnum);
+    	
+    	//add enum test
+    	DataType type = (DataType) ReflectionHandler.addEnum(DataType.class, "GUI");
+    	Validate.nonNull(type);
+    	Validate.isTrue(ReflectionHandler.containsEnum(DataType.class, "GUI"));
 	}
 
 	/**
