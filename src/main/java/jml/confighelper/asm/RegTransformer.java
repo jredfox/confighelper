@@ -232,7 +232,7 @@ public class RegTransformer implements ITransformer{
 		list2.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "java/lang/Integer", "intValue", "()I", false));
 		list2.add(new VarInsnNode(Opcodes.ISTORE, 2));
 		MethodInsnNode check = new MethodInsnNode(Opcodes.INVOKESTATIC, "net/minecraft/entity/EntityList", new MCPSidedString("addMapping", "func_75618_a").toString(), "(Ljava/lang/Class;Ljava/lang/String;I)V", false);
-		egg.instructions.insert(ASMHelper.findMethodInsn(egg, check), list2);
+		egg.instructions.insert(ASMHelper.getFirstMethodInsn(egg, check), list2);
 	}
 	
 	private void patchDatawatcher(ClassNode classNode) 

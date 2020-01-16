@@ -87,7 +87,7 @@ public class IdsTransformer implements ITransformer{
 		
 		//delete line Integer integer = (Integer) dataTypes.get(obj.getClass());
 		MethodNode addObject = ASMHelper.getMethodNode(node, new MCPSidedString("addObject", "func_75682_a").toString(), "(ILjava/lang/Object;)V");
-		AbstractInsnNode start = ASMHelper.findFieldInsn(addObject, new FieldInsnNode(Opcodes.GETSTATIC, "net/minecraft/entity/DataWatcher", new MCPSidedString("dataTypes", "field_75697_a").toString(), "Ljava/util/HashMap;"));
+		AbstractInsnNode start = ASMHelper.getFirstFieldInsn(addObject, new FieldInsnNode(Opcodes.GETSTATIC, "net/minecraft/entity/DataWatcher", new MCPSidedString("dataTypes", "field_75697_a").toString(), "Ljava/util/HashMap;"));
 //		if(start != null)
 //		{
 			AbstractInsnNode end = ASMHelper.nextInsn(start, Opcodes.ASTORE);
@@ -175,33 +175,9 @@ public class IdsTransformer implements ITransformer{
 	{
 		//extend potion id limit to signed byte(0-127)
 		MethodNode clinit = ASMHelper.getClassInitNode(node);
-		for(AbstractInsnNode ab : clinit.instructions.toArray())
-		{
-			if(Opcodes.BIPUSH == ab.getOpcode())
-			{
-				IntInsnNode i = (IntInsnNode)ab;
-				FieldInsnNode f = new FieldInsnNode(Opcodes.PUTSTATIC, "net/minecraft/potion/Potion", new MCPSidedString("potionTypes", "field_76425_a").toString(), "[Lnet/minecraft/potion/Potion;");
-				if(ASMHelper.equals(f, ASMHelper.nextFieldInsnNode(i)) )
-				{
-					int value = RegistryIds.limitPotions + 1;
-					if(i.operand < value)
-					{
-						if(value < Short.MAX_VALUE)
-						{
-							i.setOpcode(ASMHelper.getPush(value));
-							i.operand = value;//needs the +1 because arrays use size not indexes
-							break;
-						}
-						else
-						{
-							clinit.instructions.insert(i, new LdcInsnNode(value));
-							clinit.instructions.remove(i);
-							break;
-						}
-					}
-				}
-			}
-		}
+		AbstractInsnNode spot = ASMHelper.getFirstFieldInsn(clinit, new FieldInsnNode(Opcodes.PUTSTATIC, "net/minecraft/potion/Potion", "potionTypes", "[Lnet/minecraft/potion/Potion;") ).getPrevious().getPrevious();
+		clinit.instructions.insert(spot, ASMHelper.getPush(RegistryIds.limitPotions + 1));
+		clinit.instructions.remove(spot);
 	}
 	
 	/**

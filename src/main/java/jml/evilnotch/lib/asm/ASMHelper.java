@@ -22,6 +22,7 @@ import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.IntInsnNode;
 import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.LabelNode;
+import org.objectweb.asm.tree.LdcInsnNode;
 import org.objectweb.asm.tree.LineNumberNode;
 import org.objectweb.asm.tree.LocalVariableNode;
 import org.objectweb.asm.tree.MethodInsnNode;
@@ -554,7 +555,7 @@ public class ASMHelper
 	    return ('L' + c.getName() + ';').replace('.', '/');
 	}
 	
-	public static AbstractInsnNode findFieldInsn(MethodNode node, FieldInsnNode field) 
+	public static AbstractInsnNode getFirstFieldInsn(MethodNode node, FieldInsnNode field) 
 	{
 		for(AbstractInsnNode ab : node.instructions.toArray())
 		{
@@ -566,7 +567,7 @@ public class ASMHelper
 		return null;
 	}
 	
-	public static AbstractInsnNode findMethodInsn(MethodNode node, MethodInsnNode field) 
+	public static AbstractInsnNode getFirstMethodInsn(MethodNode node, MethodInsnNode field) 
 	{
 		for(AbstractInsnNode ab : node.instructions.toArray())
 		{
@@ -615,6 +616,18 @@ public class ASMHelper
 			k = k.getNext();
 			if(k instanceof FieldInsnNode)
 				return (FieldInsnNode) k;
+		}
+		return null;
+	}
+	
+	public static MethodInsnNode nextMethodInsnNode(AbstractInsnNode starting) 
+	{
+		AbstractInsnNode k = starting;
+		while(k != null)
+		{
+			k = k.getNext();
+			if(k instanceof MethodInsnNode)
+				return (MethodInsnNode) k;
 		}
 		return null;
 	}
@@ -724,19 +737,18 @@ public class ASMHelper
 
 	public static boolean isReturnOpcode(int opcode)
 	{
-		int value = 100000;
 		return opcode == Opcodes.RETURN || opcode == Opcodes.ARETURN || opcode == Opcodes.DRETURN || opcode == Opcodes.FRETURN || opcode == Opcodes.IRETURN || opcode == Opcodes.LRETURN;
 	}
 
 	/**
-	 * returns -1 if not possible
+	 * grab a push code for a num value
 	 */
-	public static int getPush(int value) throws IllegalArgumentException
+	public static AbstractInsnNode getPush(int value) throws IllegalArgumentException
 	{
 		if(value <= Byte.MAX_VALUE)
-			return Opcodes.BIPUSH;
+			return new IntInsnNode(Opcodes.BIPUSH, value);
 		if(value <= Short.MAX_VALUE)
-			return Opcodes.SIPUSH;
-		return -1;
+			return new IntInsnNode(Opcodes.SIPUSH, value);
+		return new LdcInsnNode(value);
 	}
 }
