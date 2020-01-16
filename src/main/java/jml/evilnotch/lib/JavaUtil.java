@@ -54,6 +54,7 @@ import jml.evilnotch.lib.primitive.FloatObj;
 import jml.evilnotch.lib.primitive.IntObj;
 import jml.evilnotch.lib.primitive.LongObj;
 import jml.evilnotch.lib.primitive.ShortObj;
+import jml.evilnotch.lib.reflect.ReflectionHandler;
 import net.minecraft.util.ResourceLocation;
 
 public class JavaUtil {
@@ -1153,7 +1154,8 @@ public class JavaUtil {
 			locs[i] = names.get(i);
 	}
 
-	public static JSONObject getJsonFromString(String string) {
+	public static JSONObject getJsonFromString(String string) 
+	{
 		JSONParser p = new JSONParser();
 		try {
 			return (JSONObject) p.parse(string);
@@ -1162,9 +1164,10 @@ public class JavaUtil {
 			return null;
 		}
 	}
+	
 	public static boolean isClassExtending(Class<? extends Object> base, Class<? extends Object> toCompare) 
 	{
-		return base.isAssignableFrom(toCompare);
+		return ReflectionHandler.instanceOf(base, toCompare);
 	}
 	
 	public static List<String> getFileLines(String inputStream) 

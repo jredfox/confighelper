@@ -365,6 +365,11 @@ public class ReflectionHandler {
     	return clazz.getClassLoader();
     }
     
+    public static boolean instanceOf(Class base, Class compare)
+    {
+    	return base.isAssignableFrom(compare);
+    }
+    
     public static Annotation getClassAnnotation(Class clazz, Class<? extends Annotation> test)
     {
     	try
@@ -394,10 +399,10 @@ public class ReflectionHandler {
     	{
     		Validate.isTrue(intf.isInterface());
     		if(clazz.isInterface())
-    			return JavaUtil.isClassExtending(intf, clazz);
+    			return instanceOf(intf, clazz);
     		for(Class c : ClassUtils.getAllInterfaces(clazz))
     		{
-    			if(JavaUtil.isClassExtending(intf, c))
+    			if(instanceOf(intf, c))
     				return true;
     		}
     	}
