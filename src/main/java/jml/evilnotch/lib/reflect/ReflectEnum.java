@@ -26,6 +26,7 @@ public class ReflectEnum {
 	public static Method fieldAccessorSet;
 	public static Field enumConstants = ReflectionHandler.getField(Class.class, "enumConstants");
     public static Field enumConstantDirectory = ReflectionHandler.getField(Class.class, "enumConstantDirectory");
+	public static Field ordinal = ReflectionHandler.getField(Enum.class, "ordinal");
     
 	static
 	{
@@ -65,15 +66,18 @@ public class ReflectEnum {
     	return null;
     }
     
+	/**
+	 * get an enum based on it's ordinal(index)
+	 */
 	public static Enum getEnum(Class<? extends Enum> clazz, int ordinal)
     {
     	try
     	{
-    		for(Enum e : clazz.getEnumConstants())
-    		{
-    			if(e.ordinal() == ordinal)
-    				return e;
-    		}
+    		return clazz.getEnumConstants()[ordinal];
+    	}
+    	catch(ArrayIndexOutOfBoundsException e)
+    	{
+    		
     	}
     	catch(Throwable t)
     	{
@@ -172,6 +176,22 @@ public class ReflectEnum {
     	}
     }
 	
+	private static void sanityEnumCheck(Enum[] enums) 
+    {
+    	Class clazz = enums[0].getClass();
+    	Set<String> ids = new HashSet<String>();
+		for(Enum e : enums)
+		{
+			Validate.nonNull(e);
+			String name = e.name();
+			if(!e.getClass().equals(clazz))
+				throw new RuntimeException("enum class:" + clazz.getName() + " doesn't match the type of:" + e.getClass());
+			else if(ReflectEnum.containsEnum(clazz, name) || ids.contains(name))
+				throw new RuntimeException("Duplicate enum name variable!:" + e.name());
+			ids.add(e.name());
+		}
+	}
+	
 	private static Field getEnumHolder(Class<? extends Enum> clazz)
 	{
 		Field fieldValues = ReflectionHandler.findField(clazz, "$VALUES", "ENUM$VALUES");
@@ -207,27 +227,10 @@ public class ReflectEnum {
 		ReflectionHandler.set(enumConstantDirectory, clazz, null);
 	}
 
-	public static Field ordinal = ReflectionHandler.getField(Enum.class, "ordinal");
     public static void setOrdinal(Enum e, int index) 
     {
     	ReflectionHandler.set(ordinal, e, index);
     	Validate.isTrue(e.ordinal() == index);
-	}
-
-	private static void sanityEnumCheck(Enum[] enums) 
-    {
-    	Class clazz = enums[0].getClass();
-    	Set<String> ids = new HashSet<String>();
-		for(Enum e : enums)
-		{
-			Validate.nonNull(e);
-			String name = e.name();
-			if(!e.getClass().equals(clazz))
-				throw new RuntimeException("enum class:" + clazz.getName() + " doesn't match the type of:" + e.getClass());
-			else if(ReflectEnum.containsEnum(clazz, name) || ids.contains(name))
-				throw new RuntimeException("Duplicate enum name variable!:" + e.name());
-			ids.add(e.name());
-		}
 	}
 
 	private static Class[] getParams(Object[] params) 
@@ -239,7 +242,7 @@ public class ReflectEnum {
 	}
 
 	/**
-	 * removes an enum from in memory
+	 * removes an enum from in memory based on ordinal id
 	 */
 	public static <T extends Enum<? >> void removeEnum(Enum... toRemove)
     {
@@ -276,13 +279,13 @@ public class ReflectEnum {
 	{
 		for(Enum e : toRemove)
 		{
-			if(e.ordinal() == -1)
-				throw new RuntimeException("ordinal not set:" + e);
-			Enum check = ReflectEnum.getEnum(e.getClass(), e.ordinal());
+			if(e.ordinal() < 0)
+				throw new RuntimeException("ordinal not set:" + e + " the enum is probably not in memory call EnumReflect#addEnum(enum)");
+			Enum check = getEnum(e.getClass(), e.ordinal());
 			if(check == null)
-				throw new RuntimeException("enum already removed:" + e);
-			else if(check.ordinal() != e.ordinal())
-				throw new RuntimeException("ordinals do not match:" + e + " ordinal:" + e.ordinal() + ", memory:" + check + " ordinal:" + check.ordinal());
+				throw new IllegalArgumentException("enum already removed:" + e);
+			else if(check != e)
+				throw new RuntimeException("enum mismatch:" + e + " index:" + check);
 		}
 	}
 
