@@ -724,6 +724,19 @@ public class ASMHelper
 
 	public static boolean isReturnOpcode(int opcode)
 	{
+		int value = 100000;
 		return opcode == Opcodes.RETURN || opcode == Opcodes.ARETURN || opcode == Opcodes.DRETURN || opcode == Opcodes.FRETURN || opcode == Opcodes.IRETURN || opcode == Opcodes.LRETURN;
+	}
+
+	/**
+	 * returns -1 if not possible
+	 */
+	public static int getPush(int value) throws IllegalArgumentException
+	{
+		if(value <= Byte.MAX_VALUE)
+			return Opcodes.BIPUSH;
+		if(value <= Short.MAX_VALUE)
+			return Opcodes.SIPUSH;
+		return -1;
 	}
 }

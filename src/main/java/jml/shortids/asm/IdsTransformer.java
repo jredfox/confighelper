@@ -9,6 +9,7 @@ import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.IntInsnNode;
 import org.objectweb.asm.tree.JumpInsnNode;
+import org.objectweb.asm.tree.LdcInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TypeInsnNode;
@@ -182,12 +183,21 @@ public class IdsTransformer implements ITransformer{
 				FieldInsnNode f = new FieldInsnNode(Opcodes.PUTSTATIC, "net/minecraft/potion/Potion", new MCPSidedString("potionTypes", "field_76425_a").toString(), "[Lnet/minecraft/potion/Potion;");
 				if(ASMHelper.equals(f, ASMHelper.nextFieldInsnNode(i)) )
 				{
-					int value = 127 + 1;
+					int value = RegistryIds.limitPotions + 1;
 					if(i.operand < value)
 					{
-						i.setOpcode(Opcodes.SIPUSH);
-						i.operand = value;//needs the +1 because arrays use size not indexes
-						break;
+						if(value < Short.MAX_VALUE)
+						{
+							i.setOpcode(ASMHelper.getPush(value));
+							i.operand = value;//needs the +1 because arrays use size not indexes
+							break;
+						}
+						else
+						{
+							clinit.instructions.insert(i, new LdcInsnNode(value));
+							clinit.instructions.remove(i);
+							break;
+						}
 					}
 				}
 			}

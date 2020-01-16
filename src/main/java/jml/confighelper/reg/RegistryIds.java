@@ -29,7 +29,7 @@ public class RegistryIds {
 	public static final Set<Integer> datawatertypes = new HashSet(asList(new int[]{0,1,2,3,4,5,6}));
 	
 	public static int limitBiomes = 255;
-	public static int limitPotions = 127;
+	public static int limitPotions = Short.MAX_VALUE;//127;
 	public static int limitEnchantments = 255;
 	public static int limitEntities = 255;
 	public static int limitDatawatchers = Integer.MAX_VALUE;
