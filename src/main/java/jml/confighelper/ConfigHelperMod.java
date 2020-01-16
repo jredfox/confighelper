@@ -32,7 +32,6 @@ public class ConfigHelperMod
     @EventHandler
     public void preinit(FMLPreInitializationEvent event)
     {	
-    	testReflect();
 		Registries.preinit();
 		MinecraftForge.EVENT_BUS.register(new WatcherEvent());
     	Registries.registerBiome(BiomeGenBase.getBiomeGenArray()[161], 161, true);//fix vanilla
@@ -40,30 +39,6 @@ public class ConfigHelperMod
     	DimensionManager.init();
     	new DataWatcher(new EntityCreeper(null));
     }
-    
-    private static void testReflect()
-    {
-    	Class c = ReflectionHandler.getClass("jml.confighelper.ConfigHelperMod");
-    	Class c2 = ReflectionHandler.getClass("jml.evilnotch.lib.reflect.MCPSidedString", true, ReflectionHandler.getClassLoader(ConfigHelperMod.class));
-    	Annotation an = ReflectionHandler.getClassAnnotation(ConfigHelperMod.class, Mod.class);
-    	boolean containsIntf = ReflectionHandler.containsInterface(EntityCreeper.class, IMob.class);
-    	Enum e = ReflectionHandler.getEnum(Registry.DataType.class, "BIOME");
-    	boolean inft = ReflectionHandler.containsInterface(IMob.class, IAnimals.class);
-    	boolean containsEnum = ReflectionHandler.containsEnum(Registry.DataType.class, "BIOME");
-    	Validate.nonNull(c);
-    	Validate.nonNull(c2);
-    	Validate.nonNull(an);
-    	Validate.isTrue(containsIntf);
-    	Validate.nonNull(e);
-    	Validate.isTrue(e == Registry.DataType.BIOME);
-    	Validate.isTrue(inft);
-    	Validate.isTrue(containsEnum);
-    	
-    	//add enum test
-    	ToolMaterial type = (ToolMaterial) ReflectionHandler.addEnum(ToolMaterial.class, "CONFIGHELPERTEST", 0, 0, 0f, 0f, 0);
-    	Validate.nonNull(type);
-    	Validate.isTrue(ReflectionHandler.containsEnum(ToolMaterial.class, "CONFIGHELPERTEST"));
-	}
 
 	/**
      * once the game has completely initialized output suggested ids for all mods
