@@ -101,7 +101,16 @@ public class RegTransformer implements ITransformer{
 		ASMHelper.replaceMethod(classNode, input, "<init>", "()V");
 		ASMHelper.replaceMethod(classNode, input, "validateAndClaimId", "(I)I");
 		ASMHelper.replaceMethod(classNode, input, "findGlobalUniqueEntityId", "()I");
-		ASMHelper.replaceMethod(classNode, input, "registerGlobalEntityID", "(Ljava/lang/Class;Ljava/lang/String;III)V");
+		//no need to replace the entire method here
+		MethodNode reg = ASMHelper.getMethodNode(classNode, "registerGlobalEntityID", "(Ljava/lang/Class;Ljava/lang/String;III)V");
+		AbstractInsnNode spot = ASMHelper.getLastMethodInsn(reg, new MethodInsnNode(Opcodes.INVOKESPECIAL, "cpw/mods/fml/common/registry/EntityRegistry", "validateAndClaimId", "(I)I", false));
+		//don't force edit if the id is already assigned to itself
+		if(spot.getNext().getOpcode() == Opcodes.POP)
+		{
+			spot = spot.getNext();
+			reg.instructions.insert(spot, new VarInsnNode(Opcodes.ISTORE, 2));
+			reg.instructions.remove(spot);
+		}
 	}
 
 	/**
