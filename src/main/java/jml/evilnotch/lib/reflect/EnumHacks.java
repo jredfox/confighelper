@@ -96,9 +96,9 @@ public class EnumHacks {
     {
         Class<?>[] corrected = new Class[params.length + 2];
         corrected[0] = String.class;
-        corrected[1] = int.class;
+        corrected[1] = Integer.class;
         System.arraycopy(params, 0, corrected, 2, params.length);//copy the contents of params into corrected starting at index 2
-    	return ReflectionHandler.getConstructor(clazz, corrected);
+    	return ReflectionHandler.getWrappedConstructor(clazz, corrected);
     }
     
     /**

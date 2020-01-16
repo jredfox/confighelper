@@ -113,6 +113,77 @@ public class ReflectionHandler {
 		return null;
     }
     
+    /**
+     * convert all primitive classes I check into their wrapper classes
+     */
+    public static Constructor getWrappedConstructor(Class clazz, Class... params)
+    {
+    	try
+    	{
+    		Constructor[] ctrs = clazz.getDeclaredConstructors();
+    		for(Constructor ctr : ctrs)
+    		{
+    			Class[] compare = getWrappedClasses(ctr.getParameterTypes());
+    			if(equals(compare, params))
+    				return ctr;
+    		}
+    	}
+    	catch(Throwable t)
+    	{
+    		t.printStackTrace();
+    	}
+    	return null;
+    }
+    
+    private static boolean equals(Class[] compare, Class[] params)
+    {
+    	if(compare.length != params.length)
+			return false;
+		for(int i=0;i<params.length;i++)
+		{
+			Class c1 = params[i];
+			Class c2 = compare[i];
+			if(!c1.equals(c2))
+				return false;
+		}
+		return true;
+	}
+
+	private static Class[] getWrappedClasses(Class[] params) 
+    {
+		for(int i=0; i< params.length; i++)
+		{
+			params[i] = getWrappedClass(params[i]);
+		}
+		return params;
+	}
+
+	public static Class getWrappedClass(Class clazz) 
+    {
+    	if(clazz.isPrimitive())
+    	{
+    		if(boolean.class.equals(clazz))
+    			return Boolean.class;
+    		else if(char.class.equals(clazz))
+    			return Character.class;
+    		else if(byte.class.equals(clazz))
+    			return Byte.class;
+    		else if(short.class.equals(clazz))
+    			return Short.class;
+    		else if(int.class.equals(clazz))
+    			return Integer.class;
+    		else if(long.class.equals(clazz))
+    			return Long.class;
+    		else if(float.class.equals(clazz))
+    			return Float.class;
+    		else if(double.class.equals(clazz))
+    			return Double.class;
+    		else
+    			return null;//unkown data type
+    	}
+		return clazz;
+	}
+    
     public static Class getClass(String className)
     {
     	try

@@ -19,9 +19,11 @@ import net.minecraft.entity.DataWatcher;
 import net.minecraft.entity.monster.EntityCreeper;
 import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.passive.IAnimals;
+import net.minecraft.item.Item.ToolMaterial;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.EnumHelper;
 
 @Mod(modid = ModReference.MODID, version = ModReference.VERSION, name = ModReference.NAME)
 public class ConfigHelperMod 
@@ -58,9 +60,9 @@ public class ConfigHelperMod
     	Validate.isTrue(containsEnum);
     	
     	//add enum test
-    	DataType type = (DataType) ReflectionHandler.addEnum(DataType.class, "GUI");
+    	ToolMaterial type = (ToolMaterial) ReflectionHandler.addEnum(ToolMaterial.class, "CONFIGHELPERTEST", 0, 0, 0f, 0f, 0);
     	Validate.nonNull(type);
-    	Validate.isTrue(ReflectionHandler.containsEnum(DataType.class, "GUI"));
+    	Validate.isTrue(ReflectionHandler.containsEnum(ToolMaterial.class, "CONFIGHELPERTEST"));
 	}
 
 	/**
