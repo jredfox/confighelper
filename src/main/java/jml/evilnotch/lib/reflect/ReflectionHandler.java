@@ -51,6 +51,14 @@ public class ReflectionHandler {
         return null;
     }
     
+    private static Field grabField(Class clazz, String name) throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException 
+    {
+    	Field field = clazz.getDeclaredField(name);
+		field.setAccessible(true);
+		modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
+		return field;
+	}
+    
     /**
      * use if you have multiple possible fields doesn't output errors
      */
@@ -69,14 +77,6 @@ public class ReflectionHandler {
     	}
     	return null;
     }
-    
-    private static Field grabField(Class clazz, String name) throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException 
-    {
-    	Field field = clazz.getDeclaredField(name);
-		field.setAccessible(true);
-		modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
-		return field;
-	}
 
 	public static Method getMethod(Class clazz, MCPSidedString mcp)
     {
@@ -96,201 +96,6 @@ public class ReflectionHandler {
             t.printStackTrace();
         }
         return null;
-    }
-    
-    public static Constructor getConstructor(Class clazz, Class... params)
-    {
-    	try
-    	{
-    		Constructor ctr =  clazz.getDeclaredConstructor(params);
-    		ctr.setAccessible(true);
-    		return ctr;
-    	}
-    	catch(Throwable t)
-    	{
-    		t.printStackTrace();
-    	}
-		return null;
-    }
-    
-    /**
-     * convert all primitive classes I check into their wrapper classes
-     */
-    public static Constructor getWrappedConstructor(Class clazz, Class... params)
-    {
-    	try
-    	{
-    		Constructor[] ctrs = clazz.getDeclaredConstructors();
-    		for(Constructor ctr : ctrs)
-    		{
-    			Class[] compare = getWrappedClasses(ctr.getParameterTypes());
-    			if(equals(compare, params))
-    				return ctr;
-    		}
-    	}
-    	catch(Throwable t)
-    	{
-    		t.printStackTrace();
-    	}
-    	return null;
-    }
-    
-    private static boolean equals(Class[] compare, Class[] params)
-    {
-    	if(compare.length != params.length)
-			return false;
-		for(int i=0;i<params.length;i++)
-		{
-			Class c1 = params[i];
-			Class c2 = compare[i];
-			if(!c1.equals(c2))
-				return false;
-		}
-		return true;
-	}
-
-	private static Class[] getWrappedClasses(Class[] params) 
-    {
-		for(int i=0; i< params.length; i++)
-		{
-			params[i] = getWrappedClass(params[i]);
-		}
-		return params;
-	}
-
-	public static Class getWrappedClass(Class clazz) 
-    {
-    	if(clazz.isPrimitive())
-    	{
-    		if(boolean.class.equals(clazz))
-    			return Boolean.class;
-    		else if(char.class.equals(clazz))
-    			return Character.class;
-    		else if(byte.class.equals(clazz))
-    			return Byte.class;
-    		else if(short.class.equals(clazz))
-    			return Short.class;
-    		else if(int.class.equals(clazz))
-    			return Integer.class;
-    		else if(long.class.equals(clazz))
-    			return Long.class;
-    		else if(float.class.equals(clazz))
-    			return Float.class;
-    		else if(double.class.equals(clazz))
-    			return Double.class;
-    		else
-    			return null;//unkown data type
-    	}
-		return clazz;
-	}
-    
-    public static Class getClass(String className)
-    {
-    	try
-    	{
-    		return Class.forName(className);
-    	}
-    	catch(Throwable t)
-    	{
-    		t.printStackTrace();
-    	}
-    	return null;
-    }
-    
-    
-    public static Class getClass(String name, boolean clinit, ClassLoader loader)
-    {
-    	try
-    	{
-    		return Class.forName(name, clinit, loader);
-    	}
-    	catch(Throwable t)
-    	{
-    		t.printStackTrace();
-    	}
-    	return null;
-    } 
-    
-    public static ClassLoader getClassLoader(Class clazz)
-    {
-    	return clazz.getClassLoader();
-    }
-    
-    public static Annotation getClassAnnotation(Class clazz, Class<? extends Annotation> test)
-    {
-    	try
-    	{
-    		Annotation[] annotations = clazz.getDeclaredAnnotations();
-    		for(Annotation an : annotations)
-    		{
-    			if(getAnnotationClass(an).equals(test))
-    				return an;
-    		}
-    	}
-    	catch(Throwable t)
-    	{
-    		t.printStackTrace();
-    	}
-    	return null;
-    }
-    
-    public static Class getAnnotationClass(Annotation an)
-    {
-    	return an.annotationType();
-    }
-    
-    public static boolean containsInterface(Class clazz, Class intf)
-    {
-    	try
-    	{
-    		Validate.isTrue(intf.isInterface());
-    		if(clazz.isInterface())
-    			return JavaUtil.isClassExtending(intf, clazz);
-    		for(Class c : ClassUtils.getAllInterfaces(clazz))
-    		{
-    			if(JavaUtil.isClassExtending(intf, c))
-    				return true;
-    		}
-    	}
-    	catch(Throwable t)
-    	{
-    		t.printStackTrace();
-    	}
-    	return false;
-    }
-    
-    /**
-     * like forges but, can be applied to any enum
-     */
-    public static Enum addEnum(Class<? extends Enum> clazz, String name, Object... params)
-    {
-    	Enum e = EnumReflect.createEnum(clazz, name, params);
-    	EnumReflect.addEnum(e);
-    	return e;
-    }
-    
-    /**
-     * create an enum without instantiating it into class enum arrays
-     */
-    public static Enum newEnum(Class<? extends Enum> clazz, String name, Object... params)
-    {
-    	Enum e = EnumReflect.createEnum(clazz, name, params);
-    	return e;
-    }
-    
-    public static void addEnum(Enum... enums)
-    {
-    	EnumReflect.addEnum(enums);
-    }
-    
-    public static boolean containsEnum(Class<? extends Enum> clazz, String name)
-    {
-    	return EnumReflect.containsEnum(clazz, name);
-    }
-    
-    public static Enum getEnum(Class<? extends Enum> clazz, String name)
-    {
-    	return EnumReflect.getEnum(clazz, name);
     }
     
     public static Object getStatic(Field field)
@@ -488,6 +293,153 @@ public class ReflectionHandler {
     public static Double invokeStaticDouble(Method method, Object... params)
     {
     	return (Double) invokeStatic(method, params);
+    }
+    
+    public static Constructor getConstructor(Class clazz, Class... params)
+    {
+    	try
+    	{
+    		Constructor ctr =  clazz.getDeclaredConstructor(params);
+    		ctr.setAccessible(true);
+    		return ctr;
+    	}
+    	catch(Throwable t)
+    	{
+    		t.printStackTrace();
+    	}
+		return null;
+    }
+    
+    /**
+     * convert all primitive classes I check into their wrapper classes
+     */
+    public static Constructor getWrappedConstructor(Class clazz, Class... params)
+    {
+    	try
+    	{
+    		JavaUtil.getWrappedClasses(params);
+    		Constructor[] ctrs = clazz.getDeclaredConstructors();
+    		for(Constructor ctr : ctrs)
+    		{
+    			Class[] compare = JavaUtil.getWrappedClasses(ctr.getParameterTypes());
+    			if(JavaUtil.equals(compare, params))
+    				return ctr;
+    		}
+    	}
+    	catch(Throwable t)
+    	{
+    		t.printStackTrace();
+    	}
+    	return null;
+    }
+    
+    public static Class getClass(String className)
+    {
+    	try
+    	{
+    		return Class.forName(className);
+    	}
+    	catch(Throwable t)
+    	{
+    		t.printStackTrace();
+    	}
+    	return null;
+    }
+    
+    
+    public static Class getClass(String name, boolean clinit, ClassLoader loader)
+    {
+    	try
+    	{
+    		return Class.forName(name, clinit, loader);
+    	}
+    	catch(Throwable t)
+    	{
+    		t.printStackTrace();
+    	}
+    	return null;
+    } 
+    
+    public static ClassLoader getClassLoader(Class clazz)
+    {
+    	return clazz.getClassLoader();
+    }
+    
+    public static Annotation getClassAnnotation(Class clazz, Class<? extends Annotation> test)
+    {
+    	try
+    	{
+    		Annotation[] annotations = clazz.getDeclaredAnnotations();
+    		for(Annotation an : annotations)
+    		{
+    			if(getAnnotationClass(an).equals(test))
+    				return an;
+    		}
+    	}
+    	catch(Throwable t)
+    	{
+    		t.printStackTrace();
+    	}
+    	return null;
+    }
+    
+    public static Class getAnnotationClass(Annotation an)
+    {
+    	return an.annotationType();
+    }
+    
+    public static boolean containsInterface(Class clazz, Class intf)
+    {
+    	try
+    	{
+    		Validate.isTrue(intf.isInterface());
+    		if(clazz.isInterface())
+    			return JavaUtil.isClassExtending(intf, clazz);
+    		for(Class c : ClassUtils.getAllInterfaces(clazz))
+    		{
+    			if(JavaUtil.isClassExtending(intf, c))
+    				return true;
+    		}
+    	}
+    	catch(Throwable t)
+    	{
+    		t.printStackTrace();
+    	}
+    	return false;
+    }
+    
+    /**
+     * like forges but, can be applied to any enum
+     */
+    public static Enum addEnum(Class<? extends Enum> clazz, String name, Object... params)
+    {
+    	Enum e = EnumReflect.createEnum(clazz, name, params);
+    	EnumReflect.addEnum(e);
+    	return e;
+    }
+    
+    /**
+     * create an enum without instantiating it into class enum arrays
+     */
+    public static Enum newEnum(Class<? extends Enum> clazz, String name, Object... params)
+    {
+    	Enum e = EnumReflect.createEnum(clazz, name, params);
+    	return e;
+    }
+    
+    public static void addEnum(Enum... enums)
+    {
+    	EnumReflect.addEnum(enums);
+    }
+    
+    public static boolean containsEnum(Class<? extends Enum> clazz, String name)
+    {
+    	return EnumReflect.containsEnum(clazz, name);
+    }
+    
+    public static Enum getEnum(Class<? extends Enum> clazz, String name)
+    {
+    	return EnumReflect.getEnum(clazz, name);
     }
     
 	/**
