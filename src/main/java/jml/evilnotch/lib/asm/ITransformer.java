@@ -24,16 +24,20 @@ public interface ITransformer {
 	public void transform(String name, ClassNode node);
 	
 	/**
-	 * return true if your transformer needs to run every class
+	 * if your transformer is dynamic just always return true
 	 */
-	public default boolean isDynamic()
-	{
-		return false;
-	}
-	
 	public default boolean canTransform(String name)
 	{
-		return this.isDynamic() || this.getClasses().contains(name);
+		return this.getClasses().contains(name);
+	}
+	
+	/**
+	 * the order of preference you want to be sorted in don't worry srg names always occur ;)
+	 * return 0 for you don't care, return -1 for first and Integer.MAX_VALUE for loading last
+	 */
+	public default int sortingIndex()
+	{
+		return 0;
 	}
 
 }

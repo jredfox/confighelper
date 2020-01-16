@@ -1,6 +1,8 @@
 package jml.evilnotch.lib.asm;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.objectweb.asm.tree.ClassNode;
@@ -11,8 +13,7 @@ import net.minecraft.util.ResourceLocation;
 public class TransformsReg {
 	
 	public static List<ITransformer> transformers = new ArrayList(2);
-//	public static ITransformer jarMod;
-//	public static ITransformer jarModNotch;
+	private static boolean sorted;
 	
 	public static void registerTransformer(String transformerClass)
 	{
@@ -27,6 +28,21 @@ public class TransformsReg {
 		}
 	}
 	
+	protected static void sort() 
+	{
+		if(sorted)
+			return;
+		Collections.sort(transformers, new Comparator<ITransformer>()
+		{
+			@Override
+			public int compare(ITransformer o1, ITransformer o2) 
+			{
+				return ((Integer)o1.sortingIndex()).compareTo(o2.sortingIndex());
+			}
+		});
+		sorted = true;
+	}
+
 	public static String printIds()
 	{
 		StringBuilder b = new StringBuilder();
