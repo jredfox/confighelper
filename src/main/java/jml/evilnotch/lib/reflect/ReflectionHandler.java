@@ -264,8 +264,8 @@ public class ReflectionHandler {
      */
     public static Enum addEnum(Class<? extends Enum> clazz, String name, Object... params)
     {
-    	Enum e = EnumHacks.createEnum(clazz, name, params);
-    	EnumHacks.addEnum(e);
+    	Enum e = EnumReflect.createEnum(clazz, name, params);
+    	EnumReflect.addEnum(e);
     	return e;
     }
     
@@ -274,23 +274,23 @@ public class ReflectionHandler {
      */
     public static Enum newEnum(Class<? extends Enum> clazz, String name, Object... params)
     {
-    	Enum e = EnumHacks.createEnum(clazz, name, params);
+    	Enum e = EnumReflect.createEnum(clazz, name, params);
     	return e;
     }
     
     public static void addEnum(Enum... enums)
     {
-    	EnumHacks.addEnum(enums);
+    	EnumReflect.addEnum(enums);
     }
     
     public static boolean containsEnum(Class<? extends Enum> clazz, String name)
     {
-    	return EnumHacks.containsEnum(clazz, name);
+    	return EnumReflect.containsEnum(clazz, name);
     }
     
     public static Enum getEnum(Class<? extends Enum> clazz, String name)
     {
-    	return EnumHacks.getEnum(clazz, name);
+    	return EnumReflect.getEnum(clazz, name);
     }
     
     public static Object getStatic(Field field)

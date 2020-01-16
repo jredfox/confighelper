@@ -17,7 +17,7 @@ import jml.evilnotch.lib.Validate;
 import jml.evilnotch.lib.asm.ObfHelper;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
-public class EnumHacks {
+public class EnumReflect {
 	
 	public static Object factory;
 	public static Method ctrAccessor;
@@ -224,7 +224,7 @@ public class EnumHacks {
 			String name = e.name();
 			if(!e.getClass().equals(clazz))
 				throw new RuntimeException("enum class:" + clazz.getName() + " doesn't match the type of:" + e.getClass());
-			else if(EnumHacks.containsEnum(clazz, name) || ids.contains(name))
+			else if(EnumReflect.containsEnum(clazz, name) || ids.contains(name))
 				throw new RuntimeException("Duplicate enum name variable!:" + e.name());
 			ids.add(e.name());
 		}
@@ -278,7 +278,7 @@ public class EnumHacks {
 		{
 			if(e.ordinal() == -1)
 				throw new RuntimeException("ordinal not set:" + e);
-			Enum check = EnumHacks.getEnum(e.getClass(), e.ordinal());
+			Enum check = EnumReflect.getEnum(e.getClass(), e.ordinal());
 			if(check == null)
 				throw new RuntimeException("enum already removed:" + e);
 			else if(check.ordinal() != e.ordinal())
