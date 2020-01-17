@@ -208,6 +208,50 @@ public class RegTransformer implements ITransformer{
 		list4.add(new VarInsnNode(Opcodes.ILOAD, 0));
 		list4.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "jml/confighelper/reg/Registries", "unregisterDimension", "(I)V", false));
 		unregDim.instructions.insert(ASMHelper.getFirstInstruction(unregDim), list4);
+		
+		optimizeDims(classNode);
+	}
+	
+	/**
+	 * optimize forge dimensions
+	 */
+	private static void optimizeDims(ClassNode node) 
+	{
+		MethodNode dimensions = ASMHelper.getMethodNode(node, "registerDimension", "(II)V");
+		//remove bitset map call
+		AbstractInsnNode a = ASMHelper.getLastFieldInsn(dimensions, new FieldInsnNode(Opcodes.GETSTATIC, "net/minecraftforge/common/DimensionManager", "dimensionMap", "Ljava/util/BitSet;"));
+		if(a != null)
+		{
+			AbstractInsnNode end = ASMHelper.nextMethodInsnNode(a, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "java/util/BitSet", "set", "(I)V", false));
+			ASMHelper.removeInsn(dimensions, a, end);
+		}
+		else
+		{
+			System.out.println("unable to remove reference for dimMap game might crash!");
+		}
+		
+		//replace DimensionManager nextId methods
+		String input = ASMHelper.getInputStream(ModReference.MODID, "DimensionManager");
+		ASMHelper.replaceMethod(node, input, "getNextFreeDimId", "()I");
+		ASMHelper.replaceMethod(node, input, "saveDimensionDataMap", "()Lnet/minecraft/nbt/NBTTagCompound;");
+		ASMHelper.replaceMethod(node, input, "loadDimensionDataMap", "(Lnet/minecraft/nbt/NBTTagCompound;)V");
+		
+		//remove initialization of the BitSet as it's bad
+		ASMHelper.removeField(node, "dimensionMap");
+		MethodNode clinit = ASMHelper.getClassInitNode(node);
+		for(AbstractInsnNode ab : clinit.instructions.toArray())
+		{
+			if(ab.getOpcode() == Opcodes.NEW)
+			{
+				TypeInsnNode start = (TypeInsnNode)ab;
+				if(start.desc.equals("java/util/BitSet"))
+				{
+					AbstractInsnNode end = ASMHelper.nextFieldInsnNode(start, new FieldInsnNode(Opcodes.PUTSTATIC, "net/minecraftforge/common/DimensionManager", "dimensionMap", "Ljava/util/BitSet;"));
+					ASMHelper.removeInsn(clinit, start, end);
+					break;
+				}
+			}
+		}
 	}
 	
 	private void patchEntityList(ClassNode classNode) 

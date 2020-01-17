@@ -362,6 +362,16 @@ public class ASMHelper
 		return getMethodNode(classNode, "<init>", desc);
 	}
 	
+	/**
+	 * you can safely insert instructions in a constructor after the first super call
+	 * not this won't check if the fields are instantiated before calling your bytecode if you need to use
+	 * fields for your asm you will have to find a injection point further down the construction method
+	 */
+	public static AbstractInsnNode getFirstCtrInsn(MethodNode node)
+	{
+		return ASMHelper.getFirstInstruction(node, Opcodes.INVOKESPECIAL);
+	}
+	
 	public static MethodNode getClassInitNode(ClassNode classNode) 
 	{
 		return getMethodNode(classNode, "<clinit>", "()V");
@@ -620,6 +630,30 @@ public class ASMHelper
 		return null;
 	}
 	
+	public static FieldInsnNode nextFieldInsnNode(AbstractInsnNode starting, FieldInsnNode compare) 
+	{
+		AbstractInsnNode k = starting;
+		while(k != null)
+		{
+			k = k.getNext();
+			if(k instanceof FieldInsnNode && equals(compare, k))
+				return (FieldInsnNode) k;
+		}
+		return null;
+	}
+	
+	public static MethodInsnNode nextMethodInsnNode(AbstractInsnNode starting, MethodInsnNode compare) 
+	{
+		AbstractInsnNode k = starting;
+		while(k != null)
+		{
+			k = k.getNext();
+			if(k instanceof MethodInsnNode && equals(compare, k))
+				return (MethodInsnNode) k;
+		}
+		return null;
+	}
+	
 	public static MethodInsnNode nextMethodInsnNode(AbstractInsnNode starting) 
 	{
 		AbstractInsnNode k = starting;
@@ -643,24 +677,6 @@ public class ASMHelper
 		return null;
 	}
 
-	public static void clearVoidMethod(MethodNode method) 
-	{
-		clearMethod(method);
-		method.instructions.add(new InsnNode(Opcodes.RETURN));
-	}
-
-	/**
-	 * warning if you clear a method you must input the return type manually
-	 */
-	public static void clearMethod(MethodNode method) 
-	{
-		LineNumberNode line = ASMHelper.getFirstInstruction(method);
-		method.instructions.clear();
-		LabelNode label = new LabelNode();
-		method.instructions.add(label);
-		method.instructions.add(new LineNumberNode(line.line, label));
-	}
-
 	public static AbstractInsnNode nextInsn(AbstractInsnNode ab, int opcode) 
 	{
 		while(ab != null)
@@ -670,6 +686,18 @@ public class ASMHelper
 				return ab;
 		}
 		return null;
+	}
+	
+	/**
+	 * grab a push code for a num value
+	 */
+	public static AbstractInsnNode getPush(int value) throws IllegalArgumentException
+	{
+		if(value <= Byte.MAX_VALUE)
+			return new IntInsnNode(Opcodes.BIPUSH, value);
+		if(value <= Short.MAX_VALUE)
+			return new IntInsnNode(Opcodes.SIPUSH, value);
+		return new LdcInsnNode(value);
 	}
 
 	/**
@@ -686,6 +714,11 @@ public class ASMHelper
 		node.instructions.remove(end);
 	}
 	
+	/**
+	 * works if no other transformers editing bytecode so really not recommended to use. 
+	 * only use for debugging or deob with no other core mods enabled
+	 */
+	@Deprecated
 	public static void removeInsn(MethodNode node, AbstractInsnNode start, int size) 
 	{
 		for(int i=0; i < size; i++)
@@ -694,6 +727,24 @@ public class ASMHelper
 			node.instructions.remove(start);
 			start = next;
 		}
+	}
+	
+	public static void clearVoidMethod(MethodNode method) 
+	{
+		clearMethod(method);
+		method.instructions.add(new InsnNode(Opcodes.RETURN));
+	}
+
+	/**
+	 * warning if you clear a method you must input the return type manually
+	 */
+	public static void clearMethod(MethodNode method) 
+	{
+		LineNumberNode line = ASMHelper.getFirstInstruction(method);
+		method.instructions.clear();
+		LabelNode label = new LabelNode();
+		method.instructions.add(label);
+		method.instructions.add(new LineNumberNode(line.line, label));
 	}
 
 	public static void clearNextThrowable(MethodNode method, String desc_exception) 
@@ -738,17 +789,5 @@ public class ASMHelper
 	public static boolean isReturnOpcode(int opcode)
 	{
 		return opcode == Opcodes.RETURN || opcode == Opcodes.ARETURN || opcode == Opcodes.DRETURN || opcode == Opcodes.FRETURN || opcode == Opcodes.IRETURN || opcode == Opcodes.LRETURN;
-	}
-
-	/**
-	 * grab a push code for a num value
-	 */
-	public static AbstractInsnNode getPush(int value) throws IllegalArgumentException
-	{
-		if(value <= Byte.MAX_VALUE)
-			return new IntInsnNode(Opcodes.BIPUSH, value);
-		if(value <= Short.MAX_VALUE)
-			return new IntInsnNode(Opcodes.SIPUSH, value);
-		return new LdcInsnNode(value);
 	}
 }

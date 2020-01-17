@@ -66,10 +66,6 @@ public class IdsTransformer implements ITransformer{
 					patchEnchantment(node);
 				break;
 				
-				case 3:
-					optimizeDims(node);
-				break;
-				
 				case 4:
 					patchEntityList(node);
 				break;
@@ -80,21 +76,44 @@ public class IdsTransformer implements ITransformer{
 			}
 		}
 	}
+
+	private void patchEntityList(ClassNode node) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void patchEnchantment(ClassNode node) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void patchBiome(ClassNode node) 
+	{
+		
+	}
+
+	private void patchPotion(ClassNode node) 
+	{
+		//extend potion id limit to signed byte(0-127)
+		MethodNode clinit = ASMHelper.getClassInitNode(node);
+		AbstractInsnNode spot = ASMHelper.getFirstFieldInsn(clinit, new FieldInsnNode(Opcodes.PUTSTATIC, "net/minecraft/potion/Potion", new MCPSidedString("potionTypes", "field_76425_a").toString(), "[Lnet/minecraft/potion/Potion;") ).getPrevious().getPrevious();
+		clinit.instructions.insert(spot, ASMHelper.getPush(RegistryIds.limitPotions + 1));
+		clinit.instructions.remove(spot);
+	}
 	
 	private void patchDatawatcher(ClassNode node) 
 	{
-		patchWatcherWrite(node);
+		MethodNode write1 = ASMHelper.getMethodNode(node, new MCPSidedString("func_151509_a", "func_151509_a").toString(), "(Lnet/minecraft/network/PacketBuffer;)V");
+		patch127(write1);
+		MethodNode write2 = ASMHelper.getMethodNode(node, new MCPSidedString("writeWatchedListToPacketBuffer", "func_151507_a").toString(), "(Ljava/util/List;Lnet/minecraft/network/PacketBuffer;)V");
+		patch127(write2);
+		
+		MethodNode addObject = ASMHelper.getMethodNode(node, new MCPSidedString("addObject", "func_75682_a").toString(), "(ILjava/lang/Object;)V");
 		
 		//delete line Integer integer = (Integer) dataTypes.get(obj.getClass());
-		MethodNode addObject = ASMHelper.getMethodNode(node, new MCPSidedString("addObject", "func_75682_a").toString(), "(ILjava/lang/Object;)V");
 		AbstractInsnNode start = ASMHelper.getFirstFieldInsn(addObject, new FieldInsnNode(Opcodes.GETSTATIC, "net/minecraft/entity/DataWatcher", new MCPSidedString("dataTypes", "field_75697_a").toString(), "Ljava/util/HashMap;"));
-//		if(start != null)
-//		{
-			AbstractInsnNode end = ASMHelper.nextInsn(start, Opcodes.ASTORE);
-			ASMHelper.removeInsn(addObject, start, end);
-//		}
-//		else
-//			System.out.println("confighelper asm DataWatcher#addObject cannot delete line: \"Integer integer = (Integer) dataTypes.get(obj.getClass());\"");
+		AbstractInsnNode end = ASMHelper.nextInsn(start, Opcodes.ASTORE);
+		ASMHelper.removeInsn(addObject, start, end);
 		
 		//inject line: Integer integer = Registries.getWatcherTypeId(obj.getClass());
 		InsnList list = new InsnList();
@@ -125,14 +144,6 @@ public class IdsTransformer implements ITransformer{
 		ASMHelper.replaceMethod(node, input, new MCPSidedString("writeWatchableObjectToPacketBuffer", "func_151510_a").toString(), "(Lnet/minecraft/network/PacketBuffer;Lnet/minecraft/entity/DataWatcher$WatchableObject;)V");
 		ASMHelper.replaceMethod(node, input, new MCPSidedString("readWatchedListFromPacketBuffer", "func_151508_b").toString(), "(Lnet/minecraft/network/PacketBuffer;)Ljava/util/List;");
 	}
-	
-	private void patchWatcherWrite(ClassNode node) 
-	{
-		MethodNode write1 = ASMHelper.getMethodNode(node, new MCPSidedString("func_151509_a", "func_151509_a").toString(), "(Lnet/minecraft/network/PacketBuffer;)V");
-		patch127(write1);
-		MethodNode write2 = ASMHelper.getMethodNode(node, new MCPSidedString("writeWatchedListToPacketBuffer", "func_151507_a").toString(), "(Ljava/util/List;Lnet/minecraft/network/PacketBuffer;)V");
-		patch127(write2);
-	}
 
 	/**
 	 * patch the writing of the packet to end in 255 instead of 127
@@ -152,66 +163,6 @@ public class IdsTransformer implements ITransformer{
 					k.operand = 255;
 				}
 				break;
-			}
-		}
-	}
-
-	private void patchEntityList(ClassNode node) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	private void patchEnchantment(ClassNode node) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	private void patchBiome(ClassNode node) 
-	{
-		
-	}
-
-	private void patchPotion(ClassNode node) 
-	{
-		//extend potion id limit to signed byte(0-127)
-		MethodNode clinit = ASMHelper.getClassInitNode(node);
-		AbstractInsnNode spot = ASMHelper.getFirstFieldInsn(clinit, new FieldInsnNode(Opcodes.PUTSTATIC, "net/minecraft/potion/Potion", "potionTypes", "[Lnet/minecraft/potion/Potion;") ).getPrevious().getPrevious();
-		clinit.instructions.insert(spot, ASMHelper.getPush(RegistryIds.limitPotions + 1));
-		clinit.instructions.remove(spot);
-	}
-	
-	/**
-	 * optimize forge dimensions
-	 */
-	private void optimizeDims(ClassNode node) 
-	{
-		MethodNode dimensions = ASMHelper.getMethodNode(node, "registerDimension", "(II)V");
-		//remove bitset map call
-		AbstractInsnNode a = ASMHelper.getLastFieldInsn(dimensions, new FieldInsnNode(Opcodes.GETSTATIC, "net/minecraftforge/common/DimensionManager", "dimensionMap", "Ljava/util/BitSet;"));
-		if(a != null)
-			ASMHelper.removeInsn(dimensions, a, 3);
-		else
-			System.out.println("unable to remove reference for dimMap game might crash!");
-		
-		//replace DimensionManager nextId methods
-		String input = ASMHelper.getInputStream(ModReference.MODID, "DimensionManager");
-		ASMHelper.replaceMethod(node, input, "getNextFreeDimId", "()I");
-		ASMHelper.replaceMethod(node, input, "saveDimensionDataMap", "()Lnet/minecraft/nbt/NBTTagCompound;");
-		ASMHelper.replaceMethod(node, input, "loadDimensionDataMap", "(Lnet/minecraft/nbt/NBTTagCompound;)V");
-		
-		//remove initialization of the BitSet as it's bad
-		ASMHelper.removeField(node, "dimensionMap");
-		MethodNode clinit = ASMHelper.getClassInitNode(node);
-		for(AbstractInsnNode ab : clinit.instructions.toArray())
-		{
-			if(ab.getOpcode() == Opcodes.NEW)
-			{
-				TypeInsnNode type = (TypeInsnNode)ab;
-				if(type.desc.equals("java/util/BitSet"))
-				{
-					ASMHelper.removeInsn(clinit, type, 5);
-					break;
-				}
 			}
 		}
 	}

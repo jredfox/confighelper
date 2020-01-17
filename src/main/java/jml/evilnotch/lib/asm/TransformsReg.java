@@ -48,7 +48,16 @@ public class TransformsReg {
 		StringBuilder b = new StringBuilder();
 		String space = "\n";
 		for(ITransformer t : transformers)
-			b.append(space + "ITransformer:(" + t.id() + ")");
+			b.append(space + "ITransformer:(" + t.id() + ", class:" + t.getClass() + ")");
+		return b.toString();
+	}
+	
+	public static String printClasses()
+	{
+		StringBuilder b = new StringBuilder();
+		String space = "\n";
+		for(ITransformer t : transformers)
+			b.append(space + "ITransformer:(" + t.getClass() + ")");
 		return b.toString();
 	}
 

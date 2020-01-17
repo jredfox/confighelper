@@ -37,7 +37,10 @@ public class ASMLoader implements IClassTransformer{
 		catch(Throwable t)
 		{
 			t.printStackTrace();
-			System.out.print("Blamed Transformer:\t" + (last != null ? last.id() : null) + "\nLoaded Transformers:" + TransformsReg.printIds() + "\n");
+			if(!name.equals("net.minecraft.util.ResourceLocation"))
+				System.out.print("Blamed Transformer:\t" + (last != null ? last.id() : null) + "\nLoaded Transformers:" + TransformsReg.printIds() + "\n");
+			else
+				System.out.print("Blamed Transformer:\t" + (last != null ? last.getClass() : null) + TransformsReg.printClasses() + "\n");
 		}
 		return bytes;
 	}
