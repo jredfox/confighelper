@@ -1,6 +1,7 @@
 package jml.evilnotch.lib.reflect;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -360,6 +361,17 @@ public class ReflectionHandler {
     	return null;
     } 
     
+    public static Class getArraySourceClass(Class clazz)
+    {
+    	Validate.isTrue(clazz.isArray());
+    	return clazz.getComponentType();
+    }
+    
+    public static Object cast(Class clazz, Object tocast)
+    {
+    	return clazz.cast(tocast);
+    }
+    
     public static ClassLoader getClassLoader(Class clazz)
     {
     	return clazz.getClassLoader();
@@ -368,6 +380,24 @@ public class ReflectionHandler {
     public static boolean instanceOf(Class base, Class compare)
     {
     	return base.isAssignableFrom(compare);
+    }
+    
+    public static boolean instanceOf(Class base, Object obj)
+    {
+    	return base.isInstance(obj);
+    }
+    
+    public static Object newInstance(Class clazz)
+    {
+    	try
+    	{
+    		return clazz.newInstance();
+    	}
+    	catch(Throwable t)
+    	{
+    		t.printStackTrace();
+    	}
+    	return null;
     }
     
     public static Annotation getClassAnnotation(Class clazz, Class<? extends Annotation> test)
@@ -445,6 +475,11 @@ public class ReflectionHandler {
     public static Enum getEnum(Class<? extends Enum> clazz, String name)
     {
     	return ReflectEnum.getEnum(clazz, name);
+    }
+    
+    public static <T> T[] newArray(Class<T> clazz, int size)
+    {
+    	return (T[]) Array.newInstance(clazz, size);
     }
     
 	/**

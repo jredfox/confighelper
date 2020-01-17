@@ -1,5 +1,6 @@
 package jml.confighelper.reg;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -13,11 +14,19 @@ import com.google.common.base.Objects;
 import com.google.common.collect.Iterables;
 
 import jml.confighelper.RegistryConfig;
+import jml.confighelper.datawatcher.WatcherDataType;
 import jml.evilnotch.lib.JavaUtil;
+import net.minecraft.block.Block;
 import net.minecraft.enchantment.Enchantment;
+import net.minecraft.entity.DataWatcher;
+import net.minecraft.entity.Entity;
+import net.minecraft.item.Item;
+import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.potion.Potion;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.biome.BiomeGenBase;
+import net.minecraftforge.common.DimensionManager;
 
 public class Registry implements Iterable<Registry.Entry>{
 	
@@ -124,36 +133,39 @@ public class Registry implements Iterable<Registry.Entry>{
 	public void securityCheck() 
 	{
 		int size = this.size();
-		if(this.dataType == DataType.BIOME && BiomeGenBase.biomeList.length < size)
+		Object[] arr = this.getStaticArray();
+		if(arr != null && arr.length != size)
 		{
-			System.out.println("patching " + this.dataType + "[] array as it's been corrupted!");
-			BiomeGenBase[] newBiomes = new BiomeGenBase[size];
+		    System.out.println("Patching " + this.dataType + "[] as it's size doesn't match:\t" + arr.length + " > " + size);
+			Object[] newArray = (Object[]) Array.newInstance(this.dataType.clazz, size);
 			for(Registry.Entry e : this)
 			{
-				newBiomes[e.newId] = (BiomeGenBase)e.obj;
+				System.out.println("assigning obj:" + e.obj + " > " + e.newId);
+				newArray[e.newId] = this.dataType.clazz.cast(e.obj);
 			}
-			BiomeGenBase.biomeList = newBiomes;
+			this.setStaticArray(newArray);
 		}
-		else if(this.dataType == DataType.POTION && Potion.potionTypes.length < size)
-		{
-			System.out.println("patching " + this.dataType + "[] array as it's been corrupted!");
-			Potion[] newPotions = new Potion[size];
-			for(Registry.Entry e : this)
-			{
-				newPotions[e.newId] = (Potion)e.obj;
-			}
-			Potion.potionTypes = newPotions;
-		}
-		else if(this.dataType == DataType.ENCHANTMENT && Enchantment.enchantmentsList.length < size)
-		{
-			System.out.println("patching " + this.dataType + "[] array as it's been corrupted!");
-			Enchantment[] newEnchantments = new Enchantment[size];
-			for(Registry.Entry e : this)
-			{
-				newEnchantments[e.newId] = (Enchantment)e.obj;
-			}
-			Enchantment.enchantmentsList = newEnchantments;
-		}
+	}
+	
+	private void setStaticArray(Object[] newArray) 
+	{
+		if(this.dataType == DataType.BIOME)
+			BiomeGenBase.biomeList = (BiomeGenBase[]) newArray;
+		else if(this.dataType == DataType.POTION)
+			Potion.potionTypes = (Potion[]) newArray;
+		else if(this.dataType == DataType.ENCHANTMENT)
+			Enchantment.enchantmentsList = (Enchantment[]) newArray;
+	}
+
+	public Object[] getStaticArray()
+	{
+		if(this.dataType == DataType.BIOME)
+			return BiomeGenBase.biomeList;
+		else if(this.dataType == DataType.POTION)
+			return Potion.potionTypes;
+		else if(this.dataType == DataType.ENCHANTMENT)
+			return Enchantment.enchantmentsList;
+		return null;
 	}
 
 	public int size()
@@ -470,19 +482,25 @@ public class Registry implements Iterable<Registry.Entry>{
 	}
     
     public static enum DataType{
-    	BIOME(),
-    	ENCHANTMENT(),
-    	POTION(),
-    	DIMENSION(),
-    	PROVIDER(),
-    	ENTITY(),
-    	DATAWATCHER(),
-    	DATAWATCHERTYPE(),
-    	ITEM(),
-    	BLOCK(),
-    	TILEENTITY(),
-    	RECIPES(),
-    	CUSTOM();//custom non vanilla registries used for modded objects
+    	BIOME(BiomeGenBase.class),
+    	ENCHANTMENT(Enchantment.class),
+    	POTION(Potion.class),
+    	DIMENSION(DimensionManager.class),
+    	PROVIDER(DimensionManager.class),
+    	ENTITY(Entity.class),
+    	DATAWATCHER(DataWatcher.class),
+    	DATAWATCHERTYPE(WatcherDataType.class),
+    	ITEM(Item.class),
+    	BLOCK(Block.class),
+    	TILEENTITY(TileEntity.class),
+    	RECIPES(IRecipe.class),
+    	CUSTOM(Registry.class);//custom non vanilla registries used for modded objects
+    	
+    	public Class clazz;
+    	private DataType(Class clazz)
+    	{
+    		this.clazz = clazz;
+    	}
     	
 		public String getName() 
 		{

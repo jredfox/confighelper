@@ -20,7 +20,7 @@ import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 
-public class CentralRegistry<T extends IRegisterable> implements Iterable{
+public class CentralRegistry<K extends ResourceLocation, T extends IRegisterable> implements Iterable{
 	
 	/**
 	 * the default value that the registry object should be set to by default
@@ -30,7 +30,7 @@ public class CentralRegistry<T extends IRegisterable> implements Iterable{
 	public DataType dataType;
 	public int limitLower;
 	public int limit;
-	protected Map<ResourceLocation, T> reg = new HashMap<ResourceLocation, T>();//retains the order for modders debuging things
+	protected Map<K, T> reg = new HashMap<K, T>();//retains the order for modders debuging things
 	protected Map<Integer, T> idreg = new HashMap<Integer, T>();
 	protected Set<Integer> vanillaIds;
 	protected Set<Integer> usedIds = new TreeSet();
@@ -76,7 +76,7 @@ public class CentralRegistry<T extends IRegisterable> implements Iterable{
 
 	public void register(T obj)
 	{
-		ResourceLocation loc = obj.getRegistryName();
+		K loc = (K) obj.getRegistryName();
 		this.check(loc);
 		if(this.contains(loc))
 			Registries.makeCrashReport("registration", "duplicate registry object " + this.dataType + " id:" + loc);

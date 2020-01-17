@@ -40,6 +40,7 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.potion.Potion;
 import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraft.world.biome.BiomeGenMutated;
@@ -63,7 +64,7 @@ public class Registries {
 	 * the last EntityPlayer data watcher object list. Warning will be null on startup
 	 */
 	public static Registry datawatchers;
-	public static CentralRegistry<WatcherDataType> datawatchertypes = new CentralRegistry<WatcherDataType>(DataType.DATAWATCHERTYPE);
+	public static CentralRegistry<ResourceLocation, WatcherDataType> datawatchertypes = new CentralRegistry<ResourceLocation, WatcherDataType>(DataType.DATAWATCHERTYPE);
 	
 	public static boolean initBiomes = false;
 	public static int nextBiome = biomes.limit;
