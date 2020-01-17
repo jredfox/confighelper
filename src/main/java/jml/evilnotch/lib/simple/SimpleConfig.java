@@ -15,7 +15,7 @@ import jml.evilnotch.lib.JavaUtil;
 
 public class SimpleConfig {
 	
-	public Map<String, Object> list = new HashMap();
+	public Map<String, Object> list = new TreeMap<String, Object>();
 	public File file;
 	public static final String[] types = {"B", "S", "I", "L", "F", "D", "Z", "Str"};
 	public static final String extension = ".scfg";
@@ -23,7 +23,7 @@ public class SimpleConfig {
 	
 	public SimpleConfig(File f)
 	{
-		this.file = f;
+		this.file = new File(f.getAbsolutePath());
 	}
 	
 	public void setFile(File f)
@@ -36,6 +36,16 @@ public class SimpleConfig {
 		return (Boolean) get(key, init);
 	}
 	
+	public Byte getByte(String key, byte init)
+	{
+		return (Byte) get(key, init);
+	}
+	
+	public Short getShort(String key, short init)
+	{
+		return (Short) get(key, init);
+	}
+	
 	public Integer getInt(String key, int init)
 	{
 		return (Integer) get(key, init);
@@ -46,6 +56,21 @@ public class SimpleConfig {
 		return (Long) get(key, init);
 	}
 	
+	public Float getFloat(String key, float init)
+	{
+		return (Float) get(key, init);
+	}
+	
+	public Double getDouble(String key, double init)
+	{
+		return (Double) get(key, init);
+	}
+	
+	public String getString(String key, String init) 
+	{
+		return (String) get(key, init);
+	}
+	
 	public void set(String key, Object value)
 	{
 		list.put(key, value);
@@ -53,49 +78,79 @@ public class SimpleConfig {
 	
 	public Object get(String key, Object init)
 	{
+		if(key.contains("="))
+			throw new IllegalArgumentException("key contains invalid char of:" + "\"=\"");
 		Object value = this.list.get(key);
 		if(value == null)
+		{
 			list.put(key, init);
-		return init;
+			return init;
+		}
+		return value;
 	}
 	
-	public void parse() throws IOException
+	public void clear()
+	{
+		this.list.clear();
+	}
+	
+	public void parse()
 	{
 		if(!this.file.exists())
 			return;
-		BufferedReader reader = new BufferedReader(new FileReader(this.file));
-		String line = reader.readLine();
-		while(true)
+		this.clear();
+		try
 		{
-			line = reader.readLine();
-			if(line == null)
-				break;
-			line = line.trim();
-			if(line.indexOf('#') == 0)
-				continue;
-			String[] reg = JavaUtil.splitFirst(line, ':');
-			String type = reg[0];
-			line = reg[1];
-			reg = JavaUtil.splitFirst(line, '=');
-			String key = JavaUtil.parseQuotes(reg[0], 0, "\"");
-			String strValue = reg[1];
-			Object value = this.parseObj(type, strValue);
-			this.list.put(key, value);
+			BufferedReader reader = new BufferedReader(new FileReader(this.file));
+			String line = "";
+			while(line != null)
+			{
+				line = reader.readLine();
+				if(line == null)
+					break;
+				line = line.trim();
+				if(line.indexOf('#') == 0)
+					continue;
+				this.parseLine(line);
+			}
+			reader.close();
 		}
-		reader.close();
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
 	}
 	
+	public void parseLine(String line) 
+	{
+		String[] reg = JavaUtil.splitFirst(line, '=');
+		String strValue = reg[1];
+		String data = reg[0];
+		reg = JavaUtil.splitFirst(data, ':');
+		String type = reg[0].trim();
+		String keyUnparsed = reg[1].trim();
+		String keyParsed = keyUnparsed;
+		if(keyUnparsed.startsWith("\""))
+			keyParsed = JavaUtil.parseQuotes(keyUnparsed, 0, "\"");
+		Object value = this.parseObj(type, strValue);
+		if(value == null)
+			throw new IllegalArgumentException("Invalid type:\t" + type);
+		this.list.put(keyParsed, value);
+	}
+
 	public void save() throws IOException
 	{
-		if(!this.file.getParentFile().exists())
-			this.file.getParentFile().mkdirs();
+		File parent = this.file.getParentFile();
+		if(!parent.exists())
+			parent.mkdirs();
 		BufferedWriter writer = JavaUtil.getFileWriter(this.file);
 		writer.write("#build:" + version + "\r\n");
 		for(String key : this.list.keySet())
 		{
 			Object value = this.list.get(key);
 			String type = this.getType(value);
-			writer.write(type + ":" + "\"" + key + "\"=" + value.toString() + "\r\n");
+			key = key.contains(" ") ? "\"" + key + "\"" : key;
+			writer.write(type + ":" + key + "=" + value.toString() + "\r\n");
 		}
 		writer.close();
 	}

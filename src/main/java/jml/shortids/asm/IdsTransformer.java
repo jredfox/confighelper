@@ -94,7 +94,7 @@ public class IdsTransformer implements ITransformer{
 
 	private void patchPotion(ClassNode node) 
 	{
-		//extend potion id limit to signed byte(0-127)
+		//extend potion id limit to signed byte(0-127) or short
 		MethodNode clinit = ASMHelper.getClassInitNode(node);
 		AbstractInsnNode spot = ASMHelper.getFirstFieldInsn(clinit, new FieldInsnNode(Opcodes.PUTSTATIC, "net/minecraft/potion/Potion", new MCPSidedString("potionTypes", "field_76425_a").toString(), "[Lnet/minecraft/potion/Potion;") ).getPrevious().getPrevious();
 		clinit.instructions.insert(spot, ASMHelper.getPush(RegistryIds.limitPotions + 1));
