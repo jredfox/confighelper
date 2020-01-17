@@ -20,6 +20,7 @@ import net.minecraft.entity.monster.EntityCreeper;
 import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.passive.IAnimals;
 import net.minecraft.item.Item.ToolMaterial;
+import net.minecraft.potion.Potion;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.MinecraftForge;
@@ -60,7 +61,9 @@ public class ConfigHelperMod
 		{
 			long time = System.currentTimeMillis();
 			Registries.write();
+			System.out.println();
 			JavaUtil.printTime(time, "Done Outputing files: ");
+			System.out.println();
 		}
     }
 }

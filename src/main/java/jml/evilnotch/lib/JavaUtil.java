@@ -10,6 +10,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -985,6 +986,14 @@ public class JavaUtil {
 		}
 		
 		return list;
+	}
+	
+	/**
+	 * even though it's utf8 writing it's the fastes one I tried 5 diferent other options from different objects
+	 */
+	public static BufferedWriter getFileWriter(File f) throws FileNotFoundException, IOException
+	{
+		return new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f), StandardCharsets.UTF_8));
 	}
 	
 	/**

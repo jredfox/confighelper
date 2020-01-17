@@ -89,7 +89,7 @@ public class SimpleConfig {
 	{
 		if(!this.file.getParentFile().exists())
 			this.file.getParentFile().mkdirs();
-		BufferedWriter writer = new BufferedWriter(new FileWriter(this.file));
+		BufferedWriter writer = JavaUtil.getFileWriter(this.file);
 		writer.write("#build:" + version + "\r\n");
 		for(String key : this.list.keySet())
 		{

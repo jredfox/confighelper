@@ -72,7 +72,7 @@ public class RegistryWriter {
 
 	private void writeConflicts() throws IOException
 	{
-		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(this.dir, conflicts + conflictExtension)));
+		BufferedWriter writer = JavaUtil.getFileWriter(new File(this.dir, conflicts + conflictExtension));
 		JSONObject filejson = new JSONObject();
 		for(Integer id : this.reg.getOrgIds())
 		{
@@ -110,7 +110,7 @@ public class RegistryWriter {
 	
 	private void writeFreeIds() throws IOException
 	{
-		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(this.dir, freeids + extension)));
+		BufferedWriter writer = JavaUtil.getFileWriter(new File(this.dir, freeids + extension));
 		Set<IdChunk> chunks = IdChunk.configureAround(this.reg.limitLower, this.reg.limit, this.reg.getOrgIds());
 		for(IdChunk c : chunks)
 		{
@@ -121,7 +121,7 @@ public class RegistryWriter {
 
 	private void writeSuggestions() throws IOException
 	{
-		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(this.dir, suggested + extension)));
+		BufferedWriter writer = JavaUtil.getFileWriter(new File(this.dir, suggested + extension));
 		Map<String,List<Registry.Entry>> entries = new TreeMap();//modname, list of entries
 		//filter all entries by mod name
 		for(Registry.Entry entry : this.reg)
@@ -191,7 +191,7 @@ public class RegistryWriter {
 	
 	private void writeIds() throws IOException
 	{
-		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(this.dirDump, dumpIdsNew + extension)));
+		BufferedWriter writer = JavaUtil.getFileWriter(new File(this.dirDump, dumpIdsNew + extension));
 		List<Registry.Entry> entries = this.reg.getEntriesSortable();
 		Collections.sort(entries, new Comparator<Registry.Entry>()
 		{
