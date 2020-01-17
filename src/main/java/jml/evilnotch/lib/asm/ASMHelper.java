@@ -151,6 +151,16 @@ public class ASMHelper
 	}
 	
 	/**
+	 * if you don't need to compute frames and compute maxes aka something like a reobfuscate instead of actual edits
+	 */
+	public static MCWriter getWriterForReob(ClassNode classNode)
+	{
+		MCWriter writer = new MCWriter(0);
+		classNode.accept(writer);
+		return writer;
+	}
+	
+	/**
 	 * get a method node from a possble cached classnode
 	 */
 	public static MethodNode getMethodNode(String input, String name, String desc) throws IOException 
@@ -234,6 +244,22 @@ public class ASMHelper
 				}
 			}
 		}
+	}
+	
+	/**
+	 * use this in your asm to return true
+	 */
+	public static boolean isTrue()
+	{
+		return true;
+	}
+	
+	/**
+	 * use this is your asm to return false
+	 */
+	public static boolean isFalse()
+	{
+		return false;
 	}
 	
 	/**

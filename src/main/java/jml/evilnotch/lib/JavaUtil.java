@@ -1387,15 +1387,6 @@ public class JavaUtil {
 		return list;
 	}
 	
-	public static boolean returnTrue()
-	{
-		return true;
-	}
-	
-	public static boolean returnFalse() 
-	{
-		return false;
-	}
 	public static final JSONParser jsonParser = new JSONParser();
 	public static JSONObject getJson(File armor) 
 	{

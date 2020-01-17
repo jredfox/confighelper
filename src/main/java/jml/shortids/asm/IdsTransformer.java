@@ -136,7 +136,7 @@ public class IdsTransformer implements ITransformer{
 			}
 		}
 		InsnList append = new InsnList();
-		append.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "jml/evilnotch/lib/JavaUtil", "returnFalse", "()Z", false));
+		append.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "jml/evilnotch/lib/asm/ASMHelper", "isFalse", "()Z", false));
 		append.add(new JumpInsnNode(Opcodes.IFEQ, todisable.label));
 		addObject.instructions.insertBefore(push.getPrevious(), append);
 		
