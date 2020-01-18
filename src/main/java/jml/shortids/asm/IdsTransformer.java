@@ -8,9 +8,11 @@ import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.InsnList;
+import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.IntInsnNode;
 import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.LdcInsnNode;
+import org.objectweb.asm.tree.LocalVariableNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TypeInsnNode;
@@ -90,10 +92,62 @@ public class IdsTransformer implements ITransformer{
 				case 8:
 					patchS1EPacketRemoveEntityEffect(node);
 				break;
+				
+				case 9:
+					patchPotionEffect(node);
+				break;
 			}
 		}
 	}
 	
+	private void patchPotionEffect(ClassNode node) 
+	{
+		//patch the writeCustomPotionEffectToNBT
+		MethodNode write = ASMHelper.getMethodNode(node, new MCPSidedString("writeCustomPotionEffectToNBT", "func_82719_a").toString(), "(Lnet/minecraft/nbt/NBTTagCompound;)Lnet/minecraft/nbt/NBTTagCompound;");
+		String setShort = new MCPSidedString("setShort", "func_74777_a").toString();
+		String getShort = new MCPSidedString("getShort", "func_150289_e").toString();
+		String getByte = new MCPSidedString("getByte", "func_150290_f").toString();
+		String descV = "(Ljava/lang/String;S)V";
+		String descS = "(Ljava/lang/String;)S";
+		
+		InsnNode i1 = (InsnNode) ASMHelper.getFirstInstruction(write, Opcodes.I2B);
+		MethodInsnNode m1 = (MethodInsnNode) i1.getNext();
+		InsnNode i2 = (InsnNode) ASMHelper.nextInsn(i1, Opcodes.I2B);
+		MethodInsnNode m2 = (MethodInsnNode) i2.getNext();
+		//patch the method calls
+		m1.name = setShort;
+		m1.desc = descV;
+		m2.name = setShort;
+		m2.desc = descV;
+		//patch the typecasts
+		write.instructions.insert(i1, new InsnNode(Opcodes.I2S));
+		write.instructions.insert(i2, new InsnNode(Opcodes.I2S));
+		write.instructions.remove(i1);
+		write.instructions.remove(i2);
+		
+		//patch read
+		MethodNode read = ASMHelper.getMethodNode(node, new MCPSidedString("readCustomPotionEffectFromNBT","func_82722_b").toString(), "(Lnet/minecraft/nbt/NBTTagCompound;)Lnet/minecraft/potion/PotionEffect;");
+		MethodInsnNode compare = new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "net/minecraft/nbt/NBTTagCompound", getByte, "(Ljava/lang/String;)B", false);
+		MethodInsnNode r1 = (MethodInsnNode) ASMHelper.getFirstMethodInsn(read, compare);
+		MethodInsnNode r2 = (MethodInsnNode) ASMHelper.nextMethodInsnNode(r1, compare);
+		r1.name = getShort;
+		r1.desc = descS;
+		r2.name = getShort;
+		r2.desc = descS;
+		
+		int count = 0;
+		for(LocalVariableNode a : read.localVariables)
+		{
+			if(a.desc.equals("B"))
+			{
+				a.desc = "S";
+				count++;
+				if(count == 2)
+					break;
+			}
+		}
+	}
+
 	private void patchS1DPacketEntityEffect(ClassNode node) 
 	{
 		try 
