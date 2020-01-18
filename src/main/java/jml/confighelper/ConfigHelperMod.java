@@ -26,7 +26,7 @@ import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.EnumHelper;
 
-@Mod(modid = ModReference.MODID, version = ModReference.VERSION, name = ModReference.NAME)
+@Mod(modid = ModReference.MODID, version = ModReference.VERSION, name = ModReference.NAME, dependencies = "required-after:evilnotchlib")
 public class ConfigHelperMod 
 {
 	
@@ -47,7 +47,6 @@ public class ConfigHelperMod
     @EventHandler
     public void loadComplete(FMLLoadCompleteEvent event)
     {
-    	PatchedClassLoader.checkClassLoader(this.getClass().getClassLoader());
     	Registries.loadComplete();
     	Registries.nextDimFrozen = Registries.nextDim;
     	Registries.loading = false;
@@ -61,9 +60,7 @@ public class ConfigHelperMod
 		{
 			long time = System.currentTimeMillis();
 			Registries.write();
-			System.out.println();
 			JavaUtil.printTime(time, "Done Outputing files: ");
-			System.out.println();
 		}
     }
 }

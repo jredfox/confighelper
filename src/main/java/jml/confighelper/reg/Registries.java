@@ -1,12 +1,7 @@
 package jml.confighelper.reg;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.google.common.collect.ListMultimap;
 
@@ -23,28 +18,21 @@ import jml.confighelper.datawatcher.WatcherInteger;
 import jml.confighelper.datawatcher.WatcherItemStack;
 import jml.confighelper.datawatcher.WatcherShort;
 import jml.confighelper.datawatcher.WatcherString;
-import jml.confighelper.proxy.ClientProxy;
-import jml.confighelper.proxy.ServerProxy;
 import jml.confighelper.reg.Registry.DataType;
 import jml.evilnotch.lib.JavaUtil;
+import jml.evilnotch.lib.minecraft.CrashReport;
 import net.minecraft.block.Block;
 import net.minecraft.enchantment.Enchantment;
-import net.minecraft.entity.DataWatcher;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
-import net.minecraft.nbt.CompressedStreamTools;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.potion.Potion;
-import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraft.world.biome.BiomeGenMutated;
-import net.minecraftforge.common.DimensionManager;
 
 /**
  * The central Registry system for all data types to be used upon
@@ -203,23 +191,7 @@ public class Registries {
 
 	public static void makeCrashReport(String cat, String msg) 
 	{
-		boolean isClient = false;
-		try
-		{
-			Class c = DedicatedServer.class;
-		}
-		catch(Throwable t)
-		{
-			isClient = true;
-		}
-		if(isClient)
-		{
-			ClientProxy.makeCrashReport(cat, msg);
-		}
-		else
-		{
-			ServerProxy.makeCrashReport(cat, msg);
-		}
+		CrashReport.makeCrashReport(cat, msg);
 	}
 	
 	/**
