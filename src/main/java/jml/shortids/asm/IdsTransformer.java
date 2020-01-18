@@ -1,5 +1,6 @@
 package jml.shortids.asm;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.objectweb.asm.Opcodes;
@@ -32,7 +33,10 @@ public class IdsTransformer implements ITransformer{
 		"net.minecraftforge.common.DimensionManager",
 		"net.minecraft.entity.EntityList",
 		"net.minecraft.entity.DataWatcher",
-		"net.minecraft.client.network.NetHandlerPlayClient"
+		"net.minecraft.client.network.NetHandlerPlayClient",
+		"net.minecraft.network.play.server.S1DPacketEntityEffect",
+		"net.minecraft.network.play.server.S1EPacketRemoveEntityEffect",
+		"net.minecraft.potion.PotionEffect"
 	});
 
 	@Override
@@ -48,7 +52,7 @@ public class IdsTransformer implements ITransformer{
 	}
 
 	@Override
-	public void transform(String name, ClassNode node) 
+	public void transform(String name, ClassNode node)
 	{
 		int index = clazzes.indexOf(name);
 		if(index != -1)
@@ -78,7 +82,39 @@ public class IdsTransformer implements ITransformer{
 				case 6:
 					patchNetHandlerPlayClient(node);
 				break;
+				
+				case 7:
+					patchS1DPacketEntityEffect(node);
+				break;
+				
+				case 8:
+					patchS1EPacketRemoveEntityEffect(node);
+				break;
 			}
+		}
+	}
+	
+	private void patchS1DPacketEntityEffect(ClassNode node) 
+	{
+		try 
+		{
+			ASMHelper.replaceClassNode(node, ASMHelper.getInputStream(ModReference.MODID, "S1DPacketEntityEffect"));
+		} 
+		catch (IOException e) 
+		{
+			e.printStackTrace();
+		}
+	}
+
+	private void patchS1EPacketRemoveEntityEffect(ClassNode node) 
+	{
+		try 
+		{
+			ASMHelper.replaceClassNode(node, ASMHelper.getInputStream(ModReference.MODID, "S1EPacketRemoveEntityEffect"));
+		} 
+		catch (IOException e) 
+		{
+			e.printStackTrace();
 		}
 	}
 
