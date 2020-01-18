@@ -6,7 +6,9 @@ import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
 import jml.evilnotch.lib.asm.Coremod;
 import jml.evilnotch.lib.asm.TransformsReg;
 
-public class Plugin extends Coremod{
+@IFMLLoadingPlugin.MCVersion("1.7.10")
+@IFMLLoadingPlugin.SortingIndex(Coremod.sortingIndexMin)
+public class Plugin implements Coremod{
 
 	@Override
 	public void registerTransformers() 

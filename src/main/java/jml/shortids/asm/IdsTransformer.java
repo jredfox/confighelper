@@ -181,7 +181,7 @@ public class IdsTransformer implements ITransformer{
 	{
 		//change enchantment limit from 256 > short max value
 		MethodNode clinit = ASMHelper.getClassInitNode(node);
-		AbstractInsnNode spot = ASMHelper.getFirstFieldInsn(clinit, new FieldInsnNode(Opcodes.PUTSTATIC, "net/minecraft/enchantment/Enchantment", "enchantmentsList", "[Lnet/minecraft/enchantment/Enchantment;")).getPrevious().getPrevious();
+		AbstractInsnNode spot = ASMHelper.getFirstFieldInsn(clinit, new FieldInsnNode(Opcodes.PUTSTATIC, "net/minecraft/enchantment/Enchantment", new MCPSidedString("enchantmentsList", "field_77331_b").toString(), "[Lnet/minecraft/enchantment/Enchantment;")).getPrevious().getPrevious();
 		clinit.instructions.insert(spot, ASMHelper.getPush(RegistryIds.limitEnchantments + 1));
 		clinit.instructions.remove(spot);
 	}

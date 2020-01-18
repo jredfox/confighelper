@@ -1,31 +1,18 @@
 package jml.confighelper;
 
-import java.lang.annotation.Annotation;
-
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.event.FMLLoadCompleteEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import jml.confighelper.event.WatcherEvent;
 import jml.confighelper.reg.Registries;
-import jml.confighelper.reg.Registry;
-import jml.confighelper.reg.Registry.DataType;
 import jml.evilnotch.lib.JavaUtil;
-import jml.evilnotch.lib.Validate;
-import jml.evilnotch.lib.asm.PatchedClassLoader;
-import jml.evilnotch.lib.reflect.ReflectionHandler;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.DataWatcher;
 import net.minecraft.entity.monster.EntityCreeper;
-import net.minecraft.entity.monster.IMob;
-import net.minecraft.entity.passive.IAnimals;
-import net.minecraft.item.Item.ToolMaterial;
-import net.minecraft.potion.Potion;
-import net.minecraft.potion.PotionEffect;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.util.EnumHelper;
 
 @Mod(modid = ModReference.MODID, version = ModReference.VERSION, name = ModReference.NAME, dependencies = "required-after:evilnotchlib")
 public class ConfigHelperMod 
