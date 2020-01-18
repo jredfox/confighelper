@@ -8,11 +8,6 @@ import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
 
 public interface Coremod extends IFMLLoadingPlugin{
 	
-	/**
-	 * minimum sorting index for your mod to work or use IFMLLoadingPlugin.DependsOn("")
-	 */
-	public static final int sortingIndexMin = 1002;
-	
 	public void registerTransformers();
 
 	@Override

@@ -7,7 +7,6 @@ import jml.evilnotch.lib.asm.Coremod;
 import jml.evilnotch.lib.asm.TransformsReg;
 
 @IFMLLoadingPlugin.MCVersion("1.7.10")
-@IFMLLoadingPlugin.SortingIndex(Coremod.sortingIndexMin)
 public class Plugin implements Coremod{
 
 	@Override
