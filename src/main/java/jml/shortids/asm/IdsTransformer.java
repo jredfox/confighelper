@@ -31,7 +31,8 @@ public class IdsTransformer implements ITransformer{
 		"net.minecraft.enchantment.Enchantment",
 		"net.minecraftforge.common.DimensionManager",
 		"net.minecraft.entity.EntityList",
-		"net.minecraft.entity.DataWatcher"
+		"net.minecraft.entity.DataWatcher",
+		"net.minecraft.client.network.NetHandlerPlayClient"
 	});
 
 	@Override
@@ -73,6 +74,10 @@ public class IdsTransformer implements ITransformer{
 				case 5:
 					patchDatawatcher(node);
 				break;
+				
+				case 6:
+					patchNetHandlerPlayClient(node);
+				break;
 			}
 		}
 	}
@@ -82,9 +87,13 @@ public class IdsTransformer implements ITransformer{
 		
 	}
 
-	private void patchEnchantment(ClassNode node) {
-		// TODO Auto-generated method stub
-		
+	private void patchEnchantment(ClassNode node) 
+	{
+		//change enchantment limit from 256 > short max value
+		MethodNode clinit = ASMHelper.getClassInitNode(node);
+		AbstractInsnNode spot = ASMHelper.getFirstFieldInsn(clinit, new FieldInsnNode(Opcodes.PUTSTATIC, "net/minecraft/enchantment/Enchantment", "enchantmentsList", "[Lnet/minecraft/enchantment/Enchantment;")).getPrevious().getPrevious();
+		clinit.instructions.insert(spot, ASMHelper.getPush(RegistryIds.limitEnchantments + 1));
+		clinit.instructions.remove(spot);
 	}
 
 	private void patchBiome(ClassNode node) 
@@ -165,6 +174,20 @@ public class IdsTransformer implements ITransformer{
 				break;
 			}
 		}
+	}
+	
+	/**
+	 * make it binarary compatible with the id extension change
+	 */
+	private void patchNetHandlerPlayClient(ClassNode node) 
+	{ 
+		MethodNode method = ASMHelper.getMethodNode(node, new MCPSidedString("handleEntityEffect", "func_147260_a").toString(), "(Lnet/minecraft/network/play/server/S1DPacketEntityEffect;)V");
+		MethodInsnNode m1 = (MethodInsnNode) ASMHelper.getFirstMethodInsn(method, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "net/minecraft/network/play/server/S1DPacketEntityEffect", "func_149427_e", "()B", false));
+		MethodInsnNode m2 = ASMHelper.nextMethodInsnNode(m1, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "net/minecraft/network/play/server/S1DPacketEntityEffect", "func_149425_g", "()S", false));
+		MethodInsnNode m3 = ASMHelper.nextMethodInsnNode(m2, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "net/minecraft/network/play/server/S1DPacketEntityEffect", "func_149428_f", "()B", false));
+		m1.desc = "()I";
+		m2.desc = "()I";
+		m3.desc = "()I";
 	}
 
 }
