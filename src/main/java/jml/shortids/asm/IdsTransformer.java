@@ -38,7 +38,8 @@ public class IdsTransformer implements ITransformer{
 		"net.minecraft.client.network.NetHandlerPlayClient",
 		"net.minecraft.network.play.server.S1DPacketEntityEffect",
 		"net.minecraft.network.play.server.S1EPacketRemoveEntityEffect",
-		"net.minecraft.potion.PotionEffect"
+		"net.minecraft.potion.PotionEffect",
+		"net.minecraft.network.play.server.S0FPacketSpawnMob"
 	});
 
 	@Override
@@ -96,10 +97,22 @@ public class IdsTransformer implements ITransformer{
 				case 9:
 					patchPotionEffect(node);
 				break;
+				
+				case 10:
+					patchS0FPacketSpawnMob(node);
+				break;
 			}
 		}
 	}
 	
+	/**
+	 * increase limit of packet global entity id to integer
+	 */
+	private void patchS0FPacketSpawnMob(ClassNode node)
+	{
+		
+	}
+
 	private void patchPotionEffect(ClassNode node) 
 	{
 		//patch the writeCustomPotionEffectToNBT
@@ -172,9 +185,10 @@ public class IdsTransformer implements ITransformer{
 		}
 	}
 
-	private void patchEntityList(ClassNode node) {
-		// TODO Auto-generated method stub
-		
+	private void patchEntityList(ClassNode node) 
+	{
+		MethodNode addMapping = ASMHelper.getMethodNode(node, new MCPSidedString("addMapping", "func_75618_a").toString(), "(Ljava/lang/Class;Ljava/lang/String;I)V");
+		ASMHelper.clearNextThrowable(addMapping, "java/lang/IllegalArgumentException");
 	}
 
 	private void patchEnchantment(ClassNode node) 
