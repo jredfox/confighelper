@@ -39,7 +39,8 @@ public class IdsTransformer implements ITransformer{
 		"net.minecraft.network.play.server.S1DPacketEntityEffect",
 		"net.minecraft.network.play.server.S1EPacketRemoveEntityEffect",
 		"net.minecraft.potion.PotionEffect",
-		"net.minecraft.network.play.server.S0FPacketSpawnMob"
+		"net.minecraft.network.play.server.S0FPacketSpawnMob",
+		"net.minecraft.item.ItemStack"
 	});
 
 	@Override
@@ -101,16 +102,48 @@ public class IdsTransformer implements ITransformer{
 				case 10:
 					patchS0FPacketSpawnMob(node);
 				break;
+				
+				case 11:
+					patchItemStack(node);
+				break;
 			}
 		}
 	}
 	
+	private void patchItemStack(ClassNode node) 
+	{
+		//TODO:
+	}
+
 	/**
 	 * increase limit of packet global entity id to integer
 	 */
 	private void patchS0FPacketSpawnMob(ClassNode node)
 	{
+		MethodNode ctr = ASMHelper.getConstructionNode(node, "(Lnet/minecraft/entity/EntityLivingBase;)V");
+		InsnNode cast = (InsnNode) ASMHelper.getFirstInstruction(ctr, Opcodes.I2B);
+		ctr.instructions.remove(cast);
 		
+		MethodNode write = ASMHelper.getMethodNode(node, new MCPSidedString("writePacketData","func_148840_b").toString(), "(Lnet/minecraft/network/PacketBuffer;)V");
+		MethodInsnNode m1 = (MethodInsnNode) ASMHelper.getFirstMethodInsn(write, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "net/minecraft/network/PacketBuffer", "writeByte", "(I)Lio/netty/buffer/ByteBuf;", false));
+		//changes method descriptions
+		m1.name = new MCPSidedString("writeVarIntToBuffer", "func_150787_b").toString();
+		m1.desc = "(I)V";
+		//since the previous returned a value we have to remove the next pop
+		write.instructions.remove(ASMHelper.nextInsn(m1, Opcodes.POP));
+		//remove the bit opperand
+		AbstractInsnNode bit = ASMHelper.getFirstInstruction(write, Opcodes.IAND);
+		write.instructions.remove(bit.getPrevious());
+		write.instructions.remove(bit);
+		
+		//clear bit opperand and change method call
+		MethodNode read = ASMHelper.getMethodNode(node, new MCPSidedString("readPacketData", "func_148837_a").toString(), "(Lnet/minecraft/network/PacketBuffer;)V");
+		AbstractInsnNode bit2 = ASMHelper.getFirstInstruction(read, Opcodes.IAND);
+		MethodInsnNode m2 = (MethodInsnNode) bit2.getPrevious().getPrevious();
+		m2.name = new MCPSidedString("readVarIntFromBuffer", "func_150792_a").toString();
+		m2.desc = "()I";
+		write.instructions.remove(bit2.getPrevious());
+		write.instructions.remove(bit2);
 	}
 
 	private void patchPotionEffect(ClassNode node) 

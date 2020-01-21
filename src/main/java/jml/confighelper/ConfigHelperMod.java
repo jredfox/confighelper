@@ -10,6 +10,7 @@ import jml.evilnotch.lib.JavaUtil;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.DataWatcher;
 import net.minecraft.entity.monster.EntityCreeper;
+import net.minecraft.network.play.server.S0FPacketSpawnMob;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.MinecraftForge;
@@ -21,6 +22,7 @@ public class ConfigHelperMod
     @EventHandler
     public void preinit(FMLPreInitializationEvent event)
     {	
+    	new S0FPacketSpawnMob();
 		Registries.preinit();
 		MinecraftForge.EVENT_BUS.register(new WatcherEvent());
     	Registries.registerBiome(BiomeGenBase.getBiomeGenArray()[161], 161, true);//fix vanilla
