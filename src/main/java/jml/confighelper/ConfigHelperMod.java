@@ -48,9 +48,7 @@ public class ConfigHelperMod
 		}
 		else if(RegistryConfig.configMode)
 		{
-			long time = System.currentTimeMillis();
 			Registries.write();
-			JavaUtil.printTime(time, "Done Outputing files: ");
 		}
     }
 }

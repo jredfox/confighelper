@@ -28,9 +28,7 @@ public class WatcherEvent {
 			else if(RegistryConfig.configMode && !outputted)
 			{
 				outputted = true;
-				long time = System.currentTimeMillis();
 				Registries.writeWatcher();
-				JavaUtil.printTime(time, "Done Outputing datawatchers: ");
 			}
 		}
 	}
