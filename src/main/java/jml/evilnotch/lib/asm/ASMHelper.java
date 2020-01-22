@@ -42,12 +42,12 @@ public class ASMHelper
 	/**
 	 * srg support doesn't patch local vars nor instructions
 	 */
-	public static MethodNode replaceMethodNode(ClassNode node, String input, String name, String desc)
+	public static MethodNode replaceMethod(ClassNode node, String input, String name, String desc)
 	{
 		try
 		{
-			MethodNode origin = getMethodNode(node, name, desc);
-			MethodNode toReplace = getMethodNode(input, name, desc);
+			MethodNode origin = getMethod(node, name, desc);
+			MethodNode toReplace = getMethod(input, name, desc);
 			origin.instructions = toReplace.instructions;
 			origin.localVariables = toReplace.localVariables;
 			origin.annotationDefault = toReplace.annotationDefault;
@@ -112,7 +112,7 @@ public class ASMHelper
 	/**
 	 * if you use the ITransformer library call this method to replace a full class from another
 	 */
-	public static void replaceClassNode(ClassNode org, String input) throws IOException
+	public static void replaceClass(ClassNode org, String input) throws IOException
 	{
 		replaceClassNode(org, getClassNode(input));
 	}
@@ -163,12 +163,12 @@ public class ASMHelper
 	/**
 	 * get a method node from a possble cached classnode
 	 */
-	public static MethodNode getMethodNode(String input, String name, String desc) throws IOException 
+	public static MethodNode getMethod(String input, String name, String desc) throws IOException 
 	{
-		return getMethodNode(getClassNodeCached(input), name, desc);
+		return getMethod(getClassNodeCached(input), name, desc);
 	}
 	
-	public static MethodNode getMethodNode(ClassNode node, String name, String desc) 
+	public static MethodNode getMethod(ClassNode node, String name, String desc) 
 	{
 		for (MethodNode method : node.methods)
 		{
@@ -180,7 +180,7 @@ public class ASMHelper
 		return null;
 	}
 	
-	public static FieldNode getFieldNode(ClassNode node, String name)
+	public static FieldNode getField(ClassNode node, String name)
 	{
 		for(FieldNode f : node.fields)
 			if(f.name.equals(name))
@@ -188,7 +188,7 @@ public class ASMHelper
 		return null;
 	}
 	
-	public static void patchMethodNode(MethodNode node, String className, String oldClassName)
+	public static void patchMethod(MethodNode node, String className, String oldClassName)
 	{
 		patchMethod(node, className, oldClassName, false);
 	}
@@ -274,15 +274,15 @@ public class ASMHelper
 	/**
 	 * add a object field to the class
 	 */
-	public static void addFeildNode(ClassNode node, String name, String desc)
+	public static void addFeild(ClassNode node, String name, String desc)
 	{
-		addFeildNode(node, name, desc, null);
+		addFeild(node, name, desc, null);
 	}
 	
 	/**
 	 * add a object field to the class with optional signature. The paramDesc is a descriptor of the types of a class HashMap<key,value>
 	 */
-	public static void addFeildNode(ClassNode node, String feildName, String desc, String sig)
+	public static void addFeild(ClassNode node, String feildName, String desc, String sig)
 	{
 		FieldNode field = new FieldNode(Opcodes.ACC_PUBLIC, feildName, desc, sig, null);
 		node.fields.add(field);
@@ -291,11 +291,25 @@ public class ASMHelper
 	/**
 	 * don't add the method if it's already has it
 	 */
-	public static void addIfMethodNode(ClassNode classNode, String input, String name, String desc) throws IOException
+	public static void addIfMethod(ClassNode classNode, String input, String name, String desc) throws IOException
 	{
-		MethodNode method = getMethodNode(input, name, desc);
+		MethodNode method = getMethod(input, name, desc);
 		Validate.nonNull(method);
-		if(!containsMethodNode(classNode, name, desc))
+		addIfMethod(classNode, method);
+	}
+	
+	/**
+	 * add a brand new method node into the classNode
+	 */
+	public static void addIfMethod(ClassNode classNode, int access, String name, String desc) 
+	{
+		MethodNode method = new MethodNode(access, name, desc, null, null);
+		addIfMethod(classNode, method);
+	}
+
+	public static void addIfMethod(ClassNode classNode, MethodNode method) 
+	{
+		if(!containsMethod(classNode, method))
 			classNode.methods.add(method);
 	}
 
@@ -303,19 +317,24 @@ public class ASMHelper
 	 * add a method no obfuscated checks you have to do that yourself if you got a deob compiled class
 	 * no checks for patching the local variables nor the instructions
 	 */
-	public static MethodNode addMethodNode(ClassNode node, String input, String name, String desc) throws IOException 
+	public static MethodNode addMethod(ClassNode node, String input, String name, String desc) throws IOException 
 	{
-		MethodNode method = getMethodNode(input, name, desc);
+		MethodNode method = getMethod(input, name, desc);
 		Validate.nonNull(method);
 		node.methods.add(method);
 		return method;
+	}
+	
+	public static boolean containsMethod(ClassNode classNode, MethodNode method) 
+	{
+		return containsMethod(classNode, method.name, method.desc);
 	}
 	
 	/**
 	 * search from the class node if it contains the method
 	 * @return
 	 */
-	public static boolean containsMethodNode(ClassNode classNode, String name, String desc) 
+	public static boolean containsMethod(ClassNode classNode, String name, String desc) 
 	{
 		for(MethodNode node : classNode.methods)
 			if(node.name.equals(name) && node.desc.equals(desc))
@@ -329,14 +348,14 @@ public class ASMHelper
 	 */
 	public static void removeMethodNode(ClassNode node, String name, String desc) throws IOException
 	{
-		MethodNode method = getMethodNode(node, name, desc);
+		MethodNode method = getMethod(node, name, desc);
 		if(method != null)
 			node.methods.remove(method);
 	}
 	
-	public static void removeFieldNode(ClassNode node, String name) 
+	public static void removeField(ClassNode node, String name) 
 	{
-		FieldNode f = getFieldNode(node, name);
+		FieldNode f = getField(node, name);
 		if(f != null)
 			node.fields.remove(f);
 	}
@@ -386,7 +405,12 @@ public class ASMHelper
 	 */
 	public static MethodNode getConstructor(ClassNode classNode, String desc) 
 	{
-		return getMethodNode(classNode, "<init>", desc);
+		return getMethod(classNode, "<init>", desc);
+	}
+	
+	public static MethodNode getClassInit(ClassNode classNode) 
+	{
+		return getMethod(classNode, "<clinit>", "()V");
 	}
 	
 	/**
@@ -397,11 +421,6 @@ public class ASMHelper
 	public static AbstractInsnNode firstCtrInsn(MethodNode node)
 	{
 		return ASMHelper.firstInsn(node, Opcodes.INVOKESPECIAL);
-	}
-	
-	public static MethodNode getClassInit(ClassNode classNode) 
-	{
-		return getMethodNode(classNode, "<clinit>", "()V");
 	}
 	
 	/**
@@ -425,20 +444,6 @@ public class ASMHelper
 				return node;
 		}
 		return null;
-	}
-	
-	/**
-	 * add a brand new method node into the classNode
-	 */
-	public static void addMethodNodeIf(ClassNode classNode, int opcode, String name, String desc) 
-	{
-		if(containsMethodNode(classNode, name, desc))
-		{
-			System.out.println("returing class has method already!" + name + "," + desc);
-			return;
-		}
-		MethodNode node = new MethodNode(opcode, name, desc, null, null);
-		classNode.methods.add(node);
 	}
 	
 	/**
