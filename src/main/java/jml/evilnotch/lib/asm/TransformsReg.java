@@ -23,12 +23,7 @@ public class TransformsReg {
 	
 	public static List<ITransformer> transformers = new ArrayList(2);
 	public static Set<ResourceLocation> tcheck = new HashSet(2);
-	public static Set<String> exclusions = new HashSet(1);
-	
-	static
-	{
-		registerExclusion("net.minecraft.util.ResourceLocation");
-	}
+	public static Set<String> exclusions = new HashSet(0);
 	
 	public static void registerTransformer(String transformerClass)
 	{
