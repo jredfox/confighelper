@@ -60,17 +60,17 @@ public class RegCompatTransformer implements ITransformer{
 	
 	private void patchErebus(ClassNode classNode) 
 	{
-		MethodNode init = ASMHelper.getMethodNode(classNode, "init", "()V");
+		MethodNode init = ASMHelper.getMethod(classNode, "init", "()V");
 		ASMHelper.clearNextThrowable(init, "java/lang/IllegalArgumentException");
 		ASMHelper.clearNextThrowable(init, "java/lang/IllegalArgumentException");
 		
-		MethodNode post = ASMHelper.getMethodNode(classNode, "postInit", "()V");
+		MethodNode post = ASMHelper.getMethod(classNode, "postInit", "()V");
 		ASMHelper.clearVoidMethod(post);
 	}
 
 	private static void patchAbyssalcraft(ClassNode classNode) 
 	{
-		MethodNode method = ASMHelper.getMethodNode(classNode, "checkBiomeIds", "(Z)V");
+		MethodNode method = ASMHelper.getMethod(classNode, "checkBiomeIds", "(Z)V");
 		ASMHelper.clearVoidMethod(method);
 	}
 

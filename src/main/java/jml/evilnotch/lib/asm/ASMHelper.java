@@ -348,7 +348,7 @@ public class ASMHelper
 	/**
 	 * find the first instruction to inject
 	 */
-	public static AbstractInsnNode firstInsn(MethodNode method, int opcode) 
+	public static AbstractInsnNode getFirstInsn(MethodNode method, int opcode) 
 	{
 		for(AbstractInsnNode ab : method.instructions.toArray())
 		{
@@ -363,7 +363,7 @@ public class ASMHelper
 	/**
 	 * getting the first instanceof of this will usually tell you where the initial injection point should be after
 	 */
-	public static LineNumberNode firstInsn(MethodNode method) 
+	public static LineNumberNode getFirstInsn(MethodNode method) 
 	{
 		for(AbstractInsnNode obj : method.instructions.toArray())
 			if(obj instanceof LineNumberNode)
@@ -371,7 +371,7 @@ public class ASMHelper
 		return null;
 	}
 	
-	public static AbstractInsnNode lastInsn(MethodNode method)
+	public static AbstractInsnNode getLastInsn(MethodNode method)
 	{
 		AbstractInsnNode[] arr = method.instructions.toArray();
 		for(int i=arr.length;i>=0;i--)
@@ -405,7 +405,7 @@ public class ASMHelper
 	 */
 	public static AbstractInsnNode firstCtrInsn(MethodNode method)
 	{
-		return ASMHelper.firstInsn(method, Opcodes.INVOKESPECIAL);
+		return ASMHelper.getFirstInsn(method, Opcodes.INVOKESPECIAL);
 	}
 	
 	/**
@@ -536,7 +536,7 @@ public class ASMHelper
 		return m1.name.equals(m2.name) && m1.desc.equals(m2.desc);
 	}
 	
-	public static FieldInsnNode firstFieldInsn(MethodNode method, FieldInsnNode field) 
+	public static FieldInsnNode getFirstFieldInsn(MethodNode method, FieldInsnNode field) 
 	{
 		for(AbstractInsnNode ab : method.instructions.toArray())
 		{
@@ -548,7 +548,7 @@ public class ASMHelper
 		return null;
 	}
 	
-	public static MethodInsnNode firstMethodInsn(MethodNode method, MethodInsnNode field) 
+	public static MethodInsnNode getFirstMethodInsn(MethodNode method, MethodInsnNode field) 
 	{
 		for(AbstractInsnNode ab : method.instructions.toArray())
 		{
@@ -560,7 +560,7 @@ public class ASMHelper
 		return null;
 	}
 	
-	public static LdcInsnNode firstLdcInsn(MethodNode method, LdcInsnNode ldc) 
+	public static LdcInsnNode getFirstLdcInsn(MethodNode method, LdcInsnNode ldc) 
 	{
 		for(AbstractInsnNode ab : method.instructions.toArray())
 		{
@@ -723,7 +723,7 @@ public class ASMHelper
 	 */
 	public static void clearMethod(MethodNode method) 
 	{
-		LineNumberNode line = ASMHelper.firstInsn(method);
+		LineNumberNode line = ASMHelper.getFirstInsn(method);
 		method.instructions.clear();
 		LabelNode label = new LabelNode();
 		method.instructions.add(label);

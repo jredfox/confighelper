@@ -102,7 +102,7 @@ public class RegTransformer implements ITransformer{
 		ASMHelper.replaceMethod(classNode, input, "validateAndClaimId", "(I)I");
 		ASMHelper.replaceMethod(classNode, input, "findGlobalUniqueEntityId", "()I");
 		//no need to replace the entire method here
-		MethodNode reg = ASMHelper.getMethodNode(classNode, "registerGlobalEntityID", "(Ljava/lang/Class;Ljava/lang/String;III)V");
+		MethodNode reg = ASMHelper.getMethod(classNode, "registerGlobalEntityID", "(Ljava/lang/Class;Ljava/lang/String;III)V");
 		AbstractInsnNode spot = ASMHelper.getLastMethodInsn(reg, new MethodInsnNode(Opcodes.INVOKESPECIAL, "cpw/mods/fml/common/registry/EntityRegistry", "validateAndClaimId", "(I)I", false));
 		//don't force edit if the id is already assigned to itself
 		if(spot.getNext().getOpcode() == Opcodes.POP)
@@ -118,7 +118,7 @@ public class RegTransformer implements ITransformer{
 	 */
 	private static void patchBiome(ClassNode classNode) 
 	{
-		MethodNode node = ASMHelper.getConstructionNode(classNode, "(IZ)V");
+		MethodNode node = ASMHelper.getConstructor(classNode, "(IZ)V");
 		InsnList list = new InsnList();
 		list.add(new VarInsnNode(Opcodes.ALOAD, 0));
 		list.add(new VarInsnNode(Opcodes.ILOAD, 1));
@@ -126,13 +126,13 @@ public class RegTransformer implements ITransformer{
 		list.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "jml/confighelper/reg/Registries", "registerBiome", "(Lnet/minecraft/world/biome/BiomeGenBase;IZ)I", false));
 		list.add(new VarInsnNode(Opcodes.ISTORE, 1));
 		FieldInsnNode field = new FieldInsnNode(Opcodes.PUTFIELD, "net/minecraft/world/biome/BiomeGenBase", new MCPSidedString("topBlock", "field_76752_A").toString(), "Lnet/minecraft/block/Block;");
-		node.instructions.insert(ASMHelper.getFirstInstruction(node, Opcodes.INVOKESPECIAL), list);
+		node.instructions.insert(ASMHelper.getFirstInsn(node, Opcodes.INVOKESPECIAL), list);
 		
-		MethodNode clinit = ASMHelper.getClassInitNode(classNode);
+		MethodNode clinit = ASMHelper.getClassInit(classNode);
 		InsnList list2 = new InsnList();
 		list2.add(new InsnNode(Opcodes.ICONST_1));
 		list2.add(new FieldInsnNode(Opcodes.PUTSTATIC, "jml/confighelper/reg/Registries", "initBiomes", "Z"));
-		clinit.instructions.insertBefore(ASMHelper.getLastInstruction(clinit, Opcodes.RETURN), list2);
+		clinit.instructions.insertBefore(ASMHelper.getLastInsn(clinit, Opcodes.RETURN), list2);
 	}
 	
 	/**
@@ -141,13 +141,13 @@ public class RegTransformer implements ITransformer{
 	private static void patchPotion(ClassNode classNode) 
 	{	
 		//inject line: Registries.registerPotion(this, id);
-		MethodNode constructor = ASMHelper.getConstructionNode(classNode, "(IZI)V");
+		MethodNode constructor = ASMHelper.getConstructor(classNode, "(IZI)V");
 		InsnList list = new InsnList();
 		list.add(new VarInsnNode(Opcodes.ALOAD, 0));
 		list.add(new VarInsnNode(Opcodes.ILOAD, 1));
 		list.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "jml/confighelper/reg/Registries", "registerPotion", "(Lnet/minecraft/potion/Potion;I)I", false));
 		list.add(new VarInsnNode(Opcodes.ISTORE, 1));
-		constructor.instructions.insert(ASMHelper.getFirstInstruction(constructor, Opcodes.INVOKESPECIAL), list);
+		constructor.instructions.insert(ASMHelper.getFirstInsn(constructor, Opcodes.INVOKESPECIAL), list);
 	}
 	
 	/**
@@ -155,19 +155,19 @@ public class RegTransformer implements ITransformer{
 	 */
 	private void patchEnchantment(ClassNode classNode) 
 	{
-		MethodNode node = ASMHelper.getConstructionNode(classNode, "(IILnet/minecraft/enchantment/EnumEnchantmentType;)V");
+		MethodNode node = ASMHelper.getConstructor(classNode, "(IILnet/minecraft/enchantment/EnumEnchantmentType;)V");
 		InsnList list = new InsnList();
 		list.add(new VarInsnNode(Opcodes.ALOAD, 0));
 		list.add(new VarInsnNode(Opcodes.ILOAD, 1));
 		list.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "jml/confighelper/reg/Registries", "registerEnchantment", "(Lnet/minecraft/enchantment/Enchantment;I)I", false));
 		list.add(new VarInsnNode(Opcodes.ISTORE, 1));
-		node.instructions.insert(ASMHelper.getFirstInstruction(node, Opcodes.INVOKESPECIAL), list);
+		node.instructions.insert(ASMHelper.getFirstInsn(node, Opcodes.INVOKESPECIAL), list);
 	}
 	
 	private static void patchForgeDims(ClassNode classNode) 
 	{
 		//inject provider lines
-		MethodNode provider = ASMHelper.getMethodNode(classNode, "registerProviderType", "(ILjava/lang/Class;Z)Z");
+		MethodNode provider = ASMHelper.getMethod(classNode, "registerProviderType", "(ILjava/lang/Class;Z)Z");
 		//id = Registries.registerProvider(provider.class, id);
 		InsnList list = new InsnList();
 		list.add(new VarInsnNode(Opcodes.ALOAD, 1));
@@ -179,10 +179,10 @@ public class RegTransformer implements ITransformer{
 		list.add(new VarInsnNode(Opcodes.ILOAD, 2));
 		list.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "jml/confighelper/reg/Registries", "keepDimLoaded", "(IZ)Z", false));
 		list.add(new VarInsnNode(Opcodes.ISTORE, 2));
-		provider.instructions.insert(ASMHelper.getFirstInstruction(provider), list);
+		provider.instructions.insert(ASMHelper.getFirstInsn(provider), list);
 		
 		//inject dimension lines
-		MethodNode dimensions = ASMHelper.getMethodNode(classNode, "registerDimension", "(II)V");
+		MethodNode dimensions = ASMHelper.getMethod(classNode, "registerDimension", "(II)V");
 		InsnList list2 = new InsnList();
 		//providerId = Registries.guessProviderId(providerId);
 		list2.add(new VarInsnNode(Opcodes.ILOAD, 1));
@@ -193,21 +193,21 @@ public class RegTransformer implements ITransformer{
 		list2.add(new VarInsnNode(Opcodes.ILOAD, 0));
 		list2.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "jml/confighelper/reg/Registries", "registerDimension", "(II)I", false));
 		list2.add(new VarInsnNode(Opcodes.ISTORE, 0));
-		dimensions.instructions.insert(ASMHelper.getFirstInstruction(dimensions), list2);
+		dimensions.instructions.insert(ASMHelper.getFirstInsn(dimensions), list2);
 		
 		//inject line: Registries.unregisterProvider(id);
-		MethodNode unregProvider = ASMHelper.getMethodNode(classNode, "unregisterProviderType", "(I)[I");
+		MethodNode unregProvider = ASMHelper.getMethod(classNode, "unregisterProviderType", "(I)[I");
 		InsnList list3 = new InsnList();
 		list3.add(new VarInsnNode(Opcodes.ILOAD, 0));
 		list3.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "jml/confighelper/reg/Registries", "unregisterProvider", "(I)V", false));
-		unregProvider.instructions.insert(ASMHelper.getFirstInstruction(unregProvider), list3);
+		unregProvider.instructions.insert(ASMHelper.getFirstInsn(unregProvider), list3);
 		
 		//inject line Registries.unregisterDimension(id);
-		MethodNode unregDim = ASMHelper.getMethodNode(classNode, "unregisterDimension", "(I)V");
+		MethodNode unregDim = ASMHelper.getMethod(classNode, "unregisterDimension", "(I)V");
 		InsnList list4 = new InsnList();
 		list4.add(new VarInsnNode(Opcodes.ILOAD, 0));
 		list4.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "jml/confighelper/reg/Registries", "unregisterDimension", "(I)V", false));
-		unregDim.instructions.insert(ASMHelper.getFirstInstruction(unregDim), list4);
+		unregDim.instructions.insert(ASMHelper.getFirstInsn(unregDim), list4);
 		
 		optimizeDims(classNode);
 	}
@@ -217,7 +217,7 @@ public class RegTransformer implements ITransformer{
 	 */
 	private static void optimizeDims(ClassNode node) 
 	{
-		MethodNode dimensions = ASMHelper.getMethodNode(node, "registerDimension", "(II)V");
+		MethodNode dimensions = ASMHelper.getMethod(node, "registerDimension", "(II)V");
 		//remove bitset map call
 		AbstractInsnNode a = ASMHelper.getLastFieldInsn(dimensions, new FieldInsnNode(Opcodes.GETSTATIC, "net/minecraftforge/common/DimensionManager", "dimensionMap", "Ljava/util/BitSet;"));
 		if(a != null)
@@ -238,7 +238,7 @@ public class RegTransformer implements ITransformer{
 		
 		//remove initialization of the BitSet as it's bad
 		ASMHelper.removeField(node, "dimensionMap");
-		MethodNode clinit = ASMHelper.getClassInitNode(node);
+		MethodNode clinit = ASMHelper.getClassInit(node);
 		for(AbstractInsnNode ab : clinit.instructions.toArray())
 		{
 			if(ab.getOpcode() == Opcodes.NEW)
@@ -257,17 +257,17 @@ public class RegTransformer implements ITransformer{
 	private void patchEntityList(ClassNode classNode) 
 	{
 		//inject line: Registries.registerEntity(EntityClass.class, name, id)
-		MethodNode node = ASMHelper.getMethodNode(classNode, new MCPSidedString("addMapping", "func_75618_a").toString(), "(Ljava/lang/Class;Ljava/lang/String;I)V");
+		MethodNode node = ASMHelper.getMethod(classNode, new MCPSidedString("addMapping", "func_75618_a").toString(), "(Ljava/lang/Class;Ljava/lang/String;I)V");
 		InsnList list = new InsnList();
 		list.add(new VarInsnNode(Opcodes.ALOAD, 0));
 		list.add(new VarInsnNode(Opcodes.ALOAD, 1));
 		list.add(new VarInsnNode(Opcodes.ILOAD, 2));
 		list.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "jml/confighelper/reg/Registries", "registerEntity", "(Ljava/lang/Class;Ljava/lang/String;I)I", false));
 		list.add(new VarInsnNode(Opcodes.ISTORE, 2));
-		node.instructions.insert(ASMHelper.getFirstInstruction(node), list);
+		node.instructions.insert(ASMHelper.getFirstInsn(node), list);
 		
 		//inject line: id = (Integer) classToIDMapping.get(id);
-		MethodNode egg = ASMHelper.getMethodNode(classNode, new MCPSidedString("addMapping", "func_75614_a").toString(), "(Ljava/lang/Class;Ljava/lang/String;III)V");
+		MethodNode egg = ASMHelper.getMethod(classNode, new MCPSidedString("addMapping", "func_75614_a").toString(), "(Ljava/lang/Class;Ljava/lang/String;III)V");
 		InsnList list2 = new InsnList();
 		list2.add(new FieldInsnNode(Opcodes.GETSTATIC, "net/minecraft/entity/EntityList", new MCPSidedString("classToIDMapping", "field_75624_e").toString(), "Ljava/util/Map;"));
 		list2.add(new VarInsnNode(Opcodes.ALOAD, 0));
@@ -284,7 +284,7 @@ public class RegTransformer implements ITransformer{
 		//add field
 		ASMHelper.addFeild(classNode, "reg", "Ljml/confighelper/reg/Registry;");
 		//patch constructor
-		MethodNode construct = ASMHelper.getConstructionNode(classNode, "(Lnet/minecraft/entity/Entity;)V");
+		MethodNode construct = ASMHelper.getConstructor(classNode, "(Lnet/minecraft/entity/Entity;)V");
 		InsnList list0 = new InsnList();
 		list0.add(new VarInsnNode(Opcodes.ALOAD, 0));
 		list0.add(new VarInsnNode(Opcodes.ALOAD, 1));
@@ -292,7 +292,7 @@ public class RegTransformer implements ITransformer{
 		list0.add(new FieldInsnNode(Opcodes.PUTFIELD, "net/minecraft/entity/DataWatcher", "reg", "Ljml/confighelper/reg/Registry;"));
 		construct.instructions.insert(ASMHelper.getLastPutField(construct), list0);
 		
-		MethodNode addObject = ASMHelper.getMethodNode(classNode, new MCPSidedString("addObject", "func_75682_a").toString(), "(ILjava/lang/Object;)V");
+		MethodNode addObject = ASMHelper.getMethod(classNode, new MCPSidedString("addObject", "func_75682_a").toString(), "(ILjava/lang/Object;)V");
 		//inject line: id = Registries.registerDataWatcher(this.field_151511_a, id, this.reg);
 		InsnList list2 = new InsnList();
 		list2.add(new VarInsnNode(Opcodes.ALOAD, 0));
@@ -302,7 +302,7 @@ public class RegTransformer implements ITransformer{
 		list2.add(new FieldInsnNode(Opcodes.GETFIELD, "net/minecraft/entity/DataWatcher", "reg", "Ljml/confighelper/reg/Registry;"));
 		list2.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "jml/confighelper/reg/Registries", "registerDataWatcher", "(Lnet/minecraft/entity/Entity;ILjml/confighelper/reg/Registry;)I", false));
 		list2.add(new VarInsnNode(Opcodes.ISTORE, 1));
-		addObject.instructions.insert(ASMHelper.getFirstInstruction(addObject), list2);
+		addObject.instructions.insert(ASMHelper.getFirstInsn(addObject), list2);
 	}
 
 }

@@ -21,7 +21,7 @@ public interface ITransformer {
 	/**
 	 * the transformer for your asm
 	 */
-	public void transform(String name, ClassNode node);
+	public void transform(String name, ClassNode node) throws Throwable;
 	
 	/**
 	 * if your transformer is dynamic just always return true
