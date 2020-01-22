@@ -21,8 +21,8 @@ public class ASMLoader implements IClassTransformer{
 	@Override
 	public byte[] transform(String oldName, String name, byte[] bytes) 
 	{
-		if(bytes == null)
-			return bytes;//do not parse null classes
+		if(bytes == null || TransformsReg.isExcluded(name))
+			return bytes;//do not parse null classes or blacklisted classes
 		
 		ClassNode node = null;
 		ITransformer last = null;
@@ -49,7 +49,7 @@ public class ASMLoader implements IClassTransformer{
 		{
 			t.printStackTrace();
 			if(!name.equals("net.minecraft.util.ResourceLocation"))
-				System.out.print("Blamed Transformer:\t" + (last != null ? last.id() : null) + "\nLoaded Transformers:" + TransformsReg.printIds() + "\n");
+				System.out.print("Blamed Transformer:\t" + (last != null ? last.getId() : null) + "\nLoaded Transformers:" + TransformsReg.printIds() + "\n");
 			else
 				System.out.print("Blamed Transformer:\t" + (last != null ? last.getClass() : null) + TransformsReg.printClasses() + "\n");
 		}

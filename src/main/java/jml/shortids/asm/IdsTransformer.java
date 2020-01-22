@@ -44,7 +44,7 @@ public class IdsTransformer implements ITransformer{
 	});
 
 	@Override
-	public ResourceLocation id() 
+	public ResourceLocation getId() 
 	{
 		return new ResourceLocation("shortids:transformer");
 	}

@@ -27,7 +27,7 @@ public class RegCompatTransformer implements ITransformer{
 	});
 	
 	@Override
-	public ResourceLocation id() 
+	public ResourceLocation getId() 
 	{
 		return new ResourceLocation("confighelper:compat");
 	}

@@ -45,7 +45,7 @@ public class RegTransformer implements ITransformer{
 	});
 	
 	@Override
-	public ResourceLocation id()
+	public ResourceLocation getId()
 	{
 		return new ResourceLocation("confighelper:registry");
 	}
