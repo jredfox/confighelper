@@ -42,7 +42,7 @@ public class ASMHelper
 	/**
 	 * srg support doesn't patch local vars nor instructions
 	 */
-	public static MethodNode replaceMethod(ClassNode node, String input, String name, String desc)
+	public static MethodNode replaceMethodNode(ClassNode node, String input, String name, String desc)
 	{
 		try
 		{
@@ -188,7 +188,7 @@ public class ASMHelper
 		return null;
 	}
 	
-	public static void patchMethod(MethodNode node, String className, String oldClassName)
+	public static void patchMethodNode(MethodNode node, String className, String oldClassName)
 	{
 		patchMethod(node, className, oldClassName, false);
 	}
@@ -198,7 +198,7 @@ public class ASMHelper
 	 */
 	public static void patchMethod(MethodNode node, String className, String oldClassName, boolean patchStatic)
 	{
-		patchInstructions(node, className, oldClassName, patchStatic);
+		patchInsns(node, className, oldClassName, patchStatic);
 		patchLocals(node, className);
 	}
 	
@@ -220,30 +220,31 @@ public class ASMHelper
 	/**
 	 * patch previous object owner instructions to new owner with filtering out static fields/method calls
 	 */
-	public static void patchInstructions(MethodNode mn, String class_name, String class_old,boolean patchStatic) 
+	public static void patchInsns(MethodNode mn, String classNew, String classOld, boolean patchStatic) 
 	{
-		String className = class_name.replace('.', '/');
-		String oldClassName = class_old.replace('.', '/');
+		classNew = toASMString(classNew);
+		classOld = toASMString(classOld);
 		
-		for(AbstractInsnNode ain : mn.instructions.toArray())
+		for(AbstractInsnNode ab : mn.instructions.toArray())
 		{
-			if(ain instanceof MethodInsnNode)
+			if(ab instanceof MethodInsnNode)
 			{
-				MethodInsnNode min = (MethodInsnNode)ain;
-				if(min.owner.equals(oldClassName) && (!isStaticMethod(min) || patchStatic) )
-				{
-					min.owner = className;
-				}
+				MethodInsnNode min = (MethodInsnNode)ab;
+				if(min.owner.equals(classOld) && (!isStaticMethod(min) || patchStatic) )
+					min.owner = classNew;
 			}
-			else if(ain instanceof FieldInsnNode)
+			else if(ab instanceof FieldInsnNode)
 			{
-				FieldInsnNode fin = (FieldInsnNode)ain;
-				if(fin.owner.equals(oldClassName) && (!isStaticFeild(fin) || patchStatic) )
-				{
-					fin.owner = className;
-				}
+				FieldInsnNode fin = (FieldInsnNode)ab;
+				if(fin.owner.equals(classOld) && (!isStaticFeild(fin) || patchStatic) )
+					fin.owner = classNew;
 			}
 		}
+	}
+	
+	public static String toASMString(String str)
+	{
+		return str.replace('.', '/');
 	}
 	
 	/**
@@ -273,15 +274,15 @@ public class ASMHelper
 	/**
 	 * add a object field to the class
 	 */
-	public static void addFeild(ClassNode node, String name, String desc)
+	public static void addFeildNode(ClassNode node, String name, String desc)
 	{
-		addFeild(node, name, desc, null);
+		addFeildNode(node, name, desc, null);
 	}
 	
 	/**
 	 * add a object field to the class with optional signature. The paramDesc is a descriptor of the types of a class HashMap<key,value>
 	 */
-	public static void addFeild(ClassNode node, String feildName, String desc, String sig)
+	public static void addFeildNode(ClassNode node, String feildName, String desc, String sig)
 	{
 		FieldNode field = new FieldNode(Opcodes.ACC_PUBLIC, feildName, desc, sig, null);
 		node.fields.add(field);
@@ -290,11 +291,11 @@ public class ASMHelper
 	/**
 	 * don't add the method if it's already has it
 	 */
-	public static void addIfMethod(ClassNode classNode, String input, String name, String desc) throws IOException
+	public static void addIfMethodNode(ClassNode classNode, String input, String name, String desc) throws IOException
 	{
 		MethodNode method = getMethodNode(input, name, desc);
 		Validate.nonNull(method);
-		if(!containsMethod(classNode, name, desc))
+		if(!containsMethodNode(classNode, name, desc))
 			classNode.methods.add(method);
 	}
 
@@ -302,7 +303,7 @@ public class ASMHelper
 	 * add a method no obfuscated checks you have to do that yourself if you got a deob compiled class
 	 * no checks for patching the local variables nor the instructions
 	 */
-	public static MethodNode addMethod(ClassNode node, String input, String name, String desc) throws IOException 
+	public static MethodNode addMethodNode(ClassNode node, String input, String name, String desc) throws IOException 
 	{
 		MethodNode method = getMethodNode(input, name, desc);
 		Validate.nonNull(method);
@@ -314,7 +315,7 @@ public class ASMHelper
 	 * search from the class node if it contains the method
 	 * @return
 	 */
-	public static boolean containsMethod(ClassNode classNode, String name, String desc) 
+	public static boolean containsMethodNode(ClassNode classNode, String name, String desc) 
 	{
 		for(MethodNode node : classNode.methods)
 			if(node.name.equals(name) && node.desc.equals(desc))
@@ -326,14 +327,14 @@ public class ASMHelper
 	 * remove a method don't remove ones that are going to get executed unless you immediately add the same method and descriptor back
 	 * @throws IOException 
 	 */
-	public static void removeMethod(ClassNode node, String name, String desc) throws IOException
+	public static void removeMethodNode(ClassNode node, String name, String desc) throws IOException
 	{
 		MethodNode method = getMethodNode(node, name, desc);
 		if(method != null)
 			node.methods.remove(method);
 	}
 	
-	public static void removeField(ClassNode node, String name) 
+	public static void removeFieldNode(ClassNode node, String name) 
 	{
 		FieldNode f = getFieldNode(node, name);
 		if(f != null)
@@ -343,7 +344,7 @@ public class ASMHelper
 	/**
 	 * find the first instruction to inject
 	 */
-	public static AbstractInsnNode getFirstInstruction(MethodNode method,int opcode) 
+	public static AbstractInsnNode firstInsn(MethodNode method, int opcode) 
 	{
 		for(AbstractInsnNode node : method.instructions.toArray())
 		{
@@ -358,7 +359,7 @@ public class ASMHelper
 	/**
 	 * getting the first instanceof of this will usually tell you where the initial injection point should be after
 	 */
-	public static LineNumberNode getFirstInstruction(MethodNode method) 
+	public static LineNumberNode firstInsn(MethodNode method) 
 	{
 		for(AbstractInsnNode obj : method.instructions.toArray())
 			if(obj instanceof LineNumberNode)
@@ -366,7 +367,7 @@ public class ASMHelper
 		return null;
 	}
 	
-	public static AbstractInsnNode getLastInstruction(MethodNode method)
+	public static AbstractInsnNode lastInsn(MethodNode method)
 	{
 		AbstractInsnNode[] arr = method.instructions.toArray();
 		for(int i=arr.length;i>=0;i--)
@@ -383,7 +384,7 @@ public class ASMHelper
 	/**
 	 * get a constructor since they are MethodNodes
 	 */
-	public static MethodNode getConstructionNode(ClassNode classNode, String desc) 
+	public static MethodNode getConstructor(ClassNode classNode, String desc) 
 	{
 		return getMethodNode(classNode, "<init>", desc);
 	}
@@ -393,12 +394,12 @@ public class ASMHelper
 	 * not this won't check if the fields are instantiated before calling your bytecode if you need to use
 	 * fields for your asm you will have to find a injection point further down the construction method
 	 */
-	public static AbstractInsnNode getFirstCtrInsn(MethodNode node)
+	public static AbstractInsnNode firstCtrInsn(MethodNode node)
 	{
-		return ASMHelper.getFirstInstruction(node, Opcodes.INVOKESPECIAL);
+		return ASMHelper.firstInsn(node, Opcodes.INVOKESPECIAL);
 	}
 	
-	public static MethodNode getClassInitNode(ClassNode classNode) 
+	public static MethodNode getClassInit(ClassNode classNode) 
 	{
 		return getMethodNode(classNode, "<clinit>", "()V");
 	}
@@ -408,13 +409,13 @@ public class ASMHelper
 	 */
 	public static AbstractInsnNode getLastPutField(MethodNode mn) 
 	{
-		return getLastInstruction(mn, Opcodes.PUTFIELD);
+		return getLastInsn(mn, Opcodes.PUTFIELD);
 	}
 	
 	/**
 	 * optimized way of getting a last instruction
 	 */
-	public static AbstractInsnNode getLastInstruction(MethodNode method, int opCode) 
+	public static AbstractInsnNode getLastInsn(MethodNode method, int opCode) 
 	{
 		AbstractInsnNode[] arr = method.instructions.toArray();
 		for(int i=arr.length-1;i>=0;i--)
@@ -431,7 +432,7 @@ public class ASMHelper
 	 */
 	public static void addMethodNodeIf(ClassNode classNode, int opcode, String name, String desc) 
 	{
-		if(containsMethod(classNode, name, desc))
+		if(containsMethodNode(classNode, name, desc))
 		{
 			System.out.println("returing class has method already!" + name + "," + desc);
 			return;
@@ -443,7 +444,7 @@ public class ASMHelper
 	/**
 	 * get a local variable index by it's owner name
 	 */
-	public static int getLocalVarIndexFromOwner(MethodNode method, String owner, String name) 
+	public static int localVarIndex(MethodNode method, String owner, String name) 
 	{
 		for(LocalVariableNode node : method.localVariables)
 		{
@@ -599,7 +600,7 @@ public class ASMHelper
 	    return ('L' + c.getName() + ';').replace('.', '/');
 	}
 	
-	public static FieldInsnNode getFirstFieldInsn(MethodNode node, FieldInsnNode field) 
+	public static FieldInsnNode firstFieldInsn(MethodNode node, FieldInsnNode field) 
 	{
 		for(AbstractInsnNode ab : node.instructions.toArray())
 		{
@@ -611,7 +612,7 @@ public class ASMHelper
 		return null;
 	}
 	
-	public static MethodInsnNode getFirstMethodInsn(MethodNode node, MethodInsnNode field) 
+	public static MethodInsnNode firstMethodInsn(MethodNode node, MethodInsnNode field) 
 	{
 		for(AbstractInsnNode ab : node.instructions.toArray())
 		{
@@ -623,7 +624,7 @@ public class ASMHelper
 		return null;
 	}
 	
-	public static LdcInsnNode getFirstLdcInsn(MethodNode node, LdcInsnNode tograb) 
+	public static LdcInsnNode firstLdcInsn(MethodNode node, LdcInsnNode tograb) 
 	{
 		for(AbstractInsnNode ab : node.instructions.toArray())
 		{
@@ -786,7 +787,7 @@ public class ASMHelper
 	 */
 	public static void clearMethod(MethodNode method) 
 	{
-		LineNumberNode line = ASMHelper.getFirstInstruction(method);
+		LineNumberNode line = ASMHelper.firstInsn(method);
 		method.instructions.clear();
 		LabelNode label = new LabelNode();
 		method.instructions.add(label);
