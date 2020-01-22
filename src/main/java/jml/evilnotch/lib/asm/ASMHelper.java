@@ -112,7 +112,7 @@ public class ASMHelper
 	/**
 	 * if you use the ITransformer library call this method to replace a full class from another
 	 */
-	public static void replaceClass(ClassNode org, String input) throws IOException
+	public static void replaceClassNode(ClassNode org, String input) throws IOException
 	{
 		replaceClassNode(org, getClassNode(input));
 	}
@@ -158,34 +158,6 @@ public class ASMHelper
 		MCWriter writer = new MCWriter(0);
 		classNode.accept(writer);
 		return writer;
-	}
-	
-	/**
-	 * get a method node from a possble cached classnode
-	 */
-	public static MethodNode getMethod(String input, String name, String desc) throws IOException 
-	{
-		return getMethod(getClassNodeCached(input), name, desc);
-	}
-	
-	public static MethodNode getMethod(ClassNode node, String name, String desc) 
-	{
-		for (MethodNode method : node.methods)
-		{
-			if (method.name.equals(name) && method.desc.equals(desc))
-			{
-				return method;
-			}
-		}
-		return null;
-	}
-	
-	public static FieldNode getField(ClassNode node, String name)
-	{
-		for(FieldNode f : node.fields)
-			if(f.name.equals(name))
-				return f;
-		return null;
 	}
 	
 	public static void patchMethod(MethodNode node, String className, String oldClassName)
@@ -248,19 +220,31 @@ public class ASMHelper
 	}
 	
 	/**
-	 * use this in your asm to return true
+	 * get a method node from a possble cached classnode
 	 */
-	public static boolean isTrue()
+	public static MethodNode getMethod(String input, String name, String desc) throws IOException 
 	{
-		return true;
+		return getMethod(getClassNodeCached(input), name, desc);
 	}
 	
-	/**
-	 * use this is your asm to return false
-	 */
-	public static boolean isFalse()
+	public static MethodNode getMethod(ClassNode node, String name, String desc) 
 	{
-		return false;
+		for (MethodNode method : node.methods)
+		{
+			if (method.name.equals(name) && method.desc.equals(desc))
+			{
+				return method;
+			}
+		}
+		return null;
+	}
+	
+	public static FieldNode getField(ClassNode node, String name)
+	{
+		for(FieldNode f : node.fields)
+			if(f.name.equals(name))
+				return f;
+		return null;
 	}
 	
 	/**
@@ -346,7 +330,7 @@ public class ASMHelper
 	 * remove a method don't remove ones that are going to get executed unless you immediately add the same method and descriptor back
 	 * @throws IOException 
 	 */
-	public static void removeMethodNode(ClassNode node, String name, String desc) throws IOException
+	public static void removeMethod(ClassNode node, String name, String desc) throws IOException
 	{
 		MethodNode method = getMethod(node, name, desc);
 		if(method != null)
@@ -449,7 +433,7 @@ public class ASMHelper
 	/**
 	 * get a local variable index by it's owner name
 	 */
-	public static int localVarIndex(MethodNode method, String owner, String name) 
+	public static int getLocalVarIndex(MethodNode method, String owner, String name) 
 	{
 		for(LocalVariableNode node : method.localVariables)
 		{
@@ -457,6 +441,11 @@ public class ASMHelper
 				return node.index;
 		}
 		return -1;
+	}
+	
+	public static LocalVariableNode getLocalVar(MethodNode method, String owner, String name)
+	{
+		return method.localVariables.get(getLocalVarIndex(method, owner, name));
 	}
 	
 	public static String toString(FieldNode node) 
@@ -529,80 +518,6 @@ public class ASMHelper
 	public static boolean equals(MethodNode obj1, MethodNode obj2)
 	{
 		return obj1.name.equals(obj2.name) && obj1.desc.equals(obj2.desc);
-	}
-	
-	/**
-	 * dumps a file from memory
-	 */
-	public static void dumpFile(String name, ClassWriter classWriter) throws IOException 
-	{
-		dumpFile(name, classWriter.toByteArray());
-	}
-	
-	/**
-	 * dumps a file from memory
-	 */
-	public static void dumpFile(String name, byte[] bytes) throws IOException 
-	{
-    	name = name.replace('.', '/');
-    	File f = new File(getHome(), "asm/dumps/" + name + ".class");
-    	f.getParentFile().mkdirs();
-    	FileUtils.writeByteArrayToFile(f, bytes);
-	}
-	
-	public static File getHome()
-	{
-		return Launch.minecraftHome != null ? Launch.minecraftHome : new File(System.getProperty("user.dir"));
-	}
-	
-	public static File getConfig()
-	{
-		return new File(getHome(), "config");
-	}
-
-	public static String getMethodDescriptor(Class clazz, String name, Class... params)
-	{
-		Method m = ReflectionHandler.getMethod(clazz, name, params);
-		if(m == null)
-			return null;
-	    String s = "(";
-	    for(final Class c : m.getParameterTypes())
-	    {
-	        s += getTypeForClass(c);
-	    }
-	    s+=')';
-	    return s + getTypeForClass(m.getReturnType());
-	}
-	
-	public static String getTypeForClass(final Class c)
-	{
-	    if(c.isPrimitive())
-	    {
-	        if(c==byte.class)
-	            return "B";
-	        if(c==char.class)
-	            return "C";
-	        if(c==double.class)
-	            return "D";
-	        if(c==float.class)
-	            return "F";
-	        if(c==int.class)
-	            return "I";
-	        if(c==long.class)
-	            return "J";
-	        if(c==short.class)
-	            return "S";
-	        if(c==boolean.class)
-	            return "Z";
-	        if(c==void.class)
-	            return "V";
-	        throw new RuntimeException("Unrecognized primitive " + c);
-	    }
-	    if(c.isArray()) 
-	    {
-	    	return c.getName().replace('.', '/');
-	    }
-	    return ('L' + c.getName() + ';').replace('.', '/');
 	}
 	
 	public static FieldInsnNode firstFieldInsn(MethodNode node, FieldInsnNode field) 
@@ -841,5 +756,96 @@ public class ASMHelper
 	public static boolean isReturnOpcode(int opcode)
 	{
 		return opcode == Opcodes.RETURN || opcode == Opcodes.ARETURN || opcode == Opcodes.DRETURN || opcode == Opcodes.FRETURN || opcode == Opcodes.IRETURN || opcode == Opcodes.LRETURN;
+	}
+	
+	/**
+	 * use this in your asm to return true
+	 */
+	public static boolean isTrue()
+	{
+		return true;
+	}
+	
+	/**
+	 * use this is your asm to return false
+	 */
+	public static boolean isFalse()
+	{
+		return false;
+	}
+	
+	
+	/**
+	 * dumps a file from memory
+	 */
+	public static void dumpFile(String name, ClassWriter classWriter) throws IOException 
+	{
+		dumpFile(name, classWriter.toByteArray());
+	}
+	
+	/**
+	 * dumps a file from memory
+	 */
+	public static void dumpFile(String name, byte[] bytes) throws IOException 
+	{
+    	name = name.replace('.', '/');
+    	File f = new File(getHome(), "asm/dumps/" + name + ".class");
+    	f.getParentFile().mkdirs();
+    	FileUtils.writeByteArrayToFile(f, bytes);
+	}
+	
+	public static File getHome()
+	{
+		return Launch.minecraftHome != null ? Launch.minecraftHome : new File(System.getProperty("user.dir"));
+	}
+	
+	public static File getConfig()
+	{
+		return new File(getHome(), "config");
+	}
+
+	public static String getMethodDescriptor(Class clazz, String name, Class... params)
+	{
+		Method m = ReflectionHandler.getMethod(clazz, name, params);
+		if(m == null)
+			return null;
+	    String s = "(";
+	    for(final Class c : m.getParameterTypes())
+	    {
+	        s += getTypeForClass(c);
+	    }
+	    s+=')';
+	    return s + getTypeForClass(m.getReturnType());
+	}
+	
+	public static String getTypeForClass(final Class c)
+	{
+	    if(c.isPrimitive())
+	    {
+	        if(c==byte.class)
+	            return "B";
+	        if(c==char.class)
+	            return "C";
+	        if(c==double.class)
+	            return "D";
+	        if(c==float.class)
+	            return "F";
+	        if(c==int.class)
+	            return "I";
+	        if(c==long.class)
+	            return "J";
+	        if(c==short.class)
+	            return "S";
+	        if(c==boolean.class)
+	            return "Z";
+	        if(c==void.class)
+	            return "V";
+	        throw new RuntimeException("Unrecognized primitive " + c);
+	    }
+	    if(c.isArray()) 
+	    {
+	    	return c.getName().replace('.', '/');
+	    }
+	    return ('L' + c.getName() + ';').replace('.', '/');
 	}
 }
