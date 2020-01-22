@@ -3,6 +3,7 @@ package jml.evilnotch.lib.asm;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -748,6 +749,15 @@ public class ASMHelper
 		}
 		if(start != null)
 			ASMHelper.removeInsn(method, start, end);
+	}
+	
+	private static Field opField = ReflectionHandler.getField(AbstractInsnNode.class, "opcode");
+	/**
+	 * use this if you can't find a setter for something extending AbstractInsnNode
+	 */
+	public static void setOpcode(AbstractInsnNode ab, int opcode)
+	{
+		ReflectionHandler.set(opField, ab, opcode);
 	}
 	
 	/**

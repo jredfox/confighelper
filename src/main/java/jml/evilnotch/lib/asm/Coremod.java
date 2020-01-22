@@ -8,7 +8,7 @@ import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
 
 public interface Coremod extends IFMLLoadingPlugin{
 	
-	public void registerTransformers();
+	public void registerTransformers() throws Throwable;
 
 	@Override
 	public default String[] getASMTransformerClass() {return null;}
