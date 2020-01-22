@@ -19,7 +19,6 @@ public class ASMPlugin implements Coremod{
 	@Override
 	public void registerTransformers() 
 	{
-		System.out.println("Launch Minecraft Home:" + Launch.minecraftHome);
 		PatchedClassLoader.stopMemoryOverflow(Launch.classLoader);
 	}
 

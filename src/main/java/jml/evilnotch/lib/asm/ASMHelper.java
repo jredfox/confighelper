@@ -41,7 +41,7 @@ public class ASMHelper
 	public static Map<String, ClassNode> classNodes = new HashMap();//input to classNode gets cleared when a MCWriter gets it's byte array
 	
 	/**
-	 * srg support doesn't patch local vars nor instructions
+	 * doesn't patch local variable or method calls
 	 */
 	public static MethodNode replaceMethod(ClassNode node, String input, String name, String desc)
 	{

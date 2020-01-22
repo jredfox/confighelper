@@ -38,7 +38,6 @@ public class ConfigHelperMod
     @EventHandler
     public void loadComplete(FMLLoadCompleteEvent event)
     {
-    	System.out.println("\n" + Launch.minecraftHome + "\n");
     	Registries.loadComplete();
     	Registries.nextDimFrozen = Registries.nextDim;
     	Registries.loading = false;
