@@ -222,7 +222,7 @@ public class RegTransformer implements ITransformer{
 		AbstractInsnNode a = ASMHelper.getLastFieldInsn(dimensions, new FieldInsnNode(Opcodes.GETSTATIC, "net/minecraftforge/common/DimensionManager", "dimensionMap", "Ljava/util/BitSet;"));
 		if(a != null)
 		{
-			AbstractInsnNode end = ASMHelper.nextMethodInsn(a, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "java/util/BitSet", "set", "(I)V", false));
+			AbstractInsnNode end = ASMHelper.getNextMethodInsn(a, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "java/util/BitSet", "set", "(I)V", false));
 			ASMHelper.removeInsn(dimensions, a, end);
 		}
 		else
@@ -246,7 +246,7 @@ public class RegTransformer implements ITransformer{
 				TypeInsnNode start = (TypeInsnNode)ab;
 				if(start.desc.equals("java/util/BitSet"))
 				{
-					AbstractInsnNode end = ASMHelper.nextFieldInsn(start, new FieldInsnNode(Opcodes.PUTSTATIC, "net/minecraftforge/common/DimensionManager", "dimensionMap", "Ljava/util/BitSet;"));
+					AbstractInsnNode end = ASMHelper.getNextFieldInsn(start, new FieldInsnNode(Opcodes.PUTSTATIC, "net/minecraftforge/common/DimensionManager", "dimensionMap", "Ljava/util/BitSet;"));
 					ASMHelper.removeInsn(clinit, start, end);
 					break;
 				}

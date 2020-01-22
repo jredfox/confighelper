@@ -4,26 +4,30 @@ public class BooleanObj{
 	
 	public boolean value;
 	
-	public BooleanObj(){
-		this.value = false;
-	}
-	
-	public BooleanObj(boolean init)
+	public BooleanObj()
 	{
-		this.value = init;
+		this(false);
 	}
 	
-	public void setValue(boolean toSet){
-		this.value = toSet;
+	public BooleanObj(boolean value)
+	{
+		this.value = value;
+	}
+	
+	public void setValue(boolean value)
+	{
+		this.value = value;
 	}
 	
 	@Override
-	public String toString(){
+	public String toString()
+	{
 		return "" + this.value;
 	}
 	
 	@Override
-	public int hashCode(){
+	public int hashCode()
+	{
 		return Boolean.hashCode(this.value);
 	}
 	
@@ -42,7 +46,8 @@ public class BooleanObj{
 		return false;
 	}
 	
-	public boolean booleanValue(){
+	public boolean booleanValue()
+	{
 		return this.value;
 	}
 

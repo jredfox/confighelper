@@ -38,7 +38,7 @@ import net.minecraft.launchwrapper.Launch;
 
 public class ASMHelper 
 {	
-	public static Map<String, ClassNode> classNodes = new HashMap();//input to classNode
+	public static Map<String, ClassNode> classNodes = new HashMap();//input to classNode gets cleared when a MCWriter gets it's byte array
 	
 	/**
 	 * srg support doesn't patch local vars nor instructions
@@ -152,7 +152,7 @@ public class ASMHelper
 	}
 	
 	/**
-	 * if you don't need to compute frames and compute maxes aka something like a reobfuscate instead of actual edits
+	 * if you don't need to compute frames or maxes as only strings have changed
 	 */
 	public static MCWriter getWriterForReob(ClassNode node)
 	{
@@ -180,7 +180,7 @@ public class ASMHelper
 	 */
 	public static void patchThis(MethodNode method, String name)
 	{
-		LocalVariableNode local = ASMHelper.getVarByName(method, "this");
+		LocalVariableNode local = ASMHelper.getLocalVarByName(method, "this");
 		local.desc = toASMDesc(name);
 	}
 
@@ -233,9 +233,7 @@ public class ASMHelper
 		for (MethodNode method : node.methods)
 		{
 			if (method.name.equals(name) && method.desc.equals(desc))
-			{
 				return method;
-			}
 		}
 		return null;
 	}
@@ -434,7 +432,7 @@ public class ASMHelper
 	/**
 	 * get a local variable index by it's owner name
 	 */
-	public static int getVarIndex(MethodNode method, String owner, String name) 
+	public static int getLocalVarIndex(MethodNode method, String owner, String name) 
 	{
 		for(LocalVariableNode local : method.localVariables)
 		{
@@ -444,7 +442,7 @@ public class ASMHelper
 		return -1;
 	}
 	
-	public static int getVarIndexByName(MethodNode method, String name) 
+	public static int getLocalVarIndexByName(MethodNode method, String name) 
 	{
 		for(LocalVariableNode local : method.localVariables)
 		{
@@ -454,14 +452,14 @@ public class ASMHelper
 		return -1;
 	}
 	
-	public static LocalVariableNode getVar(MethodNode method, String owner, String name)
+	public static LocalVariableNode getLocalVar(MethodNode method, String owner, String name)
 	{
-		return method.localVariables.get(getVarIndex(method, owner, name));
+		return method.localVariables.get(getLocalVarIndex(method, owner, name));
 	}
 	
-	public static LocalVariableNode getVarByName(MethodNode method, String name)
+	public static LocalVariableNode getLocalVarByName(MethodNode method, String name)
 	{
-		return method.localVariables.get(getVarIndexByName(method, name));
+		return method.localVariables.get(getLocalVarIndexByName(method, name));
 	}
 	
 	public static String toString(FieldNode field) 
@@ -589,7 +587,7 @@ public class ASMHelper
 		return args[args.length-1];
 	}
 
-	public static JumpInsnNode nextJumpInsn(AbstractInsnNode starting) 
+	public static JumpInsnNode getNextJumpInsn(AbstractInsnNode starting) 
 	{
 		AbstractInsnNode k = starting;
 		while(k != null)
@@ -601,7 +599,7 @@ public class ASMHelper
 		return null;
 	}
 	
-	public static FieldInsnNode nextFieldInsn(AbstractInsnNode starting) 
+	public static FieldInsnNode getNextFieldInsn(AbstractInsnNode starting) 
 	{
 		AbstractInsnNode k = starting;
 		while(k != null)
@@ -613,7 +611,7 @@ public class ASMHelper
 		return null;
 	}
 	
-	public static FieldInsnNode nextFieldInsn(AbstractInsnNode starting, FieldInsnNode compare) 
+	public static FieldInsnNode getNextFieldInsn(AbstractInsnNode starting, FieldInsnNode compare) 
 	{
 		AbstractInsnNode k = starting;
 		while(k != null)
@@ -625,7 +623,7 @@ public class ASMHelper
 		return null;
 	}
 	
-	public static MethodInsnNode nextMethodInsn(AbstractInsnNode starting, MethodInsnNode compare) 
+	public static MethodInsnNode getNextMethodInsn(AbstractInsnNode starting, MethodInsnNode compare) 
 	{
 		AbstractInsnNode k = starting;
 		while(k != null)
@@ -637,7 +635,7 @@ public class ASMHelper
 		return null;
 	}
 	
-	public static MethodInsnNode nextMethodInsn(AbstractInsnNode starting) 
+	public static MethodInsnNode getNextMethodInsn(AbstractInsnNode starting) 
 	{
 		AbstractInsnNode k = starting;
 		while(k != null)
@@ -649,7 +647,7 @@ public class ASMHelper
 		return null;
 	}
 
-	public static IntInsnNode nextIntInsn(AbstractInsnNode ab) 
+	public static IntInsnNode getNextIntInsn(AbstractInsnNode ab) 
 	{
 		while(ab != null)
 		{
@@ -660,7 +658,7 @@ public class ASMHelper
 		return null;
 	}
 
-	public static AbstractInsnNode nextInsn(AbstractInsnNode ab, int opcode) 
+	public static AbstractInsnNode getNextInsn(AbstractInsnNode ab, int opcode) 
 	{
 		while(ab != null)
 		{
@@ -674,7 +672,7 @@ public class ASMHelper
 	/**
 	 * grab a push code for a num value
 	 */
-	public static AbstractInsnNode getPush(int value) throws IllegalArgumentException
+	public static AbstractInsnNode getPushInsn(int value) throws IllegalArgumentException
 	{
 		if(value <= Byte.MAX_VALUE)
 			return new IntInsnNode(Opcodes.BIPUSH, value);
@@ -742,7 +740,7 @@ public class ASMHelper
 				if(type.desc.equals(desc_exception))
 				{
 					start = ab;
-					end = ASMHelper.nextInsn(start, Opcodes.ATHROW);
+					end = ASMHelper.getNextInsn(start, Opcodes.ATHROW);
 					break;
 				}
 			}
@@ -819,6 +817,9 @@ public class ASMHelper
     	FileUtils.writeByteArrayToFile(f, bytes);
 	}
 	
+	/**
+	 * Launch.minecraftHome is null in deob and is valid in ob
+	 */
 	public static File getHome()
 	{
 		return Launch.minecraftHome != null ? Launch.minecraftHome : new File(System.getProperty("user.dir"));
@@ -826,7 +827,7 @@ public class ASMHelper
 	
 	public static File getConfig()
 	{
-		return new File(getHome(), "config");
+		return new File(ASMHelper.getHome(), "config");
 	}
 
 	public static String getMethodDescriptor(Class clazz, String name, Class... params)

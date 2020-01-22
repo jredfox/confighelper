@@ -400,16 +400,11 @@ public class ReflectionHandler {
     	return null;
     }
     
-    public static Annotation getClassAnnotation(Class clazz, Class<? extends Annotation> test)
+    public static Annotation getClassAnnotation(Class clazz, Class<? extends Annotation> annot)
     {
     	try
     	{
-    		Annotation[] annotations = clazz.getDeclaredAnnotations();
-    		for(Annotation an : annotations)
-    		{
-    			if(getAnnotationClass(an).equals(test))
-    				return an;
-    		}
+    		return clazz.getDeclaredAnnotation(annot);
     	}
     	catch(Throwable t)
     	{
@@ -489,8 +484,7 @@ public class ReflectionHandler {
     public static void makeAccessible(Field field) throws Exception 
     {
         field.setAccessible(true);
-        Field modifiersField = Field.class.getDeclaredField("modifiers");
         modifiersField.setAccessible(true);
-        modifiersField.setInt(field, field.getModifiers() & ~ Modifier.FINAL);
+        modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
     }
 }

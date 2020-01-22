@@ -16,6 +16,7 @@ import java.util.TreeSet;
 import jml.confighelper.RegistryConfig;
 import jml.confighelper.reg.Registry.Entry;
 import jml.evilnotch.lib.JavaUtil;
+import jml.evilnotch.lib.asm.ASMHelper;
 import jml.evilnotch.lib.json.JSONArray;
 import jml.evilnotch.lib.json.JSONObject;
 import jml.evilnotch.lib.simple.Directory;
@@ -24,7 +25,7 @@ import net.minecraft.world.biome.BiomeGenMutated;
 
 public class RegistryWriter {
 	
-	public static final File root = new Directory(Launch.minecraftHome, "config/confighelper").create();
+	public static final File root = new Directory(ASMHelper.getHome(), "config/confighelper").create();
 	public static final String dumps = "dumps";
 	public static final String extension =  ".txt";
 	public static final String conflictExtension = ".json";

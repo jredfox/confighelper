@@ -6,7 +6,8 @@ public class ByteObj extends Number implements IModNumber{
 	
 	public byte value;
 	
-	public ByteObj(byte b){
+	public ByteObj(byte b)
+	{
 		this.value = b;
 	}
 

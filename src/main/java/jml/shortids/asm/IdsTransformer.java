@@ -114,14 +114,14 @@ public class IdsTransformer implements ITransformer{
 	{
 		MethodNode write = ASMHelper.getMethod(node, new MCPSidedString("writeToNBT", "func_77955_b").toString(), "(Lnet/minecraft/nbt/NBTTagCompound;)Lnet/minecraft/nbt/NBTTagCompound;");
 		AbstractInsnNode index = ASMHelper.getFirstLdcInsn(write, new LdcInsnNode("Damage"));
-		MethodInsnNode m1 = (MethodInsnNode) ASMHelper.nextMethodInsn(index, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "net/minecraft/nbt/NBTTagCompound", "setShort", "(Ljava/lang/String;S)V", false));
+		MethodInsnNode m1 = (MethodInsnNode) ASMHelper.getNextMethodInsn(index, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "net/minecraft/nbt/NBTTagCompound", "setShort", "(Ljava/lang/String;S)V", false));
 		m1.name = new MCPSidedString("setInteger", "func_74768_a").toString();
 		m1.desc = "(Ljava/lang/String;I)V";
 		write.instructions.remove(m1.getPrevious());
 		
 		MethodNode read = ASMHelper.getMethod(node, new MCPSidedString("readFromNBT", "func_77963_c").toString(), "(Lnet/minecraft/nbt/NBTTagCompound;)V");
 		AbstractInsnNode index2 = ASMHelper.getFirstLdcInsn(read, new LdcInsnNode("Damage"));
-		MethodInsnNode m2 = ASMHelper.nextMethodInsn(index2, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "net/minecraft/nbt/NBTTagCompound", "getShort", "(Ljava/lang/String;)S", false));
+		MethodInsnNode m2 = ASMHelper.getNextMethodInsn(index2, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "net/minecraft/nbt/NBTTagCompound", "getShort", "(Ljava/lang/String;)S", false));
 		m2.name = new MCPSidedString("getInteger","func_74762_e").toString();
 		m2.desc = "(Ljava/lang/String;)I";
 	}
@@ -141,7 +141,7 @@ public class IdsTransformer implements ITransformer{
 		m1.name = new MCPSidedString("writeVarIntToBuffer", "func_150787_b").toString();
 		m1.desc = "(I)V";
 		//since the previous returned a value we have to remove the next pop
-		write.instructions.remove(ASMHelper.nextInsn(m1, Opcodes.POP));
+		write.instructions.remove(ASMHelper.getNextInsn(m1, Opcodes.POP));
 		//remove the bit opperand
 		AbstractInsnNode bit = ASMHelper.getFirstInsn(write, Opcodes.IAND);
 		write.instructions.remove(bit.getPrevious());
@@ -169,7 +169,7 @@ public class IdsTransformer implements ITransformer{
 		
 		InsnNode i1 = (InsnNode) ASMHelper.getFirstInsn(write, Opcodes.I2B);
 		MethodInsnNode m1 = (MethodInsnNode) i1.getNext();
-		InsnNode i2 = (InsnNode) ASMHelper.nextInsn(i1, Opcodes.I2B);
+		InsnNode i2 = (InsnNode) ASMHelper.getNextInsn(i1, Opcodes.I2B);
 		MethodInsnNode m2 = (MethodInsnNode) i2.getNext();
 		//patch the method calls
 		m1.name = setShort;
@@ -186,7 +186,7 @@ public class IdsTransformer implements ITransformer{
 		MethodNode read = ASMHelper.getMethod(node, new MCPSidedString("readCustomPotionEffectFromNBT","func_82722_b").toString(), "(Lnet/minecraft/nbt/NBTTagCompound;)Lnet/minecraft/potion/PotionEffect;");
 		MethodInsnNode compare = new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "net/minecraft/nbt/NBTTagCompound", getByte, "(Ljava/lang/String;)B", false);
 		MethodInsnNode r1 = (MethodInsnNode) ASMHelper.getFirstMethodInsn(read, compare);
-		MethodInsnNode r2 = (MethodInsnNode) ASMHelper.nextMethodInsn(r1, compare);
+		MethodInsnNode r2 = (MethodInsnNode) ASMHelper.getNextMethodInsn(r1, compare);
 		r1.name = getShort;
 		r1.desc = descS;
 		r2.name = getShort;
@@ -226,7 +226,7 @@ public class IdsTransformer implements ITransformer{
 		//change enchantment limit from 256 > short max value
 		MethodNode clinit = ASMHelper.getClassInit(node);
 		AbstractInsnNode spot = ASMHelper.getFirstFieldInsn(clinit, new FieldInsnNode(Opcodes.PUTSTATIC, "net/minecraft/enchantment/Enchantment", new MCPSidedString("enchantmentsList", "field_77331_b").toString(), "[Lnet/minecraft/enchantment/Enchantment;")).getPrevious().getPrevious();
-		clinit.instructions.insert(spot, ASMHelper.getPush(RegistryIds.limitEnchantments + 1));
+		clinit.instructions.insert(spot, ASMHelper.getPushInsn(RegistryIds.limitEnchantments + 1));
 		clinit.instructions.remove(spot);
 	}
 
@@ -240,7 +240,7 @@ public class IdsTransformer implements ITransformer{
 		//extend potion id limit to signed byte(0-127) or short
 		MethodNode clinit = ASMHelper.getClassInit(node);
 		AbstractInsnNode spot = ASMHelper.getFirstFieldInsn(clinit, new FieldInsnNode(Opcodes.PUTSTATIC, "net/minecraft/potion/Potion", new MCPSidedString("potionTypes", "field_76425_a").toString(), "[Lnet/minecraft/potion/Potion;") ).getPrevious().getPrevious();
-		clinit.instructions.insert(spot, ASMHelper.getPush(RegistryIds.limitPotions + 1));
+		clinit.instructions.insert(spot, ASMHelper.getPushInsn(RegistryIds.limitPotions + 1));
 		clinit.instructions.remove(spot);
 	}
 	
@@ -255,7 +255,7 @@ public class IdsTransformer implements ITransformer{
 		
 		//delete line Integer integer = (Integer) dataTypes.get(obj.getClass());
 		AbstractInsnNode start = ASMHelper.getFirstFieldInsn(addObject, new FieldInsnNode(Opcodes.GETSTATIC, "net/minecraft/entity/DataWatcher", new MCPSidedString("dataTypes", "field_75697_a").toString(), "Ljava/util/HashMap;"));
-		AbstractInsnNode end = ASMHelper.nextInsn(start, Opcodes.ASTORE);
+		AbstractInsnNode end = ASMHelper.getNextInsn(start, Opcodes.ASTORE);
 		ASMHelper.removeInsn(addObject, start, end);
 		
 		//inject line: Integer integer = Registries.getWatcherTypeId(obj.getClass());
@@ -274,7 +274,7 @@ public class IdsTransformer implements ITransformer{
 			if(ab.getOpcode() == Opcodes.BIPUSH)
 			{
 				push = (IntInsnNode)ab;
-				todisable = ASMHelper.nextJumpInsn(push);
+				todisable = ASMHelper.getNextJumpInsn(push);
 				break;
 			}
 		}
@@ -317,8 +317,8 @@ public class IdsTransformer implements ITransformer{
 	{ 
 		MethodNode method = ASMHelper.getMethod(node, new MCPSidedString("handleEntityEffect", "func_147260_a").toString(), "(Lnet/minecraft/network/play/server/S1DPacketEntityEffect;)V");
 		MethodInsnNode m1 = ASMHelper.getFirstMethodInsn(method, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "net/minecraft/network/play/server/S1DPacketEntityEffect", "func_149427_e", "()B", false));
-		MethodInsnNode m2 = ASMHelper.nextMethodInsn(m1, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "net/minecraft/network/play/server/S1DPacketEntityEffect", "func_149425_g", "()S", false));
-		MethodInsnNode m3 = ASMHelper.nextMethodInsn(m2, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "net/minecraft/network/play/server/S1DPacketEntityEffect", "func_149428_f", "()B", false));
+		MethodInsnNode m2 = ASMHelper.getNextMethodInsn(m1, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "net/minecraft/network/play/server/S1DPacketEntityEffect", "func_149425_g", "()S", false));
+		MethodInsnNode m3 = ASMHelper.getNextMethodInsn(m2, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "net/minecraft/network/play/server/S1DPacketEntityEffect", "func_149428_f", "()B", false));
 		m1.desc = "()I";
 		m2.desc = "()I";
 		m3.desc = "()I";

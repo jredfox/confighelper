@@ -10,6 +10,7 @@ import jml.evilnotch.lib.JavaUtil;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.DataWatcher;
 import net.minecraft.entity.monster.EntityCreeper;
+import net.minecraft.launchwrapper.Launch;
 import net.minecraft.network.play.server.S0FPacketSpawnMob;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraftforge.common.DimensionManager;
@@ -37,6 +38,7 @@ public class ConfigHelperMod
     @EventHandler
     public void loadComplete(FMLLoadCompleteEvent event)
     {
+    	System.out.println("\n" + Launch.minecraftHome + "\n");
     	Registries.loadComplete();
     	Registries.nextDimFrozen = Registries.nextDim;
     	Registries.loading = false;
