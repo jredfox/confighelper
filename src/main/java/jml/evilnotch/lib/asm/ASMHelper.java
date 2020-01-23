@@ -546,11 +546,11 @@ public class ASMHelper
 		return null;
 	}
 	
-	public static MethodInsnNode getFirstMethodInsn(MethodNode method, MethodInsnNode field) 
+	public static MethodInsnNode getFirstMethodInsn(MethodNode method, MethodInsnNode insn) 
 	{
 		for(AbstractInsnNode ab : method.instructions.toArray())
 		{
-			if(ASMHelper.equals(field, ab))
+			if(ASMHelper.equals(insn, ab))
 			{
 				return (MethodInsnNode) ab;
 			}
@@ -623,13 +623,13 @@ public class ASMHelper
 		return null;
 	}
 	
-	public static MethodInsnNode getNextMethodInsn(AbstractInsnNode starting, MethodInsnNode compare) 
+	public static MethodInsnNode getNextMethodInsn(AbstractInsnNode starting, MethodInsnNode insn) 
 	{
 		AbstractInsnNode k = starting;
 		while(k != null)
 		{
 			k = k.getNext();
-			if(k instanceof MethodInsnNode && equals(compare, k))
+			if(k instanceof MethodInsnNode && equals(insn, k))
 				return (MethodInsnNode) k;
 		}
 		return null;

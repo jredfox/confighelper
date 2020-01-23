@@ -112,18 +112,41 @@ public class IdsTransformer implements ITransformer{
 	
 	private void patchItemStack(ClassNode node) 
 	{
+		//patch write
+		String setShort = new MCPSidedString("setShort", "func_74777_a").toString();
+		String setInt = new MCPSidedString("setInteger", "func_74768_a").toString();
+		String setByte = new MCPSidedString("setByte", "func_74774_a").toString();
+		String descInt = "(Ljava/lang/String;I)V";
 		MethodNode write = ASMHelper.getMethod(node, new MCPSidedString("writeToNBT", "func_77955_b").toString(), "(Lnet/minecraft/nbt/NBTTagCompound;)Lnet/minecraft/nbt/NBTTagCompound;");
-		AbstractInsnNode index = ASMHelper.getFirstLdcInsn(write, new LdcInsnNode("Damage"));
-		MethodInsnNode m1 = ASMHelper.getNextMethodInsn(index, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "net/minecraft/nbt/NBTTagCompound", new MCPSidedString("setShort", "func_74777_a").toString(), "(Ljava/lang/String;S)V", false));
-		m1.name = new MCPSidedString("setInteger", "func_74768_a").toString();
-		m1.desc = "(Ljava/lang/String;I)V";
+		MethodInsnNode m1 = ASMHelper.getFirstMethodInsn(write, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "net/minecraft/nbt/NBTTagCompound", setShort, "(Ljava/lang/String;S)V", false));
+		MethodInsnNode m2 = ASMHelper.getNextMethodInsn(m1, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "net/minecraft/nbt/NBTTagCompound", setByte, "(Ljava/lang/String;B)V", false));
+		MethodInsnNode m3 = ASMHelper.getNextMethodInsn(m2, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "net/minecraft/nbt/NBTTagCompound", setShort, "(Ljava/lang/String;S)V", false));
+		m1.name = setInt;
+		m1.desc = descInt;
+		m2.name = setInt;
+		m2.desc = descInt;
+		m3.name = setInt;
+		m3.desc = descInt;
+		//remove casts
 		write.instructions.remove(m1.getPrevious());
+		write.instructions.remove(m2.getPrevious());
+		write.instructions.remove(m3.getPrevious());
 		
+		//patch read getShort, getByte, getShort > getInteger, getInteger, getInteger
+		String getShort = new MCPSidedString("getShort", "func_74765_d").toString();
+		String getByte = new MCPSidedString("getByte", "func_74771_c").toString();
+		String getInt = new MCPSidedString("getInteger", "func_74762_e").toString();
+		String getIntDesc = "(Ljava/lang/String;)I";
 		MethodNode read = ASMHelper.getMethod(node, new MCPSidedString("readFromNBT", "func_77963_c").toString(), "(Lnet/minecraft/nbt/NBTTagCompound;)V");
-		AbstractInsnNode index2 = ASMHelper.getFirstLdcInsn(read, new LdcInsnNode("Damage"));
-		MethodInsnNode m2 = ASMHelper.getNextMethodInsn(index2, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "net/minecraft/nbt/NBTTagCompound", new MCPSidedString("getShort", "func_74765_d").toString(), "(Ljava/lang/String;)S", false));
-		m2.name = new MCPSidedString("getInteger","func_74762_e").toString();
-		m2.desc = "(Ljava/lang/String;)I";
+		MethodInsnNode m4 = ASMHelper.getFirstMethodInsn(read, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "net/minecraft/nbt/NBTTagCompound", getShort, "(Ljava/lang/String;)S", false));
+		MethodInsnNode m5 = ASMHelper.getNextMethodInsn(m4, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "net/minecraft/nbt/NBTTagCompound", getByte, "(Ljava/lang/String;)B", false));
+		MethodInsnNode m6 = ASMHelper.getNextMethodInsn(m5, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "net/minecraft/nbt/NBTTagCompound", getShort, "(Ljava/lang/String;)S", false));
+		m4.name = getInt;
+		m5.name = getInt;
+		m6.name = getInt;
+		m4.desc = getIntDesc;
+		m5.desc = getIntDesc;
+		m6.desc = getIntDesc;
 	}
 
 	/**
@@ -221,7 +244,7 @@ public class IdsTransformer implements ITransformer{
 
 	private void patchEnchantment(ClassNode node) 
 	{
-		//change enchantment limit from 256 > short max value
+		//change enchantment limit from 256 > enchantment limit
 		MethodNode clinit = ASMHelper.getClassInit(node);
 		AbstractInsnNode spot = ASMHelper.getFirstFieldInsn(clinit, new FieldInsnNode(Opcodes.PUTSTATIC, "net/minecraft/enchantment/Enchantment", new MCPSidedString("enchantmentsList", "field_77331_b").toString(), "[Lnet/minecraft/enchantment/Enchantment;")).getPrevious().getPrevious();
 		clinit.instructions.insert(spot, ASMHelper.getPushInsn(RegistryIds.limitEnchantments + 1));
