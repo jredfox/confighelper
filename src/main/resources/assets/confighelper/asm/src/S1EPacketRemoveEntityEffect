@@ -27,8 +27,8 @@ public class S1EPacketRemoveEntityEffect extends Packet
      */
     public void writePacketData(PacketBuffer buf) throws IOException
     {
-        buf.writeInt(this.entityId);
-        buf.writeShort(this.potionId);
+        buf.writeVarIntToBuffer(this.entityId);
+        buf.writeVarIntToBuffer(this.potionId);
     }
 
     /**
@@ -36,8 +36,8 @@ public class S1EPacketRemoveEntityEffect extends Packet
      */
     public void readPacketData(PacketBuffer buf) throws IOException
     {
-        this.entityId = buf.readInt();
-        this.potionId = buf.readShort();
+        this.entityId = buf.readVarIntFromBuffer();
+        this.potionId = buf.readVarIntFromBuffer();
     }
 
     /**

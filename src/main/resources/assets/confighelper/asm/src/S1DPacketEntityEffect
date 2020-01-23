@@ -24,8 +24,8 @@ public class S1DPacketEntityEffect extends Packet
     {
         this.entityId = entityId;
         this.potionId = effect.getPotionID();
-        this.amp = JavaUtil.castShort(effect.getAmplifier());
-        this.duration = JavaUtil.castShort(effect.getDuration());
+        this.amp = effect.getAmplifier();
+        this.duration = effect.getDuration();
     }
     
     /**
@@ -33,10 +33,10 @@ public class S1DPacketEntityEffect extends Packet
      */
     public void writePacketData(PacketBuffer buf) throws IOException
     {
-    	buf.writeInt(this.entityId);
-    	buf.writeShort(this.potionId);
-    	buf.writeShort(this.amp);
-    	buf.writeShort(this.duration);
+    	buf.writeVarIntToBuffer(this.entityId);
+    	buf.writeVarIntToBuffer(this.potionId);
+    	buf.writeVarIntToBuffer(this.amp);
+    	buf.writeVarIntToBuffer(this.duration);
     }
 
     /**
@@ -44,10 +44,10 @@ public class S1DPacketEntityEffect extends Packet
      */
     public void readPacketData(PacketBuffer buf) throws IOException
     {
-        this.entityId = buf.readInt();
-        this.potionId = buf.readShort();
-        this.amp      = buf.readShort();
-        this.duration = buf.readShort();
+        this.entityId = buf.readVarIntFromBuffer();
+        this.potionId = buf.readVarIntFromBuffer();
+        this.amp      = buf.readVarIntFromBuffer();
+        this.duration = buf.readVarIntFromBuffer();
     }
     
     @SideOnly(Side.CLIENT)
