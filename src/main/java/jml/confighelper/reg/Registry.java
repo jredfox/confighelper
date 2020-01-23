@@ -493,8 +493,7 @@ public class Registry implements Iterable<Registry.Entry>{
     	ITEM(Item.class),
     	BLOCK(Block.class),
     	TILEENTITY(TileEntity.class),
-    	RECIPES(IRecipe.class),
-    	CUSTOM(Registry.class);//custom non vanilla registries used for modded objects
+    	RECIPES(IRecipe.class);//if you need another enum type use ReflectionHandler.addEnum when registering them
     	
     	public Class clazz;
     	private DataType(Class clazz)

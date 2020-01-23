@@ -20,6 +20,10 @@ public class RegistryConfig {
 	public static boolean regUnregBiomes = true;
 	public static boolean autoBiomeMutated = true;
 	
+	public static int limitPotions = Short.MAX_VALUE;
+	public static int limitEnchantments = Short.MAX_VALUE;
+	public static int limitBiomes = 255;
+	
 	//passable ids
 	public static String[] passable = new String[]
 	{
@@ -53,6 +57,10 @@ public class RegistryConfig {
 		passableWatcherIds = getPassableIds(cfg, "conflictWatcherIds", "passable ids that data watchers are allowed to conflict with");
 		
 		unloadModDimIds = cfg.getBoolean("unloadModDimIds", "optimization", unloadModDimIds, "enabled: (less laggy)");
+		
+		limitPotions = cfg.get("limit", "potions", limitPotions, "Potion[] capacity 0-" + Integer.MAX_VALUE).getInt();
+		limitEnchantments = cfg.get("limit", "enchantments", limitEnchantments, "Enchantment[] capacity 0-" + Short.MAX_VALUE).getInt();
+		limitBiomes = cfg.get("limit", "biomes", limitBiomes, "Biome[] capacity 0-" + 255).getInt();
 		cfg.save();
 	}
 

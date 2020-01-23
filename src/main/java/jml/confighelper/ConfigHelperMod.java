@@ -26,9 +26,6 @@ public class ConfigHelperMod
     @EventHandler
     public void preinit(FMLPreInitializationEvent event)
     {	
-    	new S1DPacketEntityEffect();
-    	new S1EPacketRemoveEntityEffect();
-    	new PotionEffect(0,0,0);
 		Registries.preinit();
 		MinecraftForge.EVENT_BUS.register(new WatcherEvent());
     	Registries.registerBiome(BiomeGenBase.getBiomeGenArray()[161], 161, true);//fix vanilla

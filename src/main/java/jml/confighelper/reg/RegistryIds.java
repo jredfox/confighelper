@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import jml.confighelper.RegistryConfig;
 import jml.confighelper.reg.Registry.DataType;
 import jml.evilnotch.lib.reflect.ReflectionHandler;
 import net.minecraft.enchantment.Enchantment;
@@ -28,14 +29,14 @@ public class RegistryIds {
 	public static final Set<Integer> datawatchers = new HashSet(asList(new int[] {0,1,6,7,8,9,16,17,18}));
 	public static final Set<Integer> datawatertypes = new HashSet(asList(new int[]{0,1,2,3,4,5,6}));
 	
-	public static int limitBiomes = 255;
-	public static int limitPotions = Short.MAX_VALUE;//127;
-	public static int limitEnchantments = Short.MAX_VALUE;//255
-	public static int limitEntities = Integer.MAX_VALUE;//255;
-	public static int limitDatawatchers = Integer.MAX_VALUE;
-	public static int limitDatawatcherType = 254;
-	public static int limitDim = Integer.MAX_VALUE;
-	public static int limitDimLower = Integer.MIN_VALUE;
+	public static int limitBiomes = RegistryConfig.limitBiomes;//255
+	public static int limitPotions = RegistryConfig.limitPotions;//Short.MAX_VALUE;//127
+	public static int limitEnchantments = RegistryConfig.limitEnchantments;//Short.MAX_VALUE;//255
+	public static int limitEntities = Integer.MAX_VALUE;//255
+	public static int limitDatawatchers = Integer.MAX_VALUE;//31
+	public static int limitDatawatcherType = 254;//6
+	public static int limitDim = Integer.MAX_VALUE;//int
+	public static int limitDimLower = Integer.MIN_VALUE;//int min
 	
 	public static void genIds()
 	{
