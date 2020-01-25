@@ -19,6 +19,7 @@ import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.FieldNode;
+import org.objectweb.asm.tree.FrameNode;
 import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.IntInsnNode;
 import org.objectweb.asm.tree.JumpInsnNode;
@@ -667,6 +668,54 @@ public class ASMHelper
 				return ab;
 		}
 		return null;
+	}
+	
+	public static AbstractInsnNode getNextLineNumber(AbstractInsnNode ab) 
+	{
+		while(ab != null)
+		{
+			ab = ab.getNext();
+			if(ab instanceof LineNumberNode)
+				return ab;
+		}
+		return null;
+	}
+	
+	public static AbstractInsnNode getNextLabel(AbstractInsnNode ab) 
+	{
+		while(ab != null)
+		{
+			ab = ab.getNext();
+			if(ab instanceof LabelNode)
+				return ab;
+		}
+		return null;
+	}
+	
+	public static AbstractInsnNode previousLineNumber(AbstractInsnNode ab) 
+	{
+		while(ab != null)
+		{
+			ab = ab.getPrevious();
+			if(ab instanceof LabelNode)
+				return ab;
+		}
+		return null;
+	}
+	
+	/**
+	 * delete a whole line instructions sectioned between two line number nodes
+	 * will not delete FrameNodes for binary compatibility for adding more lines later
+	 * ONLY SUPPORTS NORMAL LINES no for loops, if statements etc...
+	 */
+	public static void removeLine(MethodNode method, AbstractInsnNode start)
+	{
+		if(!(start instanceof LineNumberNode))
+			start = ASMHelper.previousLineNumber(start).getNext();
+		if(start instanceof FrameNode)
+			start = start.getNext();
+		AbstractInsnNode end = ASMHelper.getNextLabel(start).getPrevious();//previous is label and the one before the label is the end
+		ASMHelper.removeInsn(method, start, end);
 	}
 	
 	/**

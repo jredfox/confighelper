@@ -34,7 +34,7 @@ public class RegistryIds {
 	public static int limitEnchantments = RegistryConfig.limitEnchantments;//Short.MAX_VALUE;//255
 	public static int limitEntities = Integer.MAX_VALUE;//255
 	public static int limitDatawatchers = Integer.MAX_VALUE;//31
-	public static int limitDatawatcherType = 254;//6
+	public static int limitDatawatcherType = Integer.MAX_VALUE;//6
 	public static int limitDim = Integer.MAX_VALUE;//int
 	public static int limitDimLower = Integer.MIN_VALUE;//int min
 	

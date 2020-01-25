@@ -5,16 +5,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import jml.confighelper.Registries;
-
-import net.minecraft.entity.monster.EntityCreeper;
-import net.minecraft.item.ItemStack;
+import jml.confighelper.reg.Registries;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ChunkCoordinates;
 
 public class DataWatcher{
 	
 	private static final HashMap dataTypes = new HashMap();
+	public HashMap watchedObjects = new HashMap();
 
 	public DataWatcher(Entity entityCreeper) 
 	{
@@ -26,32 +23,36 @@ public class DataWatcher{
 		dataTypes.put(dataType, id);
 	}
 
-	/**
+    /**
      * Writes a watchable object (entity attribute of type {byte, short, int, float, string, ItemStack,
      * ChunkCoordinates}) to the specified PacketBuffer
      */
-   public static void writeWatchableObjectToPacketBuffer(PacketBuffer buf, WatchableObject entry) throws IOException 
-   {
-      int type = entry.getObjectType();
-      buf.writeByte(type);
-      buf.writeVarIntToBuffer(entry.getDataValueId());
-      Registries.writeWatcher(buf, type, entry.getObject());
-   }
+    public static void writeWatchableObjectToPacketBuffer(PacketBuffer buf, DataWatcher.WatchableObject entry) throws IOException
+    {
+        int type = entry.getObjectType();
+        buf.writeVarIntToBuffer(type);
+        buf.writeVarIntToBuffer(entry.getDataValueId());
+        Registries.writeWatcher(buf, type, entry.getObject());
+    }
 
-   public static List<DataWatcher.WatchableObject> readWatchedListFromPacketBuffer(PacketBuffer buf) throws IOException 
-   {
-       List<DataWatcher.WatchableObject> list = new ArrayList();
-       int b;
-       while ((b = buf.readUnsignedByte()) != 255)
-       {
-           int dataType = b;
-           int id = buf.readVarIntFromBuffer();
-           Object obj = Registries.readWatcher(buf, dataType);
-           DataWatcher.WatchableObject watchableobject = new DataWatcher.WatchableObject(dataType, id, obj);
-           list.add(watchableobject);
-       }
-       return list.isEmpty() ? null : list;
-   }
+    /**
+     * Reads a list of watched objects (entity attribute of type {byte, short, int, float, string, ItemStack,
+     * ChunkCoordinates}) from the supplied PacketBuffer
+     */
+    public static List readWatchedListFromPacketBuffer(PacketBuffer buf) throws IOException
+    {
+        List<DataWatcher.WatchableObject> list = new ArrayList();
+        int size = buf.readVarIntFromBuffer();
+        for(int i=0; i < size; i++)
+        {
+            int dataType = buf.readVarIntFromBuffer();
+            int id = buf.readVarIntFromBuffer();
+            Object obj = Registries.readWatcher(buf, dataType);
+            DataWatcher.WatchableObject watchableobject = new DataWatcher.WatchableObject(dataType, id, obj);
+            list.add(watchableobject);
+        }
+        return list.isEmpty() ? null : list;
+    }
     
 	public static class WatchableObject 
 	{

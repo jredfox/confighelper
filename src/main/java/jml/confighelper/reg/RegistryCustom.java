@@ -9,14 +9,14 @@ import java.util.Set;
  */
 public abstract class RegistryCustom extends Registry{
 	
-	public RegistryCustom(int limit)
+	public RegistryCustom(DataType type, int limit)
 	{
-		this(limit, new HashSet());
+		this(type, limit, new HashSet());
 	}
 
-	public RegistryCustom(int limit, Set<Integer> vanillaIds) 
+	public RegistryCustom(DataType type, int limit, Set<Integer> vanillaIds) 
 	{
-		super(DataType.CUSTOM);
+		super(type);
 		this.limit = limit;
 		this.vanillaIds = vanillaIds;
 	}

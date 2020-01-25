@@ -16,7 +16,9 @@ import com.google.common.collect.Iterables;
 import jml.confighelper.RegistryConfig;
 import jml.confighelper.datawatcher.WatcherDataType;
 import jml.evilnotch.lib.JavaUtil;
+import jml.evilnotch.lib.reflect.ReflectionHandler;
 import net.minecraft.block.Block;
+import net.minecraft.client.gui.Gui;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.DataWatcher;
 import net.minecraft.entity.Entity;
@@ -493,7 +495,8 @@ public class Registry implements Iterable<Registry.Entry>{
     	ITEM(Item.class),
     	BLOCK(Block.class),
     	TILEENTITY(TileEntity.class),
-    	RECIPES(IRecipe.class);//if you need another enum type use ReflectionHandler.addEnum when registering them
+    	RECIPES(IRecipe.class),
+    	GUI(ReflectionHandler.getClass("net.minecraft.client.gui.Gui"));//if you need another enum type use ReflectionHandler.addEnum when registering them
     	
     	public Class clazz;
     	private DataType(Class clazz)

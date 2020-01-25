@@ -14,7 +14,7 @@ public class Plugin implements Coremod{
 	{
 		TransformsReg.registerTransformer("jml.confighelper.asm.RegTransformer");
 		TransformsReg.registerTransformer("jml.confighelper.asm.RegCompatTransformer");
-		TransformsReg.registerTransformer("jml.shortids.asm.IdsTransformer");
+		TransformsReg.registerTransformer("jml.ids.asm.IdsTransformer");
 	}
 
 }
