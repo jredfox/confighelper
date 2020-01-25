@@ -118,9 +118,9 @@ public class IdsTransformer implements ITransformer{
 		String setByte = new MCPSidedString("setByte", "func_74774_a").toString();
 		String descInt = "(Ljava/lang/String;I)V";
 		MethodNode write = ASMHelper.getMethod(node, new MCPSidedString("writeToNBT", "func_77955_b").toString(), "(Lnet/minecraft/nbt/NBTTagCompound;)Lnet/minecraft/nbt/NBTTagCompound;");
-		MethodInsnNode m1 = ASMHelper.getFirstMethodInsn(write, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "net/minecraft/nbt/NBTTagCompound", setShort, "(Ljava/lang/String;S)V", false));
-		MethodInsnNode m2 = ASMHelper.getNextMethodInsn(m1, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "net/minecraft/nbt/NBTTagCompound", setByte, "(Ljava/lang/String;B)V", false));
-		MethodInsnNode m3 = ASMHelper.getNextMethodInsn(m2, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "net/minecraft/nbt/NBTTagCompound", setShort, "(Ljava/lang/String;S)V", false));
+		MethodInsnNode m1 = ASMHelper.firstMethodInsn(write, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "net/minecraft/nbt/NBTTagCompound", setShort, "(Ljava/lang/String;S)V", false));
+		MethodInsnNode m2 = ASMHelper.nextMethodInsn(m1, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "net/minecraft/nbt/NBTTagCompound", setByte, "(Ljava/lang/String;B)V", false));
+		MethodInsnNode m3 = ASMHelper.nextMethodInsn(m2, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "net/minecraft/nbt/NBTTagCompound", setShort, "(Ljava/lang/String;S)V", false));
 		m1.name = setInt;
 		m1.desc = descInt;
 		m2.name = setInt;
@@ -138,9 +138,9 @@ public class IdsTransformer implements ITransformer{
 		String getInt = new MCPSidedString("getInteger", "func_74762_e").toString();
 		String getIntDesc = "(Ljava/lang/String;)I";
 		MethodNode read = ASMHelper.getMethod(node, new MCPSidedString("readFromNBT", "func_77963_c").toString(), "(Lnet/minecraft/nbt/NBTTagCompound;)V");
-		MethodInsnNode m4 = ASMHelper.getFirstMethodInsn(read, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "net/minecraft/nbt/NBTTagCompound", getShort, "(Ljava/lang/String;)S", false));
-		MethodInsnNode m5 = ASMHelper.getNextMethodInsn(m4, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "net/minecraft/nbt/NBTTagCompound", getByte, "(Ljava/lang/String;)B", false));
-		MethodInsnNode m6 = ASMHelper.getNextMethodInsn(m5, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "net/minecraft/nbt/NBTTagCompound", getShort, "(Ljava/lang/String;)S", false));
+		MethodInsnNode m4 = ASMHelper.firstMethodInsn(read, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "net/minecraft/nbt/NBTTagCompound", getShort, "(Ljava/lang/String;)S", false));
+		MethodInsnNode m5 = ASMHelper.nextMethodInsn(m4, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "net/minecraft/nbt/NBTTagCompound", getByte, "(Ljava/lang/String;)B", false));
+		MethodInsnNode m6 = ASMHelper.nextMethodInsn(m5, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "net/minecraft/nbt/NBTTagCompound", getShort, "(Ljava/lang/String;)S", false));
 		m4.name = getInt;
 		m5.name = getInt;
 		m6.name = getInt;
@@ -155,24 +155,24 @@ public class IdsTransformer implements ITransformer{
 	private void patchS0FPacketSpawnMob(ClassNode node)
 	{
 		MethodNode ctr = ASMHelper.getConstructor(node, "(Lnet/minecraft/entity/EntityLivingBase;)V");
-		InsnNode cast = (InsnNode) ASMHelper.getFirstInsn(ctr, Opcodes.I2B);
+		InsnNode cast = (InsnNode) ASMHelper.firstInsn(ctr, Opcodes.I2B);
 		ctr.instructions.remove(cast);
 		
 		MethodNode write = ASMHelper.getMethod(node, new MCPSidedString("writePacketData","func_148840_b").toString(), "(Lnet/minecraft/network/PacketBuffer;)V");
-		MethodInsnNode m1 = (MethodInsnNode) ASMHelper.getFirstMethodInsn(write, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "net/minecraft/network/PacketBuffer", new MCPSidedString("writeByte", "writeByte").toString(), "(I)Lio/netty/buffer/ByteBuf;", false));
+		MethodInsnNode m1 = (MethodInsnNode) ASMHelper.firstMethodInsn(write, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "net/minecraft/network/PacketBuffer", new MCPSidedString("writeByte", "writeByte").toString(), "(I)Lio/netty/buffer/ByteBuf;", false));
 		//changes method descriptions
 		m1.name = new MCPSidedString("writeVarIntToBuffer", "func_150787_b").toString();
 		m1.desc = "(I)V";
 		//since the previous returned a value we have to remove the next pop
-		write.instructions.remove(ASMHelper.getNextInsn(m1, Opcodes.POP));
+		write.instructions.remove(ASMHelper.nextInsn(m1, Opcodes.POP));
 		//remove the bit opperand
-		AbstractInsnNode bit = ASMHelper.getFirstInsn(write, Opcodes.IAND);
+		AbstractInsnNode bit = ASMHelper.firstInsn(write, Opcodes.IAND);
 		write.instructions.remove(bit.getPrevious());
 		write.instructions.remove(bit);
 		
 		//clear bit opperand and change method call
 		MethodNode read = ASMHelper.getMethod(node, new MCPSidedString("readPacketData", "func_148837_a").toString(), "(Lnet/minecraft/network/PacketBuffer;)V");
-		AbstractInsnNode bit2 = ASMHelper.getFirstInsn(read, Opcodes.IAND);
+		AbstractInsnNode bit2 = ASMHelper.firstInsn(read, Opcodes.IAND);
 		MethodInsnNode m2 = (MethodInsnNode) bit2.getPrevious().getPrevious();
 		m2.name = new MCPSidedString("readVarIntFromBuffer", "func_150792_a").toString();
 		m2.desc = "()I";
@@ -190,9 +190,9 @@ public class IdsTransformer implements ITransformer{
 		String descV = "(Ljava/lang/String;I)V";
 		String descI = "(Ljava/lang/String;)I";
 		
-		InsnNode i1 = (InsnNode) ASMHelper.getFirstInsn(write, Opcodes.I2B);
+		InsnNode i1 = (InsnNode) ASMHelper.firstInsn(write, Opcodes.I2B);
 		MethodInsnNode m1 = (MethodInsnNode) i1.getNext();
-		InsnNode i2 = (InsnNode) ASMHelper.getNextInsn(i1, Opcodes.I2B);
+		InsnNode i2 = (InsnNode) ASMHelper.nextInsn(i1, Opcodes.I2B);
 		MethodInsnNode m2 = (MethodInsnNode) i2.getNext();
 		//patch the method calls
 		m1.name = setInt;
@@ -206,8 +206,8 @@ public class IdsTransformer implements ITransformer{
 		//patch read
 		MethodNode read = ASMHelper.getMethod(node, new MCPSidedString("readCustomPotionEffectFromNBT","func_82722_b").toString(), "(Lnet/minecraft/nbt/NBTTagCompound;)Lnet/minecraft/potion/PotionEffect;");
 		MethodInsnNode compare = new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "net/minecraft/nbt/NBTTagCompound", getByte, "(Ljava/lang/String;)B", false);
-		MethodInsnNode r1 = ASMHelper.getFirstMethodInsn(read, compare);
-		MethodInsnNode r2 = ASMHelper.getNextMethodInsn(r1, compare);
+		MethodInsnNode r1 = ASMHelper.firstMethodInsn(read, compare);
+		MethodInsnNode r2 = ASMHelper.nextMethodInsn(r1, compare);
 		r1.name = getInt;
 		r1.desc = descI;
 		r2.name = getInt;
@@ -246,7 +246,7 @@ public class IdsTransformer implements ITransformer{
 	{
 		//change enchantment limit from 256 > enchantment limit
 		MethodNode clinit = ASMHelper.getClassInit(node);
-		AbstractInsnNode spot = ASMHelper.getFirstFieldInsn(clinit, new FieldInsnNode(Opcodes.PUTSTATIC, "net/minecraft/enchantment/Enchantment", new MCPSidedString("enchantmentsList", "field_77331_b").toString(), "[Lnet/minecraft/enchantment/Enchantment;")).getPrevious().getPrevious();
+		AbstractInsnNode spot = ASMHelper.firstFieldInsn(clinit, new FieldInsnNode(Opcodes.PUTSTATIC, "net/minecraft/enchantment/Enchantment", new MCPSidedString("enchantmentsList", "field_77331_b").toString(), "[Lnet/minecraft/enchantment/Enchantment;")).getPrevious().getPrevious();
 		clinit.instructions.insert(spot, ASMHelper.getPushInsn(RegistryIds.limitEnchantments + 1));
 		clinit.instructions.remove(spot);
 	}
@@ -260,7 +260,7 @@ public class IdsTransformer implements ITransformer{
 	{
 		//extend potion id limit to signed byte(0-127) or short
 		MethodNode clinit = ASMHelper.getClassInit(node);
-		AbstractInsnNode spot = ASMHelper.getFirstFieldInsn(clinit, new FieldInsnNode(Opcodes.PUTSTATIC, "net/minecraft/potion/Potion", new MCPSidedString("potionTypes", "field_76425_a").toString(), "[Lnet/minecraft/potion/Potion;") ).getPrevious().getPrevious();
+		AbstractInsnNode spot = ASMHelper.firstFieldInsn(clinit, new FieldInsnNode(Opcodes.PUTSTATIC, "net/minecraft/potion/Potion", new MCPSidedString("potionTypes", "field_76425_a").toString(), "[Lnet/minecraft/potion/Potion;") ).getPrevious().getPrevious();
 		clinit.instructions.insert(spot, ASMHelper.getPushInsn(RegistryIds.limitPotions + 1));
 		clinit.instructions.remove(spot);
 	}
@@ -275,10 +275,10 @@ public class IdsTransformer implements ITransformer{
 		list2.add(new FieldInsnNode(Opcodes.GETFIELD, "net/minecraft/entity/DataWatcher", new MCPSidedString("watchedObjects", "field_75695_b ").toString(), "Ljava/util/Map;"));
 		list2.add(new MethodInsnNode(Opcodes.INVOKEINTERFACE, "java/util/Map", "size", "()I", true));
 		list2.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "net/minecraft/network/PacketBuffer", new MCPSidedString("writeVarIntToBuffer", "func_150787_b").toString(), "(I)V", false));
-		AbstractInsnNode index = ASMHelper.getFirstMethodInsn(func, new MethodInsnNode(Opcodes.INVOKEINTERFACE, "java/util/concurrent/locks/Lock", "lock", "()V", true));
+		AbstractInsnNode index = ASMHelper.firstMethodInsn(func, new MethodInsnNode(Opcodes.INVOKEINTERFACE, "java/util/concurrent/locks/Lock", "lock", "()V", true));
 		func.instructions.insert(index, list2);
 		//delete line: buf.writeByte(127);
-		AbstractInsnNode point = ASMHelper.getLastMethodInsn(func, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "net/minecraft/network/PacketBuffer", "writeByte", "(I)Lio/netty/buffer/ByteBuf;", false));
+		AbstractInsnNode point = ASMHelper.lastMethodInsn(func, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "net/minecraft/network/PacketBuffer", "writeByte", "(I)Lio/netty/buffer/ByteBuf;", false));
 		ASMHelper.removeLine(func, point);
 		
 		MethodNode write = ASMHelper.getMethod(node, new MCPSidedString("writeWatchedListToPacketBuffer", "func_151507_a").toString(), "(Ljava/util/List;Lnet/minecraft/network/PacketBuffer;)V");
@@ -288,16 +288,16 @@ public class IdsTransformer implements ITransformer{
 		list3.add(new VarInsnNode(Opcodes.ALOAD, 0));
 		list3.add(new MethodInsnNode(Opcodes.INVOKEINTERFACE, "java/util/List", "size", "()I", true));
 		list3.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "net/minecraft/network/PacketBuffer", new MCPSidedString("writeVarIntToBuffer", "func_150787_b").toString(), "(I)V", false));
-		write.instructions.insert(ASMHelper.getFirstInsn(write), list3);
+		write.instructions.insert(ASMHelper.firstInsn(write), list3);
 		//delete line buf.writeByte(127)
-		AbstractInsnNode point2 = ASMHelper.getLastMethodInsn(write, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "net/minecraft/network/PacketBuffer", "writeByte", "(I)Lio/netty/buffer/ByteBuf;", false));
+		AbstractInsnNode point2 = ASMHelper.lastMethodInsn(write, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "net/minecraft/network/PacketBuffer", "writeByte", "(I)Lio/netty/buffer/ByteBuf;", false));
 		ASMHelper.removeLine(write, point2);
 		
 		MethodNode addObject = ASMHelper.getMethod(node, new MCPSidedString("addObject", "func_75682_a").toString(), "(ILjava/lang/Object;)V");
 		
 		//delete line Integer integer = (Integer) dataTypes.get(obj.getClass());
-		AbstractInsnNode start = ASMHelper.getFirstFieldInsn(addObject, new FieldInsnNode(Opcodes.GETSTATIC, "net/minecraft/entity/DataWatcher", new MCPSidedString("dataTypes", "field_75697_a").toString(), "Ljava/util/HashMap;"));
-		AbstractInsnNode end = ASMHelper.getNextInsn(start, Opcodes.ASTORE);
+		AbstractInsnNode start = ASMHelper.firstFieldInsn(addObject, new FieldInsnNode(Opcodes.GETSTATIC, "net/minecraft/entity/DataWatcher", new MCPSidedString("dataTypes", "field_75697_a").toString(), "Ljava/util/HashMap;"));
+		AbstractInsnNode end = ASMHelper.nextInsn(start, Opcodes.ASTORE);
 		ASMHelper.removeInsn(addObject, start, end);
 		
 		//inject line: Integer integer = Registries.getWatcherTypeId(obj.getClass());
@@ -306,7 +306,7 @@ public class IdsTransformer implements ITransformer{
 		list.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "java/lang/Object", "getClass", "()Ljava/lang/Class;", false));
 		list.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "jml/confighelper/reg/Registries", "getWatcherTypeId", "(Ljava/lang/Class;)Ljava/lang/Integer;", false));
 		list.add(new VarInsnNode(Opcodes.ASTORE, 3));
-		addObject.instructions.insert(ASMHelper.getFirstInsn(addObject), list);
+		addObject.instructions.insert(ASMHelper.firstInsn(addObject), list);
 		
 		//disable throwable if the id > 31
 		JumpInsnNode todisable = null;
@@ -316,7 +316,7 @@ public class IdsTransformer implements ITransformer{
 			if(ab.getOpcode() == Opcodes.BIPUSH)
 			{
 				push = (IntInsnNode)ab;
-				todisable = ASMHelper.getNextJumpInsn(push);
+				todisable = ASMHelper.nextJumpInsn(push);
 				break;
 			}
 		}
@@ -336,9 +336,9 @@ public class IdsTransformer implements ITransformer{
 	private void patchNetHandlerPlayClient(ClassNode node) 
 	{ 
 		MethodNode method = ASMHelper.getMethod(node, new MCPSidedString("handleEntityEffect", "func_147260_a").toString(), "(Lnet/minecraft/network/play/server/S1DPacketEntityEffect;)V");
-		MethodInsnNode m1 = ASMHelper.getFirstMethodInsn(method, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "net/minecraft/network/play/server/S1DPacketEntityEffect", "func_149427_e", "()B", false));
-		MethodInsnNode m2 = ASMHelper.getNextMethodInsn(m1, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "net/minecraft/network/play/server/S1DPacketEntityEffect", "func_149425_g", "()S", false));
-		MethodInsnNode m3 = ASMHelper.getNextMethodInsn(m2, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "net/minecraft/network/play/server/S1DPacketEntityEffect", "func_149428_f", "()B", false));
+		MethodInsnNode m1 = ASMHelper.firstMethodInsn(method, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "net/minecraft/network/play/server/S1DPacketEntityEffect", "func_149427_e", "()B", false));
+		MethodInsnNode m2 = ASMHelper.nextMethodInsn(m1, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "net/minecraft/network/play/server/S1DPacketEntityEffect", "func_149425_g", "()S", false));
+		MethodInsnNode m3 = ASMHelper.nextMethodInsn(m2, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "net/minecraft/network/play/server/S1DPacketEntityEffect", "func_149428_f", "()B", false));
 		m1.desc = "()I";
 		m2.desc = "()I";
 		m3.desc = "()I";
