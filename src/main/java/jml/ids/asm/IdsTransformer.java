@@ -32,7 +32,6 @@ public class IdsTransformer implements ITransformer{
 		"net.minecraft.world.biome.BiomeGenBase",
 		"net.minecraft.potion.Potion",
 		"net.minecraft.enchantment.Enchantment",
-		"net.minecraftforge.common.DimensionManager",
 		"net.minecraft.entity.EntityList",
 		"net.minecraft.entity.DataWatcher",
 		"net.minecraft.client.network.NetHandlerPlayClient",
@@ -75,35 +74,35 @@ public class IdsTransformer implements ITransformer{
 					patchEnchantment(node);
 				break;
 				
-				case 4:
+				case 3:
 					patchEntityList(node);
 				break;
 				
-				case 5:
+				case 4:
 					patchDatawatcher(node);
 				break;
 				
-				case 6:
+				case 5:
 					patchNetHandlerPlayClient(node);
 				break;
 				
-				case 7:
+				case 6:
 					patchS1DPacketEntityEffect(node);
 				break;
 				
-				case 8:
+				case 7:
 					patchS1EPacketRemoveEntityEffect(node);
 				break;
 				
-				case 9:
+				case 8:
 					patchPotionEffect(node);
 				break;
 				
-				case 10:
+				case 9:
 					patchS0FPacketSpawnMob(node);
 				break;
 				
-				case 11:
+				case 10:
 					patchItemStack(node);
 				break;
 			}
@@ -253,7 +252,7 @@ public class IdsTransformer implements ITransformer{
 
 	private void patchBiome(ClassNode node) 
 	{
-		
+		//TODO:
 	}
 
 	private void patchPotion(ClassNode node) 

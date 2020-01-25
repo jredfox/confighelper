@@ -44,32 +44,6 @@ public class TransformsReg {
 		}
 	}
 
-	public static String printIds()
-	{
-		StringBuilder b = new StringBuilder();
-		String space = "\n";
-		for(ITransformer t : transformers)
-			b.append(space + "ITransformer:(" + t.getId() + ", class:" + t.getClass() + ")");
-		return b.toString();
-	}
-	
-	public static String printClasses()
-	{
-		StringBuilder b = new StringBuilder();
-		String space = "\n";
-		for(ITransformer t : transformers)
-			b.append(space + "ITransformer:(" + t.getClass() + ")");
-		return b.toString();
-	}
-
-	public static List<ResourceLocation> getIds() 
-	{
-		List<ResourceLocation> li = new ArrayList();
-		for(ITransformer t : transformers)
-			li.add(t.getId());
-		return li;
-	}
-
 	public static void registerCoreMods() 
 	{
 		List<Object> list = (List<Object>) ReflectionHandler.get(ReflectionHandler.getField(CoreModManager.class, "loadPlugins"), null);
@@ -103,6 +77,11 @@ public class TransformsReg {
 	{
 		exclusions.add(startingName);
 	}
+	
+	public static void unregisterExclusion(String startingName)
+	{
+		exclusions.remove(startingName);
+	}
 
 	public static boolean isExcluded(String name) 
 	{
@@ -112,6 +91,32 @@ public class TransformsReg {
 				return true;
 		}
 		return false;
+	}
+	
+	public static String printIds()
+	{
+		StringBuilder b = new StringBuilder();
+		String space = "\n";
+		for(ITransformer t : transformers)
+			b.append(space + "ITransformer:(" + t.getId() + ", class:" + t.getClass() + ")");
+		return b.toString();
+	}
+	
+	public static String printClasses()
+	{
+		StringBuilder b = new StringBuilder();
+		String space = "\n";
+		for(ITransformer t : transformers)
+			b.append(space + "ITransformer:(" + t.getClass() + ")");
+		return b.toString();
+	}
+
+	public static List<ResourceLocation> getIds() 
+	{
+		List<ResourceLocation> li = new ArrayList();
+		for(ITransformer t : transformers)
+			li.add(t.getId());
+		return li;
 	}
 
 }

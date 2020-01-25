@@ -294,16 +294,6 @@ public class ASMHelper
 		return method.localVariables.get(getLocalVarIndexByName(method, name));
 	}
 	
-	public static String toString(FieldNode field) 
-	{
-		return field.name + " desc:" + field.desc + " signature:" + field.signature + " access:" + field.access;
- 	}
-	
-	public static String toString(MethodNode method) 
-	{
-		return method.name + " desc:" + method.desc + " signature:" + method.signature + " access:" + method.access;
- 	}
-	
 	/**
 	 * add an interface to a class
 	 */
@@ -791,6 +781,16 @@ public class ASMHelper
 		return m1.name.equals(m2.name) && m1.desc.equals(m2.desc);
 	}
 	
+	public static String toString(FieldNode field) 
+	{
+		return field.name + " desc:" + field.desc + " signature:" + field.signature + " access:" + field.access;
+ 	}
+	
+	public static String toString(MethodNode method) 
+	{
+		return method.name + " desc:" + method.desc + " signature:" + method.signature + " access:" + method.access;
+ 	}
+	
 	/**
 	 * get the standard recommended input stream for asm
 	 */
@@ -894,7 +894,7 @@ public class ASMHelper
 	    return s + getTypeForClass(m.getReturnType());
 	}
 	
-	public static String getTypeForClass(final Class c)
+	public static String getTypeForClass(Class c)
 	{
 	    if(c.isPrimitive())
 	    {
@@ -918,7 +918,7 @@ public class ASMHelper
 	            return "V";
 	        throw new RuntimeException("Unrecognized primitive " + c);
 	    }
-	    if(c.isArray()) 
+	    else if(c.isArray()) 
 	    {
 	    	return ASMHelper.toASMClass(c.getName()) + ";";
 	    }
