@@ -159,17 +159,13 @@ public class IdsTransformer implements ITransformer{
 		
 		MethodNode write = ASMHelper.getMethod(node, new MCPSidedString("writePacketData","func_148840_b").toString(), "(Lnet/minecraft/network/PacketBuffer;)V");
 		MethodInsnNode m1 = (MethodInsnNode) ASMHelper.firstMethodInsn(write, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "net/minecraft/network/PacketBuffer", new MCPSidedString("writeByte", "writeByte").toString(), "(I)Lio/netty/buffer/ByteBuf;", false));
-		//changes method descriptions
 		m1.name = new MCPSidedString("writeVarIntToBuffer", "func_150787_b").toString();
 		m1.desc = "(I)V";
-		//since the previous returned a value we have to remove the next pop
 		write.instructions.remove(ASMHelper.nextInsn(m1, Opcodes.POP));
-		//remove the bit opperand
 		AbstractInsnNode bit = ASMHelper.firstInsn(write, Opcodes.IAND);
 		write.instructions.remove(bit.getPrevious());
 		write.instructions.remove(bit);
 		
-		//clear bit opperand and change method call
 		MethodNode read = ASMHelper.getMethod(node, new MCPSidedString("readPacketData", "func_148837_a").toString(), "(Lnet/minecraft/network/PacketBuffer;)V");
 		AbstractInsnNode bit2 = ASMHelper.firstInsn(read, Opcodes.IAND);
 		MethodInsnNode m2 = (MethodInsnNode) bit2.getPrevious().getPrevious();
@@ -266,6 +262,16 @@ public class IdsTransformer implements ITransformer{
 	
 	private void patchDatawatcher(ClassNode node) 
 	{	
+		patchWatcherWriteFull(node);
+		patchWatcherWrite(node);
+		patchWatcherAdd(node);
+		String input = ASMHelper.getInputStream(ModReference.MODID, "DataWatcher"); //"assets/confighelper/asm/" + (ObfHelper.isObf ? "srg/" : "deob/") + "DataWatcher";
+		ASMHelper.replaceMethod(node, input, new MCPSidedString("writeWatchableObjectToPacketBuffer", "func_151510_a").toString(), "(Lnet/minecraft/network/PacketBuffer;Lnet/minecraft/entity/DataWatcher$WatchableObject;)V");
+		ASMHelper.replaceMethod(node, input, new MCPSidedString("readWatchedListFromPacketBuffer", "func_151508_b").toString(), "(Lnet/minecraft/network/PacketBuffer;)Ljava/util/List;");
+	}
+	
+	private void patchWatcherWriteFull(ClassNode node) 
+	{
 		MethodNode func = ASMHelper.getMethod(node, new MCPSidedString("func_151509_a", "func_151509_a").toString(), "(Lnet/minecraft/network/PacketBuffer;)V");
 		//inject line: buf.writeVarIntToBuffer(this.watchedObject.size());
 		InsnList list2 = new InsnList();
@@ -279,7 +285,10 @@ public class IdsTransformer implements ITransformer{
 		//delete line: buf.writeByte(127);
 		AbstractInsnNode point = ASMHelper.lastMethodInsn(func, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "net/minecraft/network/PacketBuffer", "writeByte", "(I)Lio/netty/buffer/ByteBuf;", false));
 		ASMHelper.removeLine(func, point);
-		
+	}
+
+	private void patchWatcherWrite(ClassNode node)
+	{
 		MethodNode write = ASMHelper.getMethod(node, new MCPSidedString("writeWatchedListToPacketBuffer", "func_151507_a").toString(), "(Ljava/util/List;Lnet/minecraft/network/PacketBuffer;)V");
 		//inject line: buf.writeVarIntToBuffer(list.size());
 		InsnList list3 = new InsnList();
@@ -291,7 +300,10 @@ public class IdsTransformer implements ITransformer{
 		//delete line buf.writeByte(127)
 		AbstractInsnNode point2 = ASMHelper.lastMethodInsn(write, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "net/minecraft/network/PacketBuffer", "writeByte", "(I)Lio/netty/buffer/ByteBuf;", false));
 		ASMHelper.removeLine(write, point2);
-		
+	}
+	
+	private void patchWatcherAdd(ClassNode node) 
+	{
 		MethodNode addObject = ASMHelper.getMethod(node, new MCPSidedString("addObject", "func_75682_a").toString(), "(ILjava/lang/Object;)V");
 		
 		//delete line Integer integer = (Integer) dataTypes.get(obj.getClass());
@@ -323,12 +335,8 @@ public class IdsTransformer implements ITransformer{
 		append.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "jml/evilnotch/lib/asm/ASMHelper", "isFalse", "()Z", false));
 		append.add(new JumpInsnNode(Opcodes.IFEQ, todisable.label));
 		addObject.instructions.insertBefore(push.getPrevious(), append);
-		
-		String input = ASMHelper.getInputStream(ModReference.MODID, "DataWatcher"); //"assets/confighelper/asm/" + (ObfHelper.isObf ? "srg/" : "deob/") + "DataWatcher";
-		ASMHelper.replaceMethod(node, input, new MCPSidedString("writeWatchableObjectToPacketBuffer", "func_151510_a").toString(), "(Lnet/minecraft/network/PacketBuffer;Lnet/minecraft/entity/DataWatcher$WatchableObject;)V");
-		ASMHelper.replaceMethod(node, input, new MCPSidedString("readWatchedListFromPacketBuffer", "func_151508_b").toString(), "(Lnet/minecraft/network/PacketBuffer;)Ljava/util/List;");
 	}
-	
+
 	/**
 	 * make it binarary compatible with the id extension change
 	 */

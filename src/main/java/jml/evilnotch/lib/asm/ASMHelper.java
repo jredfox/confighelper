@@ -669,6 +669,15 @@ public class ASMHelper
 		AbstractInsnNode end = ASMHelper.getNextLabel(start).getPrevious();//previous is label and the one before the label is the end
 		ASMHelper.removeInsn(method, start, end);
 	}
+	
+	/**
+	 * null checks
+	 */
+	public static void removeInsn(MethodNode method, AbstractInsnNode start) 
+	{
+		if(start != null)
+			method.instructions.remove(start);
+	}
 
 	/**
 	 * make sure the start and end are fetched directly from the method node

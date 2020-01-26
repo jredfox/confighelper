@@ -1,59 +1,47 @@
-/*
- * $Id: JSONArray.java,v 1.1 2006/04/15 14:10:48 platform Exp $
- * Created on 2006-4-10
- */
 package jml.evilnotch.lib.json;
 
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.lang.reflect.Array;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 
+import jml.evilnotch.lib.JavaUtil;
 import jml.evilnotch.lib.json.internal.Util;
+import jml.evilnotch.lib.json.serialize.JSONParseException;
+import jml.evilnotch.lib.json.serialize.JSONParser;
 
 /**
- * A JSON array. JSONObject supports java.util.List interface.
- * 
- * @author FangYidong<fangyidong@yahoo.com.cn>
+ * Main JSONArray object
  */
-public class JSONArray extends JSONArrayList {
+public class JSONArray extends ArrayList<Object>{
 	
-	private static final long serialVersionUID = 3957988303675231981L;
-	
-	/**
-	 * Constructs an empty {@linkplain JSONArray}.
-	 * @since 1.0.0
-	 */
-	public JSONArray() {}
-	
-	/**
-	 * Constructs a {@linkplain JSONArray} with the elements of the given {@linkplain Collection}.
-	 * @param collection the {@linkplain Collection}
-	 * @since 1.0.0
-	 */
-	public JSONArray(Collection<?> collection){
-		super(collection);
+	public JSONArray()
+	{
+		super();
 	}
 	
-	/**
-	 * Constructs a {@linkplain JSONArray} with the elements of the given array.
-	 * @param array the array
-	 * @param <T> the array type
-	 * @since 1.0.0
-	 */
-	public <T>JSONArray(T[] array) {
+	public JSONArray(int capacity)
+	{
+		super(capacity);
+	}
+
+	public JSONArray(Collection collection)
+	{
+		super((Collection)JSONUtil.toJSONValue(collection));
+	}
+	
+	public <T> JSONArray(T[] array) 
+	{
 		for(T element : array) {
-			this.add(JSONUtil.getValidJsonValue(element));
+			this.add(element);
 		}
 	}
 	
-	/**
-	 * Constructs a {@linkplain JSONArray} with the elements of the given array.
-	 * @param array the array
-	 * @since 1.0.0
-	 */
 	public JSONArray(byte[] array) 
 	{
 		for(byte element : array) 
@@ -62,136 +50,473 @@ public class JSONArray extends JSONArrayList {
 		}
 	}
 	
-	/**
-	 * Constructs a {@linkplain JSONArray} with the elements of the given array.
-	 * @param array the array
-	 * @since 1.0.0
-	 */
-	public JSONArray(boolean[] array) {
-		
-		for(boolean element : array) {
-			
+	public JSONArray(boolean[] array) 
+	{	
+		for(boolean element : array) 
+		{	
 			this.add(element);
 		}
 	}
 	
-	/**
-	 * Constructs a {@linkplain JSONArray} with the elements of the given array.
-	 * @param array the array
-	 * @since 1.0.0
-	 */
-	public JSONArray(char[] array) {
-		
-		for(char element : array) {
-			
+	public JSONArray(char[] array) 
+	{
+		for(char element : array) 
+		{
 			this.add(element);
 		}
 	}
 	
-	/**
-	 * Constructs a {@linkplain JSONArray} with the elements of the given array.
-	 * @param array the array
-	 * @since 1.0.0
-	 */
-	public JSONArray(short[] array) {
-		
-		for(short element : array) {
-			
+	public JSONArray(short[] array) 
+	{	
+		for(short element : array) 
+		{	
 			this.add(element);
 		}
 	}
 	
-	/**
-	 * Constructs a {@linkplain JSONArray} with the elements of the given array.
-	 * @param array the array
-	 * @since 1.0.0
-	 */
-	public JSONArray(int[] array) {
-		
-		for(int element : array) {
-			
+	public JSONArray(int[] array) 
+	{	
+		for(int element : array) 
+		{	
 			this.add(element);
 		}
 	}
 	
-	/**
-	 * Constructs a {@linkplain JSONArray} with the elements of the given array.
-	 * @param array the array
-	 * @since 1.0.0
-	 */
-	public JSONArray(long[] array) {
-		
-		for(long element : array) {
-			
+	public JSONArray(long[] array) 
+	{	
+		for(long element : array) 
+		{	
 			this.add(element);
 		}
 	}
 	
-	/**
-	 * Constructs a {@linkplain JSONArray} with the elements of the given array.
-	 * @param array the array
-	 * @since 1.0.0
-	 */
-	public JSONArray(float[] array) {
-		
-		for(float element : array) {
-			
+	public JSONArray(float[] array) 
+	{	
+		for(float element : array) 
+		{	
 			this.add(element);
 		}
 	}
 	
-	/**
-	 * Constructs a {@linkplain JSONArray} with the elements of the given array.
-	 * @param array the array
-	 * @since 1.0.0
-	 */
-	public JSONArray(double[] array) {
-		
-		for(double element : array) {
-			
+	public JSONArray(double[] array) 
+	{	
+		for(double element : array) 
+		{		
 			this.add(element);
 		}
 	}
 	
-	/**
-	 * Constructs a {@linkplain JSONArray} from a JSON string.
-	 * @param json the JSON string
-	 * @throws JSONParseException if the JSON is invalid
-	 * @since 1.0.0
-	 */
-	public JSONArray(String json) throws JSONParseException {
-		
+	public JSONArray(String json) 
+	{
 		super(new JSONParser().parseJSONArray(json));
 	}
 	
-	/**
-	 * Constructs a {@linkplain JSONArray} from JSON data read from a {@linkplain Reader}.
-	 * @param reader the {@linkplain Reader}
-	 * @throws JSONParseException if the JSON is invalid
-	 * @throws IOException if an I/O error occurred
-	 * @since 1.0.0
-	 */
-	public JSONArray(Reader reader) throws JSONParseException, IOException {
-		
+	public JSONArray(Reader reader) throws JSONParseException, IOException 
+	{
 		super(new JSONParser().parseJSONArray(reader));
+	}
+
+	@Override
+	public boolean add(Object obj)
+	{
+		obj = JSONUtil.toJSONValue(obj);
+		return super.add(obj);
+	}
+	
+	@Override
+	public void add(int index, Object obj)
+	{
+		obj = JSONUtil.toJSONValue(obj);
+		super.add(index, obj);
+	}
+	
+	@Override
+	public boolean addAll(Collection map)
+	{
+		map = (Collection) JSONUtil.toJSONValue(map);
+		return super.addAll(map);
+	}
+	
+	@Override
+	public boolean addAll(int index, Collection map)
+	{
+		map = (Collection) JSONUtil.toJSONValue(map);
+		return super.addAll(index, map);
+	}
+	
+	public Long getLong(int key)
+	{
+		return JavaUtil.castLong((Number)this.get(key));
+	}
+
+	public Integer getInt(int key)
+	{
+		return JavaUtil.castInt((Number)this.get(key));
+	}
+	
+	public Short getShort(int key)
+	{
+		return JavaUtil.castShort((Number)this.get(key));
+	}
+	
+	public Byte getByte(int key)
+	{
+		return JavaUtil.castByte((Number)this.get(key));
+	}
+	
+	public Double getDouble(int key)
+	{
+		return JavaUtil.castDouble((Number)this.get(key));
+	}
+	
+	public Float getFloat(int key)
+	{
+		return JavaUtil.castFloat((Number)this.get(key));
+	}
+	
+	public boolean getBoolean(int key)
+	{
+		return (Boolean) this.get(key);
+	}
+	
+	public char getChar(int key)
+	{
+		return this.getString(key).charAt(0);
+	}
+	
+	public String getString(int key)
+	{
+		return (String) this.get(key);
+	}
+	
+	public JSONObject getJSONObject(int key)
+	{
+		return (JSONObject)this.get(key);
+	}
+	
+	public JSONArray getJSONArray(int key)
+	{
+		return (JSONArray)this.get(key);
 	}
 	
 	/**
-	 * Writes this {@linkplain JSONArray} as a JSON string on the given {@linkplain Writer}.
-	 * @param writer the {@linkplain Writer}
-	 * @throws IOException if an I/O error occurred
-	 * @since 1.0.0
+	 * @param non primitive object arrays are converted into valid json arrays no recursion this converts data into one JSONArray
 	 */
-	public void write(Writer writer) throws IOException {
-		
+	public boolean addStaticArray(Object[] value)
+	{
+		return this.add(new JSONArray(value));
+	}
+	
+	public boolean addStaticArray(long[] value)
+	{
+		return this.add(new JSONArray(value));
+	}
+	
+	public boolean addStaticArray(int[] value)
+	{
+		return this.add(new JSONArray(value));
+	}
+	
+	public boolean addStaticArray(short[] value)
+	{
+		return this.add(new JSONArray(value));
+	}
+	
+	public boolean addStaticArray(byte[] value)
+	{
+		return this.add(new JSONArray(value));
+	}
+	
+	public boolean addStaticArray(double[] value)
+	{
+		return this.add(new JSONArray(value));
+	}
+	
+	public boolean addStaticArray(float[] value)
+	{
+		return this.add(new JSONArray(value));
+	}
+	
+	public boolean addStaticArray(boolean[] value)
+	{
+		return this.add(new JSONArray(value));
+	}
+	
+	public boolean addStaticArray(char[] value)
+	{
+		return this.add(new JSONArray(value));
+	}
+	
+	/**
+	 * @param non primitive object arrays are converted into valid json arrays no recursion this converts data into one JSONArray
+	 */
+	public void addStaticArray(int index, Object[] value)
+	{
+		this.add(index, new JSONArray(value));
+	}
+	
+	public void addStaticArray(int index, long[] value)
+	{
+		this.add(index, new JSONArray(value));
+	}
+	
+	public void addStaticArray(int index, int[] value)
+	{
+		this.add(index, new JSONArray(value));
+	}
+	
+	public void addStaticArray(int index, short[] value)
+	{
+		this.add(index, new JSONArray(value));
+	}
+	
+	public void addStaticArray(int index, byte[] value)
+	{
+		this.add(index, new JSONArray(value));
+	}
+	
+	public void addStaticArray(int index, double[] value)
+	{
+		this.add(index, new JSONArray(value));
+	}
+	
+	public void addStaticArray(int index, float[] value)
+	{
+		this.add(index, new JSONArray(value));
+	}
+	
+	public void addStaticArray(int index, boolean[] value)
+	{
+		this.add(index, new JSONArray(value));
+	}
+	
+	public void addStaticArray(int index, char[] value)
+	{
+		this.add(index, new JSONArray(value));
+	}
+	
+	/**
+	 * @param non primitive object arrays are converted into valid json arrays no recursion this converts data into one JSONArray
+	 */
+	public void setStaticArray(int index, Object[] value)
+	{
+		this.set(index, new JSONArray(value));
+	}
+	
+	public void setStaticArray(int index, long[] value)
+	{
+		this.set(index, new JSONArray(value));
+	}
+	
+	public void setStaticArray(int index, int[] value)
+	{
+		this.set(index, new JSONArray(value));
+	}
+	
+	public void setStaticArray(int index, short[] value)
+	{
+		this.set(index, new JSONArray(value));
+	}
+	
+	public void setStaticArray(int index, byte[] value)
+	{
+		this.set(index, new JSONArray(value));
+	}
+	
+	public void setStaticArray(int index, double[] value)
+	{
+		this.set(index, new JSONArray(value));
+	}
+	
+	public void setStaticArray(int index, float[] value)
+	{
+		this.set(index, new JSONArray(value));
+	}
+	
+	public void setStaticArray(int index, boolean[] value)
+	{
+		this.set(index, new JSONArray(value));
+	}
+	
+	public void setStaticArray(int index, char[] value)
+	{
+		this.set(index, new JSONArray(value));
+	}
+	
+	public String[] getStringArray()
+	{
+		int size = this.size();
+		String[] value = new String[size];
+		for(int index=0;index<size;index++)
+		{
+			value[index] = this.getString(index);
+		}
+		return value;
+	}
+	
+	public long[] getLongArray()
+	{
+		int size = this.size();
+		long[] value = new long[size];
+		for(int index=0;index<size;index++)
+		{
+			value[index] = this.getLong(index);
+		}
+		return value;
+	}
+	
+	public int[] getIntArray()
+	{
+		int size = this.size();
+		int[] value = new int[size];
+		for(int index=0;index<size;index++)
+		{
+			value[index] = this.getInt(index);
+		}
+		return value;
+	}
+	
+	public short[] getShortArray() 
+	{
+		int size = this.size();
+		short[] value = new short[size];
+		for(int index=0;index<size;index++)
+		{
+			value[index] = this.getShort(index);
+		}
+		return value;
+	}
+	
+	public byte[] getByteArray() 
+	{
+		int size = this.size();
+		byte[] value = new byte[size];
+		for(int index=0;index<size;index++)
+		{
+			value[index] = this.getByte(index);
+		}
+		return value;
+	}
+	
+	public double[] getDoubleArray() 
+	{
+		int size = this.size();
+		double[] value = new double[size];
+		for(int index=0;index<size;index++)
+		{
+			value[index] = this.getDouble(index);
+		}
+		return value;
+	}
+	
+	public float[] getFloatArray()
+	{
+		int size = this.size();
+		float[] value = new float[size];
+		for(int index=0;index<size;index++)
+		{
+			value[index] = this.getFloat(index);
+		}
+		return value;
+	}
+	
+	public boolean[] getBooleanArray() 
+	{
+		int size = this.size();
+		boolean[] value = new boolean[size];
+		for(int index=0;index<size;index++)
+		{
+			value[index] = this.getBoolean(index);
+		}
+		return value;
+	}
+	
+	public char[] getCharArray() 
+	{
+		int size = this.size();
+		char[] value = new char[size];
+		for(int index=0;index<size;index++)
+		{
+			value[index] = this.getChar(index);
+		}
+		return value;
+	}
+	
+	public String[] getStringArray(int key)
+	{
+		return this.getJSONArray(key).getStringArray();
+	}
+	
+	public long[] getLongArray(int key)
+	{
+		return this.getJSONArray(key).getLongArray();
+	}
+	
+	public int[] getIntArray(int key)
+	{
+		return this.getJSONArray(key).getIntArray();
+	}
+	
+	public short[] getShortArray(int key)
+	{
+		return this.getJSONArray(key).getShortArray();
+	}
+	
+	public byte[] getByteArray(int key)
+	{
+		return this.getJSONArray(key).getByteArray();
+	}
+	
+	public double[] getDoubleArray(int key)
+	{
+		return this.getJSONArray(key).getDoubleArray();
+	}
+	
+	public float[] getFloatArray(int key)
+	{
+		return this.getJSONArray(key).getFloatArray();
+	}
+	
+	public boolean[] getBooleanArray(int key)
+	{
+		return this.getJSONArray(key).getBooleanArray();
+	}
+	
+	public char[] getCharArray(int key)
+	{
+		return this.getJSONArray(key).getCharArray();
+	}
+	
+	/**
+	 * get a date
+	 */
+	public Date getDate(int key, DateFormat format) throws ParseException 
+	{
+		return format.parse(this.getString(key));
+	}
+	
+	public void setDate(int key, Date date, DateFormat format)
+	{
+		this.set(key, format.format(key));
+	}
+	
+	public void addDate(int key, Date date, DateFormat format)
+	{
+		this.add(key, format.format(date));
+	}
+	
+	public boolean addDate(Date date, DateFormat format)
+	{
+		return this.add(format.format(date));
+	}
+	
+	//TODO:
+	public void write(Writer writer) throws IOException 
+	{	
 		Util.write(this, writer);
 	}
 
-	/**
-	 * Converts this {@linkplain JSONArray} to a JSON string.
-	 * @return this {@linkplain JSONArray} as a JSON string
-	 * @since 1.0.0
-	 */
+	//TODO:
 	@Override
 	public String toString() 
 	{
@@ -200,102 +525,39 @@ public class JSONArray extends JSONArrayList {
 			StringWriter writer = new StringWriter();
 			Util.write(this, writer);
 			return writer.toString();	
-		} 
+		}
 		catch(IOException exception) 
 		{
 			exception.printStackTrace();
 		}
-		
 		return null;
 	}
 	
 	@Override
-	public boolean equals(Object object) {
+	public boolean equals(Object object) 
+	{	
+		if(!(object instanceof JSONArray)) 
+			return false;
 		
-		if(object != null) {
-			
-			if(object instanceof Collection) {
-				
-				Collection<?> collection = (Collection<?>)object;
-				
-				if(collection.size() == this.size()) {
-					
-					int index = 0;
-					
-					for(Object element : collection) {
-						
-						if(!((element == null && this.get(index) == null) || this.get(index).equals(element))) {
-							
-							return false;
-						}
-						
-						index++;
-					}
-					
-					return true;
+		JSONArray other = (JSONArray)object;
+		int size = this.size();
+		if(size == other.size()) 
+		{					
+			for(int index = 0; index < size; index++)
+			{		
+				Object entry1 = this.get(index);
+				Object entry2 = other.get(index);
+				if(entry1 == null && entry2 != null)
+				{
+					return false;
 				}
-				
-			} else if(object.getClass().isArray()) {
-				
-				int length = Array.getLength(object);
-				
-				if(length == this.size()) {
-					
-					for(int index = 0; index < length; index++) {
-						
-						Object element = Array.get(object, index);
-
-						if(!((element == null && this.get(index) == null) || element.equals(this.get(index)))) {
-							
-							return false;
-						}
-					}
-					
-					return true;
+				else if(!entry1.equals(entry2))
+				{
+					return false;
 				}
 			}
+			return true;
 		}
-		
 		return false;
 	}
-	
-	/**
-	 * Converts this {@linkplain JSONArray} to a XML string.
-	 * @param rootName name of the root element
-	 * @return this JSON array as a XML string
-	 * @since 1.1.0
-	 */
-	public String toXML(String rootName) {
-		
-		StringBuilder builder = new StringBuilder();
-		builder.append('<');
-		builder.append(rootName);
-		builder.append(" length=");
-		builder.append(this.size());
-		builder.append('>');
-		
-		for(Object element : this) {
-
-				   if(element instanceof JSONObject) {builder.append(((JSONObject)element).toXML("item"));
-			} else if(element instanceof JSONArray) {builder.append(((JSONArray)element).toXML("item"));
-			} else {
-					
-				builder.append("<item>");
-				
-				if(element != null) {
-					
-					builder.append(String.valueOf(element));
-				}
-				
-				builder.append("</item>");
-			}
-		}
-		
-		builder.append("</");
-		builder.append(rootName);
-		builder.append('>');
-		
-		return builder.toString();
-	}
-
 }

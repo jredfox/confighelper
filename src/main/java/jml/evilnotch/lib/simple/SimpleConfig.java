@@ -8,6 +8,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -17,18 +18,47 @@ public class SimpleConfig {
 	
 	public Map<String, Object> list = new TreeMap<String, Object>();
 	public File file;
+	public char sep;
+	public boolean spacedEnd;
 	public static final String[] types = {"B", "S", "I", "L", "F", "D", "Z", "Str"};
-	public static final String extension = ".scfg";
 	public static final String version = "1.0";
 	
 	public SimpleConfig(File f)
 	{
+		this(f, '=');
+	}
+	
+	public SimpleConfig(File f, char sep)
+	{
+		this(f, sep, false);
+	}
+	
+	public SimpleConfig(File f, char sep, boolean spacedEnd)
+	{
 		this.file = new File(f.getAbsolutePath());
+		this.sep = sep;
+		this.spacedEnd = spacedEnd;
+	}
+	
+	/**
+	 * starting after this call the list will now be ordered
+	 */
+	public void setOrdered()
+	{
+		this.list = new LinkedHashMap<String, Object>(this.list);
+	}
+	
+	/**
+	 * although alphabitized by default calling setOrdered will not be alphabitized though
+	 */
+	public void setAlphabitized()
+	{
+		this.list = new TreeMap<String, Object>(this.list);
 	}
 	
 	public void setFile(File f)
 	{
-		this.file = f;
+		this.file = f.getAbsoluteFile();
 	}
 	
 	public Boolean getBoolean(String key, boolean init)
@@ -78,8 +108,8 @@ public class SimpleConfig {
 	
 	public Object get(String key, Object init)
 	{
-		if(key.contains("="))
-			throw new IllegalArgumentException("key contains invalid char of:" + "\"=\"");
+		if(key.contains("" + this.sep))
+			throw new IllegalArgumentException("key contains invalid char of:" + this.sep);
 		Object value = this.list.get(key);
 		if(value == null)
 		{
@@ -94,7 +124,7 @@ public class SimpleConfig {
 		this.list.clear();
 	}
 	
-	public void parse()
+	public void load()
 	{
 		if(!this.file.exists())
 			return;
@@ -123,36 +153,39 @@ public class SimpleConfig {
 	
 	public void parseLine(String line) 
 	{
-		String[] reg = JavaUtil.splitFirst(line, '=');
-		String strValue = reg[1];
-		String data = reg[0];
-		reg = JavaUtil.splitFirst(data, ':');
+		String[] reg = JavaUtil.splitFirst(line, ':');
 		String type = reg[0].trim();
-		String keyUnparsed = reg[1].trim();
-		String keyParsed = keyUnparsed;
-		if(keyUnparsed.startsWith("\""))
-			keyParsed = JavaUtil.parseQuotes(keyUnparsed, 0, "\"");
-		Object value = this.parseObj(type, strValue);
-		if(value == null)
-			throw new IllegalArgumentException("Invalid type:\t" + type);
-		this.list.put(keyParsed, value);
+		reg = JavaUtil.splitFirst(reg[1], this.sep);
+		String key = reg[0].trim();
+		String value = reg[1].trim();
+		Object parsed = this.parseObj(type, value);
+		this.list.put(key, parsed);
 	}
 
-	public void save() throws IOException
+	public void save()
 	{
-		File parent = this.file.getParentFile();
-		if(!parent.exists())
-			parent.mkdirs();
-		BufferedWriter writer = JavaUtil.getFileWriter(this.file);
-		writer.write("#build:" + version + "\r\n");
-		for(String key : this.list.keySet())
+		try
 		{
-			Object value = this.list.get(key);
-			String type = this.getType(value);
-			key = key.contains(" ") ? "\"" + key + "\"" : key;
-			writer.write(type + ":" + key + "=" + value.toString() + "\r\n");
+			File parent = this.file.getParentFile();
+			if(!parent.exists())
+				parent.mkdirs();
+			BufferedWriter writer = JavaUtil.getFileWriter(this.file);
+			writer.write("#build:" + version + "\r\n");
+			for(String key : this.list.keySet())
+			{
+				Object value = this.list.get(key);
+				String type = this.getType(value);
+				String strValue = value instanceof String ? "\"" + value + "\"" : value.toString();
+				key = key.contains(" ") ? "\"" + key + "\"" : key;
+				String equals = this.spacedEnd ? " " + this.sep + " " : "" + this.sep;
+				writer.write(type + ":" + key + equals + strValue + "\r\n");
+			}
+			writer.close();
 		}
-		writer.close();
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
 	}
 	
 	public Object parseObj(String type, String value)
@@ -172,7 +205,7 @@ public class SimpleConfig {
 		else if(types[6].equals(type))
 			return Boolean.parseBoolean(value);
 		else if(types[7].equals(type))
-			return new String(value);
+			return JavaUtil.parseQuotes(value, 0, "\"");
 		
 		return null;
 	}
@@ -196,6 +229,27 @@ public class SimpleConfig {
 		else if(obj instanceof String)
 			return types[7];
 		return null;
+	}
+	
+	@Override
+	public String toString()
+	{
+		return this.list.toString();
+	}
+	
+	@Override
+	public boolean equals(Object other)
+	{
+		if(!(other instanceof SimpleConfig))
+			return false;
+		SimpleConfig cfg = (SimpleConfig)other;
+		return this.list.equals(cfg.list);
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		return this.list.hashCode();
 	}
 
 }

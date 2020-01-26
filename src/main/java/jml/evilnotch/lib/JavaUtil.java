@@ -48,8 +48,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import jml.evilnotch.lib.json.JSONObject;
-import jml.evilnotch.lib.json.JSONParseException;
-import jml.evilnotch.lib.json.JSONParser;
+import jml.evilnotch.lib.json.serialize.JSONParseException;
+import jml.evilnotch.lib.json.serialize.JSONParser;
 import jml.evilnotch.lib.primitive.ByteObj;
 import jml.evilnotch.lib.primitive.DoubleObj;
 import jml.evilnotch.lib.primitive.FloatObj;
@@ -200,16 +200,16 @@ public class JavaUtil {
 	{
 		obj = getIntNum(obj);
 		if(obj instanceof Long)
-			return JavaUtil.castInt((Long)obj);
+			return JavaUtil.castInt(obj.longValue());
 		return obj.intValue();
 	}
 	public static short castShort(Number obj)
 	{
 		obj = getIntNum(obj);
 		if(obj instanceof Long)
-			return JavaUtil.castShort((Long)obj);
+			return JavaUtil.castShort(obj.longValue());
 		else if(obj instanceof Integer)
-			return JavaUtil.castShort((Integer)obj);
+			return JavaUtil.castShort(obj.intValue());
 		return obj.shortValue();
 	}
 	
@@ -217,11 +217,11 @@ public class JavaUtil {
 	{
 		obj = getIntNum(obj);
 		if(obj instanceof Long)
-			return JavaUtil.castByte((Long)obj);
+			return JavaUtil.castByte(obj.longValue());
 		else if(obj instanceof Integer)
-			return JavaUtil.castByte((Integer)obj);
+			return JavaUtil.castByte(obj.intValue());
 		else if(obj instanceof Short)
-			return JavaUtil.castByte((Short)obj);
+			return JavaUtil.castByte(obj.shortValue());
 		return obj.byteValue();
 	}
 	
@@ -966,7 +966,7 @@ public class JavaUtil {
 			}
 			else
 			{
-				reader = new BufferedReader(new InputStreamReader(new FileInputStream(f),StandardCharsets.UTF_8) );
+				reader = new BufferedReader(new InputStreamReader(new FileInputStream(f), StandardCharsets.UTF_8) );
 			}
 			
 			list = new ArrayList();
