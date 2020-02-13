@@ -33,7 +33,6 @@ public class CentralRegistry<K extends ResourceLocation, T extends IRegisterable
 	protected Map<K, T> reg = new HashMap<K, T>();//retains the order for modders debuging things
 	protected Map<Integer, T> idreg = new HashMap<Integer, T>();
 	protected Set<Integer> vanillaIds;
-	protected Set<Integer> usedIds = new TreeSet();
 	protected boolean frozen = true;//registries should be frozen before registration event and unfrozen after till before load complete
 	
 	public CentralRegistry(DataType type)
@@ -114,6 +113,11 @@ public class CentralRegistry<K extends ResourceLocation, T extends IRegisterable
 	public boolean contains(int id)
 	{
 		return this.idreg.containsKey(id);
+	}
+	
+	public int size()
+	{
+		return this.reg.size();
 	}
 	
 	/**

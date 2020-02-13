@@ -21,14 +21,11 @@ import net.minecraftforge.common.MinecraftForge;
 
 @Mod(modid = ModReference.MODID, version = ModReference.VERSION, name = ModReference.NAME, dependencies = "required-after:evilnotchlib")
 public class ConfigHelperMod 
-{
-	
+{	
     @EventHandler
     public void preinit(FMLPreInitializationEvent event)
     {	
-		Registries.preinit();
 		MinecraftForge.EVENT_BUS.register(new WatcherEvent());
-    	Registries.registerBiome(BiomeGenBase.getBiomeGenArray()[161], 161, true);//fix vanilla
     	Enchantment e = Enchantment.aquaAffinity;//force Load vanilla Enchantment
     	DimensionManager.init();
     	try

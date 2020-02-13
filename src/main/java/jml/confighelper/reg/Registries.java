@@ -56,6 +56,12 @@ public class Registries {
 	
 	public static boolean initBiomes = false;
 	public static int nextBiome = biomes.limit;
+	
+	static
+	{
+		registerVanillaMc();
+	}
+	
 	public static int registerBiome(BiomeGenBase biome, int id, boolean reg)
 	{
 		if(reg || !reg && RegistryConfig.regUnregBiomes)
@@ -329,12 +335,6 @@ public class Registries {
 		return datawatchertypes.get(dataType).read(buf);
 	}
 	
-	public static void preinit()
-	{
-		unfreeze();
-		registerVanillaMc();
-	}
-	
 	public static void loadComplete() 
 	{
     	Registries.freeze();
@@ -343,8 +343,9 @@ public class Registries {
 		Registries.enchantments.securityCheck();//security check static[] capeable registries again to ensure registry saftey in case something screwed it up in post init
 	}
 
-	private static void registerVanillaMc() 
+	public static void registerVanillaMc() 
 	{
+		unfreeze();
 		datawatchertypes.register(0, new WatcherByte());
 		datawatchertypes.register(1, new WatcherShort());
 		datawatchertypes.register(2, new WatcherInteger());
@@ -352,6 +353,7 @@ public class Registries {
 		datawatchertypes.register(4, new WatcherString());
 		datawatchertypes.register(5, new WatcherItemStack());
 		datawatchertypes.register(6, new WatcherChunkCoords());
+	   	Registries.registerBiome(BiomeGenBase.biomeList[161], 161, true);//fix vanilla
 	}
 	
 	public static void unfreeze()
