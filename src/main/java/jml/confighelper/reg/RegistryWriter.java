@@ -27,8 +27,8 @@ public class RegistryWriter {
 	
 	public static final File root = new Directory(ASMHelper.getHome(), "config/confighelper").create();
 	public static final String dumps = "dumps";
-	public static final String extension =  ".txt";
-	public static final String conflictExtension = ".json";
+	public static final String ext =  ".txt";
+	public static final String conflictExt = ".json";
 	public static final String conflicts = "conflicts";
 	public static final String suggested = "suggested";
 	public static final String freeids = "freeids";
@@ -73,7 +73,7 @@ public class RegistryWriter {
 
 	private void writeConflicts() throws IOException
 	{
-		BufferedWriter writer = JavaUtil.getFileWriter(new File(this.dir, conflicts + conflictExtension));
+		File file = new File(this.dir, conflicts + conflictExt);
 		JSONObject filejson = new JSONObject();
 		for(Integer id : this.reg.getOrgIds())
 		{
@@ -104,14 +104,13 @@ public class RegistryWriter {
 		}
 		if(!filejson.isEmpty())
 		{
-			writer.write(JavaUtil.toPrettyFormat(filejson.toString()));
+			JavaUtil.saveJSONSafley(filejson, file);
 		}
-		writer.close();
 	}
 	
 	private void writeFreeIds() throws IOException
 	{
-		BufferedWriter writer = JavaUtil.getFileWriter(new File(this.dir, freeids + extension));
+		BufferedWriter writer = JavaUtil.getWriter(new File(this.dir, freeids + ext));
 		Set<IdChunk> chunks = IdChunk.configureAround(this.reg.limitLower, this.reg.limit, this.reg.getOrgIds());
 		for(IdChunk c : chunks)
 		{
@@ -122,7 +121,7 @@ public class RegistryWriter {
 
 	private void writeSuggestions() throws IOException
 	{
-		BufferedWriter writer = JavaUtil.getFileWriter(new File(this.dir, suggested + extension));
+		BufferedWriter writer = JavaUtil.getWriter(new File(this.dir, suggested + ext));
 		Map<String,List<Registry.Entry>> entries = new TreeMap();//modname, list of entries
 		//filter all entries by mod name
 		for(Registry.Entry entry : this.reg)
@@ -192,7 +191,7 @@ public class RegistryWriter {
 	
 	private void writeIds() throws IOException
 	{
-		BufferedWriter writer = JavaUtil.getFileWriter(new File(this.dirDump, dumpIdsNew + extension));
+		BufferedWriter writer = JavaUtil.getWriter(new File(this.dirDump, dumpIdsNew + ext));
 		List<Registry.Entry> entries = this.reg.getEntriesSortable();
 		Collections.sort(entries, new Comparator<Registry.Entry>()
 		{

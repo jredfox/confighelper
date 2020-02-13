@@ -19,7 +19,7 @@ import net.minecraft.util.ResourceLocation;
 
 public class RegCompatTransformer implements ITransformer{
 	
-	public static List<String> clazzes = JavaUtil.asList(
+	public static List<String> clazzes = JavaUtil.toArray(
 	new String[]
 	{
 		"com.shinoow.abyssalcraft.AbyssalCraft",

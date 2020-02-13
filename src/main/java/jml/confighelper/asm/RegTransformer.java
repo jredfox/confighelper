@@ -132,6 +132,7 @@ public class RegTransformer implements ITransformer{
 		InsnList list2 = new InsnList();
 		list2.add(new InsnNode(Opcodes.ICONST_1));
 		list2.add(new FieldInsnNode(Opcodes.PUTSTATIC, "jml/confighelper/reg/Registries", "initBiomes", "Z"));
+		list2.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "jml/confighelper/reg/Registries", "regBiomes", "()V", false));
 		clinit.instructions.insertBefore(ASMHelper.lastInsn(clinit, Opcodes.RETURN), list2);
 	}
 	

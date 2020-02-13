@@ -59,7 +59,8 @@ public class Registries {
 	
 	static
 	{
-		registerVanillaMc();
+		unfreeze();
+		regWatchers();
 	}
 	
 	public static int registerBiome(BiomeGenBase biome, int id, boolean reg)
@@ -254,7 +255,7 @@ public class Registries {
 			if(packageOwners == null)
 				return "packageOwners-" + null;
 		}
-		String pakage = clazz.substring(0, JavaUtil.findLastChar(clazz, '.'));
+		String pakage = clazz.substring(0, JavaUtil.lastChar(clazz, '.'));
 		if(packageOwners.containsKey(pakage))
 		{
 			ModContainer mod = packageOwners.get(pakage).get(0);
@@ -343,9 +344,8 @@ public class Registries {
 		Registries.enchantments.securityCheck();//security check static[] capeable registries again to ensure registry saftey in case something screwed it up in post init
 	}
 
-	public static void registerVanillaMc() 
+	public static void regWatchers() 
 	{
-		unfreeze();
 		datawatchertypes.register(0, new WatcherByte());
 		datawatchertypes.register(1, new WatcherShort());
 		datawatchertypes.register(2, new WatcherInteger());
@@ -353,6 +353,10 @@ public class Registries {
 		datawatchertypes.register(4, new WatcherString());
 		datawatchertypes.register(5, new WatcherItemStack());
 		datawatchertypes.register(6, new WatcherChunkCoords());
+	}
+	
+	public static void regBiomes()
+	{
 	   	Registries.registerBiome(BiomeGenBase.biomeList[161], 161, true);//fix vanilla
 	}
 	

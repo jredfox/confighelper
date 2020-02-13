@@ -38,18 +38,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.JsonElement;
 
 import jml.evilnotch.lib.json.JSONObject;
-import jml.evilnotch.lib.json.serialize.JSONParseException;
-import jml.evilnotch.lib.json.serialize.JSONParser;
+import jml.evilnotch.lib.json.serialize.JSONSerializer;
 import jml.evilnotch.lib.primitive.ByteObj;
 import jml.evilnotch.lib.primitive.DoubleObj;
 import jml.evilnotch.lib.primitive.FloatObj;
@@ -61,9 +61,9 @@ import net.minecraft.util.ResourceLocation;
 
 public class JavaUtil {
 	public static final String SPECIALCHARS = "~!@#$%^&*()_+`'-=/,.<>?\"{}[]:;|" + "\\";
-	public static final String uniqueSplitter = "\u00A9" + "#" + "\u20AC";
-	public static final List emptyList = new ArrayList(0);
-	public static String numberIds = "bslfdi";
+	public static final String numberIds = "bsilfd";
+	public static final int arrayInitCapacity = 10;
+	public static final int fileCharLimit = 200;//since math path is 260 we want to be realitivly safe here
 	
 	/**
 	 * cast without loosing data and have a random negative number
@@ -76,16 +76,13 @@ public class JavaUtil {
 			return Integer.MIN_VALUE;
 		return (int)l;
 	}
+	
 	public static short castShort(long l)
 	{
 		if(l > Short.MAX_VALUE)
-		{
 			return Short.MAX_VALUE;
-		}
 		else if(l < Short.MIN_VALUE)
-		{
 			return Short.MIN_VALUE;
-		}
 		return (short)l;
 	}
 	public static byte castByte(long l)
@@ -100,13 +97,9 @@ public class JavaUtil {
 	public static short castShort(int i)
 	{
 		if(i > Short.MAX_VALUE)
-		{
 			return Short.MAX_VALUE;
-		}
 		else if(i < Short.MIN_VALUE)
-		{
 			return Short.MIN_VALUE;
-		}
 		return (short)i;
 	}
 	public static byte castByte(int i)
@@ -125,45 +118,53 @@ public class JavaUtil {
 			return Byte.MIN_VALUE;
 		return (byte)s;
 	}
+	
 	public static byte castByte(float f) 
 	{
-		long l = convertToLong(f);
+		long l = toLong(f);
 		return JavaUtil.castByte(l);
 	}
+	
 	public static byte castByte(double d) 
 	{
-		long l = convertToLong(d);
+		long l = toLong(d);
 		return JavaUtil.castByte(l);
 	}
 	
 	public static short castShort(float f) 
 	{
-		long l = convertToLong(f);
+		long l = toLong(f);
 		return JavaUtil.castShort(l);
 	}
+	
 	public static short castShort(double d) 
 	{
-		long l = convertToLong(d);
+		long l = toLong(d);
 		return JavaUtil.castShort(l);
 	}
+	
 	public static int castInt(float f) 
 	{
-		long l = convertToLong(f);
+		long l = toLong(f);
 		return JavaUtil.castInt(l);
 	}
+	
 	public static int castInt(double d) 
 	{
-		long l = convertToLong(d);
+		long l = toLong(d);
 		return JavaUtil.castInt(l);
 	}
+	
 	public static long castLong(float f)
 	{
-		return convertToLong(f);
+		return toLong(f);
 	}
+	
 	public static long castLong(double d)
 	{
-		return convertToLong(d);
+		return toLong(d);
 	}
+	
 	public static float castFloat(double d)
 	{
 		if(d > Float.MAX_VALUE)
@@ -176,36 +177,38 @@ public class JavaUtil {
 	/**
 	 * doesn't work every time as java algorithms truncate to 0 sometimes when negative only????
 	 */
-	public static long convertToLong(double d)
+	public static long toLong(double d)
 	{
 		if(d > Long.MAX_VALUE)
 			return Long.MAX_VALUE;
 		if(d < Long.MIN_VALUE)
 			return Long.MIN_VALUE;
-		return Math.round(d);
+		return (long) d;
 	}
+	
 	/**
 	 * doesn't work every time as java algorithms truncate to 0 sometimes when negative only????
 	 */
-	public static long convertToLong(float f)
+	public static long toLong(float f)
 	{
 		if(f > Long.MAX_VALUE)
 			return Long.MAX_VALUE;
 		if(f < Long.MIN_VALUE)
 			return Long.MIN_VALUE;
-		return (long)f;
+		return (long) f;
 	}
 	
 	public static int castInt(Number obj)
 	{
-		obj = getIntNum(obj);
+		obj = getInt(obj);
 		if(obj instanceof Long)
 			return JavaUtil.castInt(obj.longValue());
 		return obj.intValue();
 	}
+	
 	public static short castShort(Number obj)
 	{
-		obj = getIntNum(obj);
+		obj = getInt(obj);
 		if(obj instanceof Long)
 			return JavaUtil.castShort(obj.longValue());
 		else if(obj instanceof Integer)
@@ -215,7 +218,7 @@ public class JavaUtil {
 	
 	public static byte castByte(Number obj)
 	{
-		obj = getIntNum(obj);
+		obj = getInt(obj);
 		if(obj instanceof Long)
 			return JavaUtil.castByte(obj.longValue());
 		else if(obj instanceof Integer)
@@ -227,7 +230,7 @@ public class JavaUtil {
 	
 	public static long castLong(Number obj)
 	{
-		obj = getIntNum(obj);
+		obj = getInt(obj);
 		return obj.longValue();
 	}
 	
@@ -244,16 +247,12 @@ public class JavaUtil {
 	/**
 	 * if double/float convert to integer of long else do nothing
 	 */
-	public static Number getIntNum(Number obj) 
+	public static Number getInt(Number obj) 
 	{
 		if(isDouble(obj))
-		{
-			obj = new Long(JavaUtil.convertToLong(obj.doubleValue() ));
-		}
+			obj = new Long(JavaUtil.toLong(obj.doubleValue() ));
 		else if(isFloat(obj))
-		{
-			obj = new Long(JavaUtil.convertToLong(obj.floatValue() ));
-		}
+			obj = new Long(JavaUtil.toLong(obj.floatValue() ));
 		return obj;
 	}
 	
@@ -267,16 +266,80 @@ public class JavaUtil {
 		return num instanceof Double || num instanceof DoubleObj;
 	}
 	
+	public static double range(double num, double min, double max)
+	{
+		if(num < min)
+			num = min;
+		else if(num > max)
+			num = max;
+		return num;
+	}
+	
+	public static float range(float num, float min, float max)
+	{
+		if(num < min)
+			num = min;
+		else if(num > max)
+			num = max;
+		return num;
+	}
+	
+	public static long range(long num, long min, long max)
+	{
+		if(num < min)
+			num = min;
+		else if(num > max)
+			num = max;
+		return num;
+	}
+	
+	public static int range(int num, int min, int max)
+	{
+		if(num < min)
+			num = min;
+		else if(num > max)
+			num = max;
+		return num;
+	}
+	
+	public static short range(short num, short min, short max)
+	{
+		if(num < min)
+			num = min;
+		else if(num > max)
+			num = max;
+		return num;
+	}
+	
+	public static byte range(byte num, byte min, byte max)
+	{
+		if(num < min)
+			num = min;
+		else if(num > max)
+			num = max;
+		return num;
+	}
+	
+	public static char range(char c, char min, char max)
+	{
+		if(c < min)
+			c = min;
+		else if(c > max)
+			c = max;
+		return c;
+	}
+	
 	/**
-	 * dynamically get your current public ip adress I recommend cacheing it somewhere so it doesn't go throw a huge process each time
+	 * dynamically get your current public ip address I recommend caching it somewhere so it doesn't go throw a huge process each time
 	 */
-	public static String getPublicIp() throws IOException 
+	public static String getIpPublic() throws IOException 
 	{
 		URL whatismyip = new URL("http://checkip.amazonaws.com");
 		BufferedReader in = new BufferedReader(new InputStreamReader(whatismyip.openStream()));
 		String ip = in.readLine(); //you get the IP as a String
 		return ip.trim();
 	}
+	
 	/**
 	 * your current computer adress's ip
 	 */
@@ -286,20 +349,19 @@ public class JavaUtil {
 		return inetAddress.getHostAddress();
 	}
 	
+	public static boolean isOnline()
+	{
+		return isOnline("www.google.com");
+	}
+	
 	public static boolean isOnline(String url)
 	{
 		try
 		{
-			if(url == null)
-				url = "www.google.com";
-			if(url.contains("https://")) {
-				url = url.replaceFirst("https://", "");
-			}
-			else if (url.contains("http://")){
-				url = url.replaceFirst("http://", "");
-			}
+			if(url.startsWith("http")) 
+				throw new IllegalArgumentException("isOnline Requires non HTTP/HTTPS protical");
 			Socket soc = new Socket();
-			InetSocketAddress adress = new InetSocketAddress(url,80);
+			InetSocketAddress adress = new InetSocketAddress(url, 80);
 			soc.setSoTimeout(3500);
 			soc.connect(adress);
 			soc.close();
@@ -311,33 +373,52 @@ public class JavaUtil {
 		}
 	}
 	
-	public static void getAllFilesFromDir(File directory, List<File> files,String extension) {
-
-	    // get all the files from a directory
-	    File[] fList = directory.listFiles();
-	    for (File file : fList) {
-	        if (file.isFile() && !files.contains(file) && file.getName().endsWith(extension)) {
+	public static void getDirFiles(File dir, Set<File> files, String ext, boolean blackList) 
+	{
+	    for (File file : dir.listFiles()) 
+	    {
+	    	boolean isType = blackList ? (!file.getName().endsWith(ext)) : (file.getName().endsWith(ext) || ext.equals("*") );
+	        if (file.isFile() && isType)
+	        {
 	            files.add(file);
-	        } else if (file.isDirectory()) {
-	        	getAllFilesFromDir(file, files, extension);
 	        }
-	    }
-	}
-	public static void getAllFilesFromDir(File directory, List<File> files) {
-
-	    // get all the files from a directory
-	    File[] fList = directory.listFiles();
-	    for (File file : fList) {
-	        if (file.isFile() && !files.contains(file)) {
-	            files.add(file);
-	        } else if (file.isDirectory()) {
-	        	getAllFilesFromDir(file, files);
+	        else if (file.isDirectory()) 
+	        {
+	        	getDirFiles(file, files, ext, blackList);
 	        }
 	    }
 	}
 	
+	public static void getDirFiles(File dir, Set<File> files) 
+	{
+		getDirFiles(dir, files, "*", false);
+	}
+	
+	public static Set<File> getDirFiles(File dir)
+	{
+		Set<File> files = new HashSet();
+		getDirFiles(dir, files);
+		return files;
+	}
+	
+	public static Set<File> getDirFiles(File dir, String ext)
+	{
+		return getDirFiles(dir, ext, false);
+	}
+	
+	public static Set<File> getDirFiles(File dir, String ext, boolean blackList)
+	{
+		Set<File> files = new HashSet();
+		getDirFiles(dir, files, ext, blackList);
+		return files;
+	}
+	
 	public static void deleteDir(File dir)
 	{
+		if(!dir.isDirectory())
+		{
+			throw new IllegalArgumentException("file is not a directory! " + dir.getAbsoluteFile().toString());//sanity check
+		}
 		try 
 		{
 			FileUtils.deleteDirectory(dir);
@@ -348,627 +429,546 @@ public class JavaUtil {
 		}
 	}
 	
-	public static Color getColorFromMsAcess(int p_78258_4_)
-	{
-		
-		int red = (int)(p_78258_4_ >> 16 & 255);
-        int green = (int)(p_78258_4_ >> 8 & 255);
-        int blue = (int)(p_78258_4_ & 255);
-        int alpha = (int)(p_78258_4_ >> 24 & 255);
-         return new Color(red,green,blue,alpha);
+	/**
+	 * supports alpha
+	 */
+	public static Color getColor(int color)
+	{	
+		int red = (int)(color >> 16 & 255);
+        int green = (int)(color >> 8 & 255);
+        int blue = (int)(color & 255);
+        int alpha = (int)(color >> 24 & 255);
+        return new Color(red, green, blue, alpha);
 	}
 	
-	public static int gethex(int r, int g, int b, int a) {
+	/**
+	 * converts rgba into a single integer
+	 */
+	public static int getRGB(Color c)
+	{
+		return getRGB(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha());
+	}
+	
+	/**
+	 * converts rgba into a single integer
+	 */
+	public static int getRGB(int r, int g, int b, int a)
+	{
         return a << 24 | r << 16 | g << 8 | b;
     }
 	
-	public static int getMs(int ms, double[] mul) 
+	/**
+	 * convert float(between 0.0F-1.0F) to int hex colors
+	 */
+	public static Color getColor(float r, float g, float b, float a)
 	{
-		Color c = getColorFromMsAcess(ms);
-		double rmul = mul[0];
-		double gmul = mul[1];
-		double bmul = mul[2];
-		int r = (int)(c.getRed() * rmul);
-		int g = (int)(c.getGreen() * gmul);
-		int b = (int)(c.getBlue() * bmul);
-		if(r >= 255)
-			r = 255;
-		if(g >= 255)
-			g = 255;
-		if(b >= 255)
-			b = 255;//If it's greater then white return white
-
-		return gethex(r, g, b, 0);
+	    return new Color(r, g, b, a);
+	}
+	
+	public static float[] getSRGB(Color c)
+	{
+		return getSRGB(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha());
+	}
+	
+	/**
+	 * get the Float(0.0F-1.0F) color values from int RGBA
+	 */
+	public static float[] getSRGB(int r, int g, int b, int a)
+	{
+		float red = r / 255.0F;
+		float green = g / 255.0F;
+		float blue = b / 255.0F;
+		float alpha = a / 255.0F;
+		return new float[]{red, green, blue, alpha};
+	}
+	
+	public static Color multiplyColor(int color, int colorMult) 
+	{
+		return multiplyColor(getColor(color), getColor(colorMult));
+	}
+	
+	/**
+	 * doesn't multiply alpha
+	 */
+	public static Color multiplyColor(Color color, Color colorMult)
+	{
+		float[] cols = getSRGB(color);
+		float[] mul = getSRGB(colorMult);
+		float r = multiplyColor(cols[0], mul[0]);
+		float g = multiplyColor(cols[1], mul[1]);
+		float b = multiplyColor(cols[2], mul[2]);
+		float a = cols[3];
+		return new Color(r, g, b, a);
 	}
 
-	public static boolean isSpecialChar(char c){
+	public static float multiplyColor(float color, float mult) 
+	{
+		return range(color * mult, 0.0F, 1.0F);
+	}
+
+	public static boolean isSpecialChar(char c)
+	{
 		return SPECIALCHARS.contains("" + c);
 	}
 	
-	public static boolean isStringAlphaNumeric(String str){
-		str = toWhiteSpaced(str);
+	/**
+	 * allows for white spacing
+	 */
+	public static boolean isAlphanumeric(String str)
+	{
+		str = whiteSpaced(str);
 		for(char c : str.toCharArray())
-			if(!isCharAlphaNumeric(c))
+			if(!isAlphanumeric(c))
 				return false;
 		return true;
 	}
-	public static boolean containsAlphaNumeric(String str){
-		str = toWhiteSpaced(str);
+	
+	/**
+	 * allows for white spacing
+	 */
+	public static boolean containsAlphanumeric(String str)
+	{
+		str = whiteSpaced(str);
 		for(char c : str.toCharArray())
-			if(isCharAlphaNumeric(c))
+			if(isAlphanumeric(c))
 				return true;
 		return false;
 	}
+	
 	/**
 	 * Ejects a string that is whitespaced
-	 * @param s
-	 * @return
 	 */
-	public static String toWhiteSpaced(String s)
+	public static String whiteSpaced(String s)
 	{
 		return s.replaceAll("\\s+", "");
 	}
+	
 	/**
-	 * Supports all languages
-	 * Difference between is alphabetic and isLetter is that some languages combiners and vowels 
+	 * doesn't support Unicode use int codepoints from a string instead
 	 */
-	public static boolean isCharAlphaNumeric(char c){
+	public static boolean isAlphanumeric(char c)
+	{
+		return isAlphanumeric((int) c);
+	}
+	
+	/**
+	 * doesn't support Unicode use int codepoints from a string instead
+	 */
+	public static boolean isLetterNumeric(char c)
+	{
+		return isLetterNumeric((int) c);
+	}
+	
+	public static char toUpperCase(char c) 
+	{
+		return Character.toUpperCase(c);
+	}
+	
+	public static char toLowerCase(char c) 
+	{
+		return Character.toLowerCase(c);
+	}
+	
+	/**
+	 * doesn't support non english Alphabetical letters is isLetterNumeric instead for unicode full support
+	 */
+	public static boolean isAlphanumeric(int c)
+	{
 		return Character.isAlphabetic(c) || Character.isDigit(c);
 	}
-	public static boolean isCharLetterNumeric(char c){
-		return Character.isLetterOrDigit((int)c);
-	}
 	
-	@SuppressWarnings("rawtypes")
-	public static void moveFileFromJar(Class clazz,String input,File output,boolean replace) {
-		if(output.exists() && !replace)
-			return;
-		try {
-			InputStream inputstream =  clazz.getResourceAsStream(input);
-			FileOutputStream outputstream = new FileOutputStream(output);
-			output.createNewFile();
-			IOUtils.copy(inputstream,outputstream);
-			inputstream.close();
-			outputstream.close();
-		} catch (Exception io) {io.printStackTrace();}
-	}
-	
-	public static void printTime(long time,String msg) {
-		System.out.println(msg + (System.currentTimeMillis()-time) + "ms" );
-	}
-	
-	public static void writeToClipboard(String s, ClipboardOwner owner) 
+	public static boolean isLetterNumeric(int c)
 	{
-		if(s == null)
-			s = "null";
+		return Character.isLetterOrDigit(c);
+	}
+	
+	public static void moveFileFromJar(Class clazz, String input, File output, boolean replace) 
+	{
+		if(output.exists() && !replace)
+		{
+			return;
+		}
+		try
+		{
+			InputStream stream =  clazz.getResourceAsStream(input);
+			FileOutputStream outputStream = new FileOutputStream(output);
+			IOUtils.copy(stream, outputStream);
+			stream.close();
+			outputStream.close();
+		}
+		catch (Exception io)
+		{
+			io.printStackTrace();
+		}
+	}
+	
+	public static void printTime(long time, String msg) 
+	{
+		System.out.println(msg + (System.currentTimeMillis() - time) + "ms");
+	}
+	
+	public static void copyClipboard(String s) 
+	{
+		copyClipboard(s, null);
+	}
+	
+	public static void copyClipboard(String s, ClipboardOwner owner) 
+	{
+		Validate.nonNull(s);
 	    Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 	    Transferable transferable = new StringSelection(s);
 	    clipboard.setContents(transferable, owner);
 	}
 	
-	public static Object[] toStaticArray(List list){
-		Object[] li = new Object[list.size()];
-		for(int i=0;i<list.size();i++)
-			li[i] = list.get(i);
-		return li;
-	}
-	public static String[] toStaticStringArray(List list){
-		String[] li = new String[list.size()];
-		for(int i=0;i<list.size();i++)
-			li[i] = list.get(i).toString();
-		return li;
-	}
-	
-	public static String getStaticArrayStringWithLiteral(int[] list)
-	{
-		String str = "";
-		for(int i=0;i<list.length;i++)
-		{
-			if(i != 0)
-				str += " ";
-			str += list[i] + "i" + ",";
-		}
-		if(str.equals(""))
-			return null;
-		return str.substring(0,str.length()-1);
-	}
-	public static String getStaticArrayString(boolean[] list)
-	{
-		String str = "";
-		for(int i=0;i<list.length;i++)
-		{
-			if(i != 0)
-				str += " ";
-			str += list[i] + ",";
-		}
-		if(str.equals(""))
-			return null;
-		return str.substring(0,str.length()-1);
-	}
-	public static String getStaticArrayStringWithLiteral(byte[] list)
-	{
-		String str = "";
-		for(int i=0;i<list.length;i++)
-		{
-			if(i != 0)
-				str += " ";
-			str += list[i] + "b" + ",";
-		}
-		if(str.equals(""))
-			return null;
-		return str.substring(0,str.length()-1);
-	}
-	public static String getStaticArrayStringWithLiteral(short[] list)
-	{
-		String str = "";
-		for(int i=0;i<list.length;i++)
-		{
-			if(i != 0)
-				str += " ";
-			str += list[i] + "s" + ",";
-		}
-		if(str.equals(""))
-			return null;
-		return str.substring(0,str.length()-1);
-	}
-	public static String getStaticArrayStringWithLiteral(long[] list)
-	{
-		String str = "";
-		for(int i=0;i<list.length;i++)
-		{
-			if(i != 0)
-				str += " ";
-			str += list[i] + "l" + ",";
-		}
-		if(str.equals(""))
-			return null;
-		return str.substring(0,str.length()-1);
-	}
-	public static String getStaticArrayStringWithLiteral(float[] list)
-	{
-		String str = "";
-		for(int i=0;i<list.length;i++)
-		{
-			if(i != 0)
-				str += " ";
-			str += list[i] + "f" + ",";
-		}
-		if(str.equals(""))
-			return null;
-		return str.substring(0,str.length()-1);
-	}
-	public static String getStaticArrayStringWithLiteral(double[] list)
-	{
-		String str = "";
-		for(int i=0;i<list.length;i++)
-		{
-			if(i != 0)
-				str += " ";
-			str += list[i] + "d" + ",";
-		}
-		if(str.equals(""))
-			return null;
-		return str.substring(0,str.length()-1);
-	}
-	public static String getStaticArrayStringWithLiteral(String[] obj)
-	{
-		String str = "";
-		for(int i=0;i<obj.length;i++)
-		{
-			if(i != 0)
-				str += " ";
-			str += "\"" + obj[i].toString() + "\",";
-		}
-		if(str.equals(""))
-			return null;
-		
-		return str.substring(0,str.length()-1);
-	}
-	
-	public static <T extends Object> List<T> staticToArray(Object[] objs)
-	{
-		List<T> list = new ArrayList();
-		for(Object obj : objs)
-			list.add((T)obj);
-		return list;
-	}
-	
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static List<Integer> staticToArray(int[] values) 
-	{
-		ArrayList<Integer> list = new ArrayList();
-		for(int i=0;i<values.length;i++)
-	    	list.add(values[i]);
-		return list;
-	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static List<Boolean> staticToArray(boolean[] values) 
-	{
-		ArrayList<Boolean> list = new ArrayList();
-		for(int i=0;i<values.length;i++)
-	    	list.add(values[i]);
-		return list;
-	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static List<Byte> staticToArray(byte[] values) 
-	{
-		ArrayList<Byte> list = new ArrayList();
-		for(int i=0;i<values.length;i++)
-	    	list.add(values[i]);
-		return list;
-	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static List<Short> staticToArray(short[] values) 
-	{
-		ArrayList<Short> list = new ArrayList();
-		for(int i=0;i<values.length;i++)
-	    	list.add(values[i]);
-		return list;
-	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static List<Long> staticToArray(long[] values) 
-	{
-		ArrayList<Long> list = new ArrayList();
-		for(int i=0;i<values.length;i++)
-	    	list.add(values[i]);
-		return list;
-	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static List<Float> staticToArray(float[] values) 
-	{
-		ArrayList<Float> list = new ArrayList();
-		for(int i=0;i<values.length;i++)
-	    	list.add(values[i]);
-		return list;
-	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static List<Double> staticToArray(double[] values) 
-	{
-		ArrayList<Double> list = new ArrayList();
-		for(int i=0;i<values.length;i++)
-	    	list.add(values[i]);
-		return list;
-	}
-	
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static HashMap sortByValues(HashMap map) 
-	{ 
-	     List list = new LinkedList(map.entrySet());
-	     // Defined Custom Comparator here
-	     Collections.sort(list, new Comparator() {
-	          public int compare(Object o1, Object o2) {
-	             return ((Comparable) ((Map.Entry) (o1)).getValue())
-	                .compareTo(((Map.Entry) (o2)).getValue());
-	          }
-	     });
-
-	     // Here I am copying the sorted list in HashMap
-	     // using LinkedHashMap to preserve the insertion order
-	     HashMap sortedHashMap = new LinkedHashMap();
-	     for (Iterator it = list.iterator(); it.hasNext();) {
-	            Map.Entry entry = (Map.Entry) it.next();
-	            sortedHashMap.put(entry.getKey(), entry.getValue());
-	     } 
-	     return sortedHashMap;
-	}
-	public static boolean stringContainsChars(String a,String b){
-		for(char c : a.toCharArray())
-			if(!b.contains("" +c))
-				return false;
-		return true;
-	}
 	/**
-	 * Returns Cross platform file name removing any illegal chars/names
-	 * Supports mac and linux not having the "." at begining index if you want to preserver that check if it has a . to begin with and if your on windows
+	 * the array type cannot be casted out of Object[] use toArray(Collection col, Class clazz) instead
 	 */
-	public static String toFileCharacters(String s)
-	{ 
-		String invalid = "*/<>?\":|" + "\\";
-		String resault = "";
-		String sub = "";
-		for (int i=0;i<s.length();i++)
-		{
-			sub = s.substring(i, i+1);
-			if(i == 0 && sub.equals("."))
-				continue;//hotfix stop . from being at 0
-			if (!invalid.contains(sub) && resault.length() < 240)
-				resault = resault + sub;
-		}
-		resault = toConWindowsCharacters(resault);
-		if(resault.equals(""))
-			resault = "failedModName.txt";
-		
-		return resault;
+	public static Object[] toArray(Collection col)
+	{
+		return toArray(col, Object.class);
 	}
 	
-	/**
-	 * internal use toFileCharacters() instead
-	 */
-	public static String toConWindowsCharacters(String resault) 
+	public static <T> T[] toArray(Collection<T> col, Class<T> clazz)
 	{
-		String extension = "";
-		if(resault.contains("."))
-		{
-			extension = resault.substring(resault.lastIndexOf('.'), resault.length());
-			resault = resault.substring(0, resault.lastIndexOf('.'));
-		}
-		//windows junk
-		if (resault.toUpperCase().equals("CON") || resault.toUpperCase().equals("PRN") || resault.toUpperCase().equals("AUX") || resault.toUpperCase().equals("NUL"))
-			return resault + "_failed" + extension;
-		for (int j=0;j<10;j++)
-		{
-			String com = "COM" + String.valueOf(j);
-			String lpt = "LPT" + String.valueOf(j);
-			if (resault.toUpperCase().equals(com) || resault.toUpperCase().equals(lpt))
-			{
-				return resault + "_failed" + extension;
-			}
-		}
-		return resault + extension;
-	}
-
-	@SuppressWarnings("rawtypes")
-	public static void printMap(Map map)
-	{
-		Iterator it = map.entrySet().iterator();
-		int index = 0;
-		System.out.print("[");
-		while(it.hasNext())
-		{
-			Map.Entry pair = (Entry) it.next();
-			System.out.print(" Key" + index + ":" + pair.getKey() + " Value"  + index + ":" + pair.getValue());
-			index++;
-		}
-		System.out.print("]\n");
+	    T[] li = (T[]) Array.newInstance(clazz, col.size());
+	    int index = 0;
+	    for(T obj : col)
+	    {
+	        li[index++] = obj;
+	    }
+	    return li;
 	}
 	
-	public static byte[] arrayToStaticBytes(List<Byte> list)
+	public static <T> List<T> toArray(T... arr)
 	{
-		byte[] strstatic =  new byte[list.size()];
-		for(int i=0;i<list.size();i++)
-			strstatic[i] = list.get(i);
-		return strstatic;
-	}
-	public static int[] arrayToStaticInts(List<Integer> list)
-	{
-		int[] strstatic =  new int[list.size()];
-		for(int i=0;i<list.size();i++)
-			strstatic[i] = list.get(i);
-		return strstatic;
-	}
-	@SuppressWarnings("rawtypes")
-	public static Object[] arrayToStatic(List list)
-	{
-		Object[] strstatic = new Object[list.size()];
-		for(int i=0;i<list.size();i++)
-			strstatic[i] = list.get(i);
-		return strstatic;
-	}
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static void setList(List filelist,List list,int index)
-	{
-		for(int i=0;i<list.size();i++)
-		{
-			Object entry = list.get(i);
-			boolean flag = false;
-			if(index + i < filelist.size() && !flag)
-				filelist.set(index+i,entry);
-			else{
-				filelist.add(entry);
-				flag = true;
-			}
-		}
-	}
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static void deleteListRange(List filelist,int index1,int index2)
-	{
-		List<String> sub = filelist.subList(index1, index2);
-		sub.clear();
-	}
-	public static boolean ArrayhasEqualString(String[] list, String strhead) 
-	{
-		for(int i=0;i<list.length;i++)
-		{
-			String s = list[i];
-			if(s == null)
-				continue;//Static arrays are known for nulls
-			if(strhead.equals(s))
-				return true;
-		}
-		return false;
-	}
-	public static int findLastChar(String str, char character) 
-	{
-		for(int i=str.length()-1;i>0;i--)
-		{
-			if(str.substring(i, i+1).equals("" + character))
-				return i;
-		}
-		return -1;
-	}
-	public static int findLastChar(String str, String charSequence) 
-	{
-		for(int i=str.length()-1;i>0;i--)
-		{
-			if(charSequence.contains(str.substring(i, i+1)))
-				return i;
-		}
-		return -1;
-	}
-	public static String[] splitStringAtIndex(int index,String tosplit) 
-	{
-		String[] list = new String[2];
-		String first = "";
-		String second = "";
-		for(int i=0;i<tosplit.length();i++)
-		{
-			if(i < index)
-				first += tosplit.substring(i, i+1);
-			if(i > index)
-				second += tosplit.substring(i, i+1);
-		}
-		list[0] = first;
-		list[1] = second;
-		return list;
-	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static ArrayList copyArrays(List li) 
-	{
-		ArrayList list = new ArrayList();
-		for(Object object : li)
-			list.add(object);
-		return list;
-	}
-	public static String reverseString(String s) 
-	{
-		String str = "";
-		for(int i=s.length()-1;i>=0;i--)
-			str += s.substring(i, i+1);
-		return str;
-	}
-	@SuppressWarnings("rawtypes")
-	public static boolean hasKeys(Map list, Map list2)
-	{
-		for(int i=0;i<list.size();i++)
-		{
-			Object obj = list.get(i);
-			if(!list2.containsKey(obj))
-				return false;
-		}
-		return true;
-	}
-	@SuppressWarnings("rawtypes")
-	public static boolean hasKeys(List list, List list2)
-	{
-		for(int i=0;i<list.size();i++)
-		{
-			Object obj = list.get(i);
-			if(!list2.contains(obj))
-				return false;
-		}
-		return true;
-	}
-
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static void reverseArray(ArrayList origin) {
-		ArrayList list = new ArrayList();
-		for(int i=origin.size()-1;i>=0;i--)
-			list.add(origin.get(i));
-		origin.clear();
-		for(Object obj : list)
-			origin.add(obj);
-	}
-
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static void reverseHashMap(HashMap<Integer, ArrayList> list) {
-		HashMap<Integer,ArrayList> map = new HashMap();
-		//sort ints
-		ArrayList<Integer> ints = new ArrayList();
-		for(Integer i : list.keySet() )
-			ints.add(i);
-		Collections.sort(ints,Collections.reverseOrder());
-		for(Integer i : ints)
-			map.put(i,list.get(i));
-		list.clear();
-		list.putAll(map);
-	}
-	/**
-	 * Use for hashmaps for keys that override the .equals method this compares memory location
-	 */
-	@SuppressWarnings("rawtypes")
-	public static boolean containsMemoryLocKey(HashMap map,Object obj) {
-		Iterator it = map.keySet().iterator();
-		while(it.hasNext())
-		{
-			Object obj2 = it.next();
-			if(obj == obj2)
-				return true;
-		}
-		return false;
-	}
-
-	@SuppressWarnings("rawtypes")
-	public static void removeKeyMemoryLoc(Map map, Object key) {
-		Iterator it = map.keySet().iterator();
-		while(it.hasNext())
-		{
-			Object obj2 = it.next();
-			if(key == obj2)
-				it.remove();
-		}
-	}
-	@SuppressWarnings("rawtypes")
-	public static Object getMemoryLocKey(Map map, Object value) {
-		Iterator it = map.entrySet().iterator();
-		while(it.hasNext())
-		{
-			Map.Entry entry = (Map.Entry) it.next();
-			if(entry.getValue() == value)
-				return entry.getKey();
-		}
-		return null;
-	}
-
-	public static char toUpperCaseChar(char c) {
-		return ("" + c).toUpperCase().charAt(0);
-	}
-	public static String getIntsAsString(int[] ints) {
-		String str = "";
-		for(int i : ints)
-			str += "" + i + ",";
-		return str.substring(0, str.length()-1);
-	}
-	
-	public static List asList(Object[] objs)
-	{
-		List li = new ArrayList();
-		for(Object obj : objs)
-			li.add(obj);
-		return li;
-	}
-	public static List asList(Set set) {
-		List list = new ArrayList();
-		for(Object obj : set)
+		List<T> list = new ArrayList(arr.length + arrayInitCapacity);
+		for(T obj : arr)
 			list.add(obj);
 		return list;
 	}
+	
 	/**
-	 * returns name from first index till it disovers a dot
-	 * @param file
-	 * @return
+	 * get a static array from a list of parameter objects
 	 */
-	public static String getFileTrueDisplayName(File file) {
-		return file.getName().split("\\.")[0];
-	}
-	public static <T extends Object> ArrayList<T> asArray(Object... staticArr) {
-		ArrayList<T> list = new ArrayList();
-		for(int i=0;i<staticArr.length;i++)
-			list.add((T) staticArr[i]);
-		return list;
-	}
-	public static boolean isStringNullOrEmpty(String string) {
-		if(string == null || string.isEmpty())
-			return true;
-		return false;
-	}
-	/**
-	 * Equivalent to Files.readAllLines() but, works way faster
-	 */
-	public static List<String> getFileLines(File f, boolean utf8)
+	public static <T> T[] asArray(T... arr)
 	{
-		BufferedReader reader = null;
-		List<String> list = null;
-		try
+		return arr;
+	}
+	
+	public static <K, V> SortedMap<K, V> sortByKeys(Map<K, V> map)
+	{
+		return new TreeMap<K, V>(map);
+	}
+	
+	public static <K, V> SortedMap<K, V> sort(Map<K, V> map, Comparator c)
+	{
+		TreeMap<K, V> ordered = new TreeMap<K, V>(c);
+		ordered.putAll(map);
+		return ordered;
+	}
+	
+	public static <K, V> SortedMap<K, V> sortByValues(Map<K, V> map) 
+	{
+		SortedMap m = sort(map, new Comparator<Map.Entry>()
 		{
-			if(!utf8)
+			@Override
+			public int compare(Map.Entry e1, Map.Entry e2) 
 			{
-				reader = new BufferedReader(new FileReader(f));//says it's utf-8 but, the jvm actually specifies it even though the lang settings in a game might be different
+				return ((Comparable)e1.getValue()).compareTo((Comparable)e2.getValue());
+			}
+		});
+		return m;
+	}
+	
+	/**
+	 * returns a SortedMap based on keySets
+	 */
+	public static <K, V> SortedMap<K, V> newSortedMap()
+	{
+		return newSortedMap(false);
+	}
+	
+	/**
+	 * create a SortedMap with sortByKeys or sortByValues
+	 */
+	public static <K, V> SortedMap<K, V> newSortedMap(boolean sortByValues)
+	{
+		return sortByValues ? 
+		new TreeMap(new Comparator<Map.Entry>()
+		{
+			@Override
+			public int compare(Map.Entry e1, Map.Entry e2) 
+			{
+				return ((Comparable)e1.getValue()).compareTo((Comparable)e2.getValue());
+			}
+		}) 
+		: new TreeMap();
+	}
+	
+	/**
+	 * Returns Cross platform File removing invalid characters from the File name and trims it to 200 characters
+	 */
+	public static String toFileChars(String s)
+	{
+		String name = "";
+		String invalid = "*/<>?\":|" + "\\";
+		StringBuilder builder = new StringBuilder();
+		for(int i=0; i < s.length(); i++)
+		{
+			String sub = s.substring(i, i + 1);
+			if(!invalid.contains(sub))
+			{
+				builder.append(sub);
+			}
+		}
+		name = toWindowsNaming(builder.toString());
+		if(name.isEmpty())
+		{
+			return "failed";
+		}
+		else if(name.length() > fileCharLimit)
+		{
+			int dot = name.lastIndexOf('.');
+			String ext = dot != -1 ? name.substring(dot, name.length()) : "";
+			name = name.substring(0, fileCharLimit - ext.length()) + ext;
+		}
+		return name;
+	}
+
+	/**
+	 * append an "_" if the file is an invalid windows name and also removes "." or " " at the end of the file name
+	 */
+	public static String toWindowsNaming(String str) 
+	{
+		if(str.isEmpty())
+			return str;
+		String[] parts = JavaUtil.splitFirst(str, '.');
+		String check = parts[0];
+		String rest = (parts.length > 1 ? "." + parts[1] : "");
+		if(check.equalsIgnoreCase("CON") || check.equalsIgnoreCase("PRN") || check.equalsIgnoreCase("AUX") || check.equalsIgnoreCase("NUL"))
+		{
+			str = check + "_" + rest;
+		}
+		else
+		{
+			for (int j=0; j < 10; j++)
+			{
+				String com = "COM" + j;
+				String lpt = "LPT" + j;
+				if(check.equalsIgnoreCase(com) || check.equalsIgnoreCase(lpt))
+				{
+					str = check + "_" + rest;
+					break;
+				}
+			}
+		}
+		str = trimEnd(str, ". ");
+		return str;
+	}
+	
+	/**
+	 * trim invalid endings from a string
+	 */
+	public static String trimEnd(String str, String invalid) 
+	{
+		int index = trimEndIndex(str, invalid);
+		return str.substring(0, index);
+	}
+	
+	/**
+	 * trim invalid startings from a string
+	 */
+	public static String trimStart(String str, String invalid) 
+	{
+		int index = trimStartIndex(str, invalid);
+		return str.substring(index, str.length());
+	}
+	
+	/**
+	 * trim invalid endings and invalid startings froma a string
+	 */
+	public static String trim(String str, String invalid)
+	{
+		return str.substring(trimStartIndex(str, invalid), trimEndIndex(str, invalid));
+	}
+	
+	/**
+	 * returns the index of the last char that isn't invalid
+	 */
+	public static int trimEndIndex(String str, String invalid) 
+	{
+		int index = 0;
+		for(int i = str.length(); i > 0; i--)
+		{
+			String s = str.substring(i - 1, i);
+			if(!invalid.contains(s))
+			{
+				index = i;
+				break;
+			}
+		}
+		return index;
+	}
+	
+	/**
+	 * returns the index of the first char that isn't invalid
+	 */
+	public static int trimStartIndex(String str, String invalid) 
+	{
+		int index = 0;
+		for(int i = 0; i < str.length(); i++)
+		{
+			String s = str.substring(i, i + 1);
+			if(!invalid.contains(s))
+			{
+				index = i;
+				break;
+			}
+		}
+		return index;
+	}
+	
+	/**
+	 * override one list from another starting at a specified index to the origin and will append if it cannot override
+	 */
+	public static void set(List org, List list2, int start)
+	{
+		for(int i=0; i < list2.size(); i++)
+		{
+			Object entry = list2.get(i);
+			int index = start + i;
+			if(index < org.size())
+			{
+				org.set(index, entry);
 			}
 			else
 			{
-				reader = new BufferedReader(new InputStreamReader(new FileInputStream(f), StandardCharsets.UTF_8) );
+				org.add(entry);
 			}
-			
+		}
+	}
+	
+	public static void remove(List list, int start, int end)
+	{
+		List<String> sub = list.subList(start, end);
+		sub.clear();
+	}
+	
+	public static int lastChar(String str, char character) 
+	{
+		for(int i = str.length() - 1; i >= 0; i--)
+		{
+			if(str.substring(i, i + 1).equals("" + character))
+				return i;
+		}
+		return -1;
+	}
+	
+	/**
+	 * String[1] will be empty if there is no more string after the specified index
+	 */
+	public static String[] splitAtIndex(String str, int index) 
+	{
+		String[] list = new String[2];
+		list[0] = str.substring(0, index);
+		int index2 = index + 1;
+		list[1] = index2 < str.length() ? str.substring(index2, str.length()) : "";
+		return list;
+	}
+	
+	public static String reverse(String s) 
+	{
+		StringBuilder builder = new StringBuilder();
+		for(int i = s.length() - 1; i >= 0 ; i--)
+		{
+			builder.append(s.substring(i, i + 1));
+		}
+		return builder.toString();
+	}
+	
+	public static <T extends Comparable> void reverse(List<T> org)
+	{
+		Collections.reverse(org);
+	}
+
+	//TODO:
+	public static void reverse(Map<?, ?> map) 
+	{
+		
+	}
+	
+	public static void reverOrder(List<?> list)
+	{
+		Collections.sort(list, Collections.reverseOrder());
+	}
+	
+	//TODO:
+	public static void reverseOrder(Map org)
+	{
+		SortedMap map = sort(org, Collections.reverseOrder());
+		org.clear();
+		Iterator<Map.Entry> it = map.entrySet().iterator();
+		while(it.hasNext())
+		{
+			Map.Entry entry = it.next();
+			org.put(entry.getKey(), entry.getValue());
+		}
+	}
+	
+	/**
+	 * Use for hashmaps for keys that override the .equals method this compares memory location
+	 */
+	public static boolean containsMemoryKey(Map map, Object obj) 
+	{
+		Iterator it = map.keySet().iterator();
+		while(it.hasNext())
+		{
+			Object o = it.next();
+			if(obj == o)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public static boolean containsMemoryValue(Map map, Object obj) 
+	{
+		Iterator it = map.values().iterator();
+		while(it.hasNext())
+		{
+			Object o = it.next();
+			if(obj == o)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public static boolean isNullorEmpty(String str) 
+	{
+		return str == null || str.isEmpty();
+	}
+	
+	/**
+	 * Equivalent to Files.readAllLines() but, works way faster
+	 */
+	public static List<String> getFileLines(File f)
+	{
+		return getFileLines(getReader(f));
+	}
+	
+	public static List<String> getFileLines(String input) 
+	{
+		return getFileLines(getReader(input));
+	}
+	
+	public static List<String> getFileLines(BufferedReader reader) 
+	{
+		List<String> list = null;
+		try
+		{
 			list = new ArrayList();
 			String s = reader.readLine();
 			
@@ -1003,39 +1003,45 @@ public class JavaUtil {
 				}
 			}
 		}
-		
 		return list;
 	}
 	
 	/**
-	 * even though it's utf8 writing it's the fastes one I tried 5 diferent other options from different objects
+	 * even though it's utf8 writing it's the fastes one I tried 5 different other options from different objects
 	 */
-	public static BufferedWriter getFileWriter(File f) throws FileNotFoundException, IOException
+	public static BufferedWriter getWriter(File f) throws FileNotFoundException, IOException
 	{
 		return new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f), StandardCharsets.UTF_8));
+	}
+	
+	public static BufferedReader getReader(File f)
+	{
+		 try
+		 {
+			 return new BufferedReader(new InputStreamReader(new FileInputStream(f), StandardCharsets.UTF_8));
+		 }
+		 catch(Throwable t)
+		 {
+			 return null;
+		 }
+	}
+	
+	public static BufferedReader getReader(String input)
+	{
+		return new BufferedReader(new InputStreamReader(JavaUtil.class.getClassLoader().getResourceAsStream(input)));
 	}
 	
 	/**
 	 * Overwrites entire file default behavior no per line modification removal/addition
 	 */
-	public static void saveFileLines(List<String> list,File f,boolean utf8)
+	public static void saveFileLines(List<String> list, File f)
 	{
 		BufferedWriter writer = null;
 		try
 		{
-			if(!utf8)
-			{
-				writer = new BufferedWriter(new FileWriter(f));
-			}
-			else
-			{
-				writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f),StandardCharsets.UTF_8 ) );
-			}
-			
+			writer = JavaUtil.getWriter(f);
 			for(String s : list)
-			{
 				writer.write(s + "\r\n");
-			}
 		}
 		catch(Exception e)
 		{
@@ -1056,21 +1062,18 @@ public class JavaUtil {
 			}
 		}
 	}
-	public static boolean isStringBoolean(String s) {
-		s = s.toLowerCase();
-		return s.equals("true") || s.equals("false");
+	
+	public static boolean isBoolean(String s) 
+	{
+		return s.equalsIgnoreCase("true") || s.equalsIgnoreCase("false");
 	}
+	
 	public static boolean getBoolean(String str) {
-		if(!isStringBoolean(str))
+		if(!isBoolean(str))
 			return false;
 		return Boolean.parseBoolean(str);
 	}
-	public static ArrayList toArray(Collection li) {
-		ArrayList list = new ArrayList();
-		for(Object obj : li)
-			list.add(obj);
-		return list;
-	}
+	
 	public static boolean isURL(String url) 
 	{
 		try 
@@ -1084,20 +1087,12 @@ public class JavaUtil {
 		}
 		return false;
 	}
+	
 	public static JSONObject toJsonFrom64(String base64) 
 	{
 		byte[] out = org.apache.commons.codec.binary.Base64.decodeBase64(base64.getBytes());
-		String str = new String(out,StandardCharsets.UTF_8);
-		JSONParser parser = new JSONParser();
-		try 
-		{
-			return (JSONObject)parser.parse(str);
-		} 
-		catch (JSONParseException e) 
-		{
-			e.printStackTrace();
-		}
-		return null;
+		String str = new String(out, StandardCharsets.UTF_8);
+		return new JSONObject(str);
 	}
 
 	public static long getDays(long ms) 
@@ -1108,37 +1103,44 @@ public class JavaUtil {
 	public static long getTime(long time) {
 		return System.currentTimeMillis()-time;
 	}
+	
+	public static JSONObject getJSON(File file)
+	{
+		if(!file.exists())
+			return null;
+		try
+		{
+			JSONSerializer parser = new JSONSerializer();
+			return parser.readJSONObject(JavaUtil.getReader(file));
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+		return null;
+	}
 
 	public static void saveJSONSafley(JSONObject json, File file) throws IOException 
 	{
-		saveJSONSafley(json, file, true);
-	}
-	
-	public static void saveJSONSafley(JSONObject json, File file, boolean utf8) throws IOException 
-	{
 		createFileSafley(file);
-		saveJSON(json, file, utf8);
-	}
-	
-	public static boolean saveIfJSON(JSONObject json, File file) throws IOException 
-	{
-		return saveIfJSON(json, file, true);
+		saveJSON(json, file);
 	}
 	
 	/**
 	 * @return if the file saved or not
 	 */
-	public static boolean saveIfJSON(JSONObject json, File file, boolean utf8) throws IOException 
+	public static boolean saveIfJSON(JSONObject json, File file) throws IOException 
 	{
 		if(!file.exists())
 		{
-			saveJSONSafley(json, file, utf8);
+			saveJSONSafley(json, file);
 			return true;
 		}
 		return false;
 	}
 
-	public static void createFileSafley(File file) throws IOException {
+	public static void createFileSafley(File file) throws IOException 
+	{
 		File parent = file.getParentFile();
 		if(!parent.exists())
 			parent.mkdirs();
@@ -1146,22 +1148,24 @@ public class JavaUtil {
 			file.createNewFile();
 	}
 
-	public static void saveJSON(JSONObject json, File file, boolean utf8) 
+	public static void saveJSON(JSONObject json, File file) 
 	{
-		ArrayList<String> arr = JavaUtil.asArray((Object[])new String[]{toPrettyFormat(json.toString())}) ;
-		JavaUtil.saveFileLines(arr, file, utf8);
-	}
-	
-    /**
-	 * Convert a JSON string to freindly printed version
-	*/
-	public static String toPrettyFormat(String jsonString) 
-	{
-		JsonParser parser = new JsonParser();
-		JsonObject json = parser.parse(jsonString).getAsJsonObject();
-		Gson gson = new GsonBuilder().serializeNulls().disableHtmlEscaping().setPrettyPrinting().create();
-		String prettyJson = gson.toJson(json);
-	    return prettyJson.replaceAll("\n", "\r\n");
+		try 
+		{
+			BufferedWriter writer = JavaUtil.getWriter(file);
+			JSONSerializer parser = new JSONSerializer();
+			parser.setPrettyPrint(true);
+			parser.write(json, writer);
+			writer.close();
+		}
+		catch (FileNotFoundException e) 
+		{
+			e.printStackTrace();
+		} 
+		catch (IOException e) 
+		{
+			e.printStackTrace();
+		}
 	}
 
 	public static Object getFirst(Collection li) {
@@ -1181,65 +1185,10 @@ public class JavaUtil {
 		for(int i=0;i<names.size();i++)
 			locs[i] = names.get(i);
 	}
-
-	public static JSONObject getJsonFromString(String string) 
-	{
-		JSONParser p = new JSONParser();
-		try {
-			return (JSONObject) p.parse(string);
-		} catch (JSONParseException e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
 	
 	public static boolean isClassExtending(Class<? extends Object> base, Class<? extends Object> toCompare) 
 	{
 		return ReflectionHandler.instanceOf(base, toCompare);
-	}
-	
-	public static List<String> getFileLines(String inputStream) 
-	{
-		BufferedReader reader = null;
-		List<String> list = null;
-		try
-		{
-			reader = new BufferedReader(new InputStreamReader(JavaUtil.class.getClassLoader().getResourceAsStream(inputStream),StandardCharsets.UTF_8));
-			list = new ArrayList<String>();
-			String s = reader.readLine();
-			
-			if(s != null)
-			{
-				list.add(s);
-			}
-			
-			while(s != null)
-			{
-				s = reader.readLine();
-				if(s != null)
-				{
-					list.add(s);
-				}
-			}
-		}
-		catch(Exception e)
-		{
-			e.printStackTrace();
-		}
-		finally
-		{
-			if(reader != null)
-			{
-				try 
-				{
-					reader.close();
-				} catch (IOException e) 
-				{
-					System.out.println("Unable to Close InputStream this is bad");
-				}	
-			}
-		}
-		return list;
 	}
 	
 	/**
@@ -1286,7 +1235,7 @@ public class JavaUtil {
 	 * @return ' ' if none is found
 	 */
 	public static char getNumId(String str) {
-		str = str.trim();
+		str = str.trim().toLowerCase();
 		String last = "" + str.charAt(str.length()-1);
 		if(numberIds.contains(last))
 			return last.toLowerCase().charAt(0);
@@ -1295,7 +1244,7 @@ public class JavaUtil {
 	/**
 	 * an optimized way to split a string from it's first instanceof a char
 	 */
-	public static String[] splitFirst(String s,char reg)
+	public static String[] splitFirst(String s, char reg)
 	{
 		String[] parts = new String[2];
 		for(int i=0;i<s.length();i++)
@@ -1304,7 +1253,7 @@ public class JavaUtil {
 			if(c == reg)
 			{
 				parts[0] = s.substring(0, i);
-				parts[1] = s.substring(i+1, s.length());
+				parts[1] = s.substring(i + 1, s.length());
 				break;
 			}
 		}
@@ -1312,7 +1261,8 @@ public class JavaUtil {
 			return new String[]{s};
 		return parts;
 	}
-	public static String parseQuotes(String s, int index,String q) 
+	
+	public static String parseQuotes(String s, int index, String q) 
 	{
 		if(index == -1)
 			return "";
@@ -1348,7 +1298,7 @@ public class JavaUtil {
 		}
 		return true;
 	}
-	public static boolean isStringNum(String s)
+	public static boolean isNumber(String s)
 	{
 		String valid = "1234567890.-";
 		String valid_endings = numberIds;//byte,short,long,float,double,int
@@ -1356,9 +1306,10 @@ public class JavaUtil {
 		int indexdot = 0;
 		if(s.indexOf('.') == 0 || s.indexOf('.') == s.length() - 1 || s.indexOf('-') > 0)
 			return false;
+		s = s.toLowerCase();
 		for(int i=0;i<s.length();i++)
 		{
-			String character = s.substring(i, i+1).toLowerCase();
+			String character = s.substring(i, i+1);
 			boolean lastindex = i == s.length() -1;
 			if(check.contains(character))
 			{
@@ -1370,12 +1321,7 @@ public class JavaUtil {
 			}
 			if(!valid.contains(character))
 			{
-				if(i + 1 < s.length())
-					return false;
-				if(lastindex && valid_endings.contains(character) )
-				{
-					return character.equals("d") || character.equals("f");
-				}
+				return lastindex && valid_endings.contains(character);
 			}
 		}
 		return true;
@@ -1413,20 +1359,6 @@ public class JavaUtil {
 		for(int i=0;i<li.size();i++)
 			list[i] = li.get(i);
 		return list;
-	}
-	
-	public static final JSONParser jsonParser = new JSONParser();
-	public static JSONObject getJson(File armor) 
-	{
-		try 
-		{
-			return (JSONObject) jsonParser.parse(new FileReader(armor));
-		} 
-		catch (Exception e) 
-		{
-			e.printStackTrace();
-		}
-		return null;
 	}
 	
 	public static int[] getStaticArrayInts(String str) 
@@ -1506,6 +1438,9 @@ public class JavaUtil {
 		return clazz;
 	}
 	
+	/**
+	 * combine two static arrays into one
+	 */
 	public static <T> T[] concat(T[] a, T[] b)
 	{
 		T[] c = (T[]) Array.newInstance(a.getClass().getComponentType(), a.length + b.length);
@@ -1513,12 +1448,43 @@ public class JavaUtil {
 	    System.arraycopy(b, 0, c, a.length, b.length);
 		return c;
 	}
-
+	
+	/**
+	 * increase a static array by x amount of indices
+	 */
 	public static <T> T[] increase(T[] src, int increment)
 	{
 		T[] arr = (T[]) Array.newInstance(src.getClass().getComponentType(), src.length + increment);
 		System.arraycopy(src, 0, arr, 0, src.length);
 		return arr;
+	}
+	
+	/**
+	 * split with quote ignoring support
+	 */
+	public static String[] split(String str, char sep, char lquote, char rquote) 
+	{
+		List<String> list = new ArrayList();
+		boolean inside = false;
+		for(int i = 0; i < str.length(); i += 1)
+		{
+			String a = str.substring(i, i + 1);
+			String prev = str.substring(i-1, i);
+			boolean escape = prev.charAt(0) ==  '\\';
+			if(a.equals("" + lquote) && !escape || a.equals("" + rquote) && !escape)
+			{
+				inside = !inside;
+			}
+			if(a.equals("" + sep) && !inside)
+			{
+				String section = str.substring(0, i);
+				list.add(section);
+				str = str.substring(i + ("" + sep).length(), str.length());
+				i = -1;
+			}
+		}
+		list.add(str);//add the rest of the string
+		return JavaUtil.toArray(list, String.class);
 	}
 	
 }

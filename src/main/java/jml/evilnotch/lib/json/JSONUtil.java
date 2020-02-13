@@ -3,8 +3,14 @@ package jml.evilnotch.lib.json;
 import java.util.Collection;
 import java.util.Map;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
+import com.google.gson.JsonPrimitive;
+
 import jml.evilnotch.lib.JavaUtil;
-import jml.evilnotch.lib.json.internal.Util;
+import jml.evilnotch.lib.json.serialize.IGsonable;
 
 public final class JSONUtil {
 	
@@ -32,5 +38,18 @@ public final class JSONUtil {
 			 value instanceof Boolean ||
 			 value instanceof JSONObject || 
 			 value instanceof JSONArray;
+	}
+	
+	public static JsonElement newGsonPrimitive(Object value)
+	{
+		if(value == null)
+			return JsonNull.INSTANCE;
+		if(value instanceof Boolean)
+			return new JsonPrimitive((Boolean)value);
+		else if(value instanceof Number)
+			return new JsonPrimitive((Number)value);
+		else if(value instanceof String)
+			return new JsonPrimitive((String)value);
+		return null;
 	}
 }

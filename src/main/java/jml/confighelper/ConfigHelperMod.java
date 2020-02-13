@@ -26,17 +26,10 @@ public class ConfigHelperMod
     public void preinit(FMLPreInitializationEvent event)
     {	
 		MinecraftForge.EVENT_BUS.register(new WatcherEvent());
-    	Enchantment e = Enchantment.aquaAffinity;//force Load vanilla Enchantment
+		//force load classes
+    	Enchantment e = Enchantment.aquaAffinity;
     	DimensionManager.init();
-    	try
-    	{
-    		EntityCreeper creeper = new EntityCreeper(null);
-    		System.out.println("size() " + creeper.getDataWatcher().watchedObjects.size());
-    	}
-    	catch(Throwable t)
-    	{
-    		t.printStackTrace();
-    	}
+    	EntityCreeper creeper = new EntityCreeper(null);
     }
 
 	/**

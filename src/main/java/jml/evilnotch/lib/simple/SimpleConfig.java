@@ -131,7 +131,7 @@ public class SimpleConfig {
 		this.clear();
 		try
 		{
-			BufferedReader reader = new BufferedReader(new FileReader(this.file));
+			BufferedReader reader = JavaUtil.getReader(this.file);
 			String line = "";
 			while(line != null)
 			{
@@ -169,7 +169,7 @@ public class SimpleConfig {
 			File parent = this.file.getParentFile();
 			if(!parent.exists())
 				parent.mkdirs();
-			BufferedWriter writer = JavaUtil.getFileWriter(this.file);
+			BufferedWriter writer = JavaUtil.getWriter(this.file);
 			writer.write("#build:" + version + "\r\n");
 			for(String key : this.list.keySet())
 			{

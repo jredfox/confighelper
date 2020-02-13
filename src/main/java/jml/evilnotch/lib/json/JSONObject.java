@@ -1,26 +1,26 @@
 package jml.evilnotch.lib.json;
 
-import java.io.IOException;
 import java.io.Reader;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 
 import jml.evilnotch.lib.JavaUtil;
-import jml.evilnotch.lib.json.internal.Util;
-import jml.evilnotch.lib.json.serialize.JSONParseException;
-import jml.evilnotch.lib.json.serialize.JSONParser;
+import jml.evilnotch.lib.json.serialize.IGsonable;
+import jml.evilnotch.lib.json.serialize.JSONSerializer;
 
 /**
  * Main JSONObject
  * @author jredfox
  */
-public class JSONObject extends LinkedHashMap<String, Object>{
+public class JSONObject extends LinkedHashMap<String, Object> implements IGsonable{
 	
 	public JSONObject()
 	{
@@ -39,7 +39,12 @@ public class JSONObject extends LinkedHashMap<String, Object>{
 	
 	public JSONObject(String json)
 	{
-		super(new JSONParser().parseJSONObject(json));
+		super(new JSONSerializer().readJSONObject(json));
+	}
+	
+	public JSONObject(Reader reader)
+	{
+		super(new JSONSerializer().readJSONObject(reader));
 	}
 
 	@Override
@@ -230,42 +235,15 @@ public class JSONObject extends LinkedHashMap<String, Object>{
 		return this.put(key, format.format(date));
 	}
 	
-	//TODO:
-	public void write(Writer writer) throws IOException 
-	{	
-		Util.write(this, writer);
-	}
-	
-	/**
-	 * clears null values from the JSONObject
-	 */
-	public void compact() 
-	{
-		JSONObject object = new JSONObject();
-		Iterator<Object> it = this.values().iterator();
-		while(it.hasNext())
-		{
-			Object value = it.next();
-			if(value == null)
-				it.remove();
-		}
-	}
-	
-	//TODO:
 	@Override
 	public String toString() 
 	{
-		StringWriter writer = new StringWriter();
-		try 
-		{
-			Util.write(this, writer);
-			return writer.toString();
-		} 
-		catch(IOException exception) 
-		{
-			exception.printStackTrace();
-		}
-		return null;
+		return new JSONSerializer().toJSONString(this);
+	}
+	
+	public String prettyPrint()
+	{
+		return new JSONSerializer().toPrettyPrint(this);
 	}
 	
 	@Override
@@ -290,6 +268,84 @@ public class JSONObject extends LinkedHashMap<String, Object>{
 			}
 		}
 		return false;
+	}
+	
+	@Override
+	public JsonElement toGson()
+	{
+		JsonObject json = new JsonObject();
+		for(String key : this.keySet())
+		{
+			Object value = this.get(key);
+			if(value instanceof JSONObject)
+			{
+				json.add(key, ((JSONObject) value).toGson());
+			}
+			else if(value instanceof JSONArray)
+			{
+				json.add(key, ((JSONArray) value).toGson());
+			}
+			else if(value == null)
+			{
+				json.addProperty(key, (String)value);
+			}
+			else if(value instanceof String)
+			{
+				json.addProperty(key, (String)value);
+			}
+			else if(value instanceof Number)
+			{
+				json.addProperty(key, (Number)value);
+			}
+			else if(value instanceof Boolean)
+			{
+				json.addProperty(key, (Boolean)value);
+			}
+		}
+		return json;
+	}
+
+	@Override
+	public void fromGson(JsonElement init) 
+	{
+		Set<Map.Entry<String, JsonElement>> map = init.getAsJsonObject().entrySet();
+		for(Map.Entry<String, JsonElement> entry : map)
+		{
+			String key = entry.getKey();
+			JsonElement element = entry.getValue();
+			if(element.isJsonObject())
+			{
+				JSONObject json = new JSONObject();
+				json.fromGson(element);
+				this.put(key, json);
+			}
+			else if(element.isJsonArray())
+			{
+				JSONArray array = new JSONArray();
+				array.fromGson(element);
+				this.put(key, array);
+			}
+			else if(element.isJsonNull())
+			{
+				this.put(key, null);
+			}
+			else if(element.isJsonPrimitive())
+			{
+				JsonPrimitive primitive = (JsonPrimitive)element;
+				if(primitive.isBoolean())
+				{
+					this.put(key, primitive.getAsBoolean());
+				}
+				else if(primitive.isNumber())
+				{
+					this.put(key, primitive.getAsNumber());
+				}
+				else if(primitive.isString())
+				{
+					this.put(key, primitive.getAsString());
+				}
+			}
+		}
 	}
 	
 }

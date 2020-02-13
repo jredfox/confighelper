@@ -9,16 +9,23 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Map;
+import java.util.Set;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 
 import jml.evilnotch.lib.JavaUtil;
-import jml.evilnotch.lib.json.internal.Util;
-import jml.evilnotch.lib.json.serialize.JSONParseException;
-import jml.evilnotch.lib.json.serialize.JSONParser;
+import jml.evilnotch.lib.json.serialize.IGsonable;
+import jml.evilnotch.lib.json.serialize.JSONSerializer;
 
 /**
  * Main JSONArray object
  */
-public class JSONArray extends ArrayList<Object>{
+public class JSONArray extends ArrayList<Object> implements IGsonable{
 	
 	public JSONArray()
 	{
@@ -108,12 +115,12 @@ public class JSONArray extends ArrayList<Object>{
 	
 	public JSONArray(String json) 
 	{
-		super(new JSONParser().parseJSONArray(json));
+		super(new JSONSerializer().readJSONArray(json));
 	}
 	
-	public JSONArray(Reader reader) throws JSONParseException, IOException 
+	public JSONArray(Reader reader) 
 	{
-		super(new JSONParser().parseJSONArray(reader));
+		super(new JSONSerializer().readJSONArray(reader));
 	}
 
 	@Override
@@ -509,28 +516,11 @@ public class JSONArray extends ArrayList<Object>{
 	{
 		return this.add(format.format(date));
 	}
-	
-	//TODO:
-	public void write(Writer writer) throws IOException 
-	{	
-		Util.write(this, writer);
-	}
 
-	//TODO:
 	@Override
 	public String toString() 
 	{
-		try 
-		{	
-			StringWriter writer = new StringWriter();
-			Util.write(this, writer);
-			return writer.toString();	
-		}
-		catch(IOException exception) 
-		{
-			exception.printStackTrace();
-		}
-		return null;
+		return new JSONSerializer().toPrettyPrint(this);
 	}
 	
 	@Override
@@ -559,5 +549,80 @@ public class JSONArray extends ArrayList<Object>{
 			return true;
 		}
 		return false;
+	}
+	
+	@Override
+	public JsonArray toGson()
+	{
+		JsonArray json = new JsonArray();
+		for(Object value : this)
+		{
+			if(value instanceof JSONObject)
+			{
+				json.add(((JSONObject) value).toGson());
+			}
+			else if(value instanceof JSONArray)
+			{
+				json.add(((JSONArray) value).toGson());
+			}
+			else if(value == null)
+			{
+				json.add(JSONUtil.newGsonPrimitive(value));
+			}
+			else if(value instanceof String)
+			{
+				json.add(JSONUtil.newGsonPrimitive(value));
+			}
+			else if(value instanceof Number)
+			{
+				json.add(JSONUtil.newGsonPrimitive(value));
+			}
+			else if(value instanceof Boolean)
+			{
+				json.add(JSONUtil.newGsonPrimitive(value));
+			}
+		}
+		return json;
+	}
+
+	@Override
+	public void fromGson(JsonElement init) 
+	{
+		JsonArray list = init.getAsJsonArray();
+		for(JsonElement element : list)
+		{
+			if(element.isJsonObject())
+			{
+				JSONObject json = new JSONObject();
+				json.fromGson(element);
+				this.add(json);
+			}
+			else if(element.isJsonArray())
+			{
+				JSONArray array = new JSONArray();
+				array.fromGson(element);
+				this.add(array);
+			}
+			else if(element.isJsonNull())
+			{
+				this.add(null);
+			}
+			else if(element.isJsonPrimitive())
+			{
+				JsonPrimitive primitive = (JsonPrimitive)element;
+				if(primitive.isBoolean())
+				{
+					this.add(primitive.getAsBoolean());
+				}
+				else if(primitive.isNumber())
+				{
+					this.add(primitive.getAsNumber());
+				}
+				else if(primitive.isString())
+				{
+					this.add(primitive.getAsString());
+				}
+			}
+		}
 	}
 }
