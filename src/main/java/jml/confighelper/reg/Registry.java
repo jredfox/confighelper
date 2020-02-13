@@ -91,6 +91,11 @@ public class Registry implements Iterable<Registry.Entry>{
 
 	public int reg(Object obj, int id)
 	{
+		String clazz = getClass(obj).getName();
+		if(this.isFakeObj(clazz))
+		{
+			return id;//do not register fake objects
+		}
 		this.securityCheck();
 		this.checkId(obj, id);
 		List<Registry.Entry> list = this.getEntryOrg(id);
@@ -100,9 +105,8 @@ public class Registry implements Iterable<Registry.Entry>{
 			this.reg.put(id, list);
 		}
 		
-		String clazz = getClass(obj).getName();
 		boolean conflicting = this.containsId(id);
-		Entry entry = new Entry(obj, clazz, id);
+		Registry.Entry entry = new Registry.Entry(obj, clazz, id);
 		if(this.isPassableSelf(clazz) && list.contains(entry))
 		{
 			Registry.Entry old = list.get(list.indexOf(entry));
@@ -131,7 +135,7 @@ public class Registry implements Iterable<Registry.Entry>{
 		}
 		return entry.newId;
 	}
-	
+
 	public void securityCheck() 
 	{
 		int size = this.size();
@@ -195,6 +199,11 @@ public class Registry implements Iterable<Registry.Entry>{
 		for(Registry.Entry entry : this)
 				newIds.add(entry.newId);
 		return newIds;
+	}
+	
+	public boolean isFakeObj(String clazz) 
+	{
+		return JavaUtil.contains(RegistryConfig.fakes, clazz);
 	}
 	
 	public boolean isPassable(String clazz, int id) 

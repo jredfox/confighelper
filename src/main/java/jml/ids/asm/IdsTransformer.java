@@ -277,7 +277,7 @@ public class IdsTransformer implements ITransformer{
 		InsnList list2 = new InsnList();
 		list2.add(new VarInsnNode(Opcodes.ALOAD, 1));
 		list2.add(new VarInsnNode(Opcodes.ALOAD, 0));
-		list2.add(new FieldInsnNode(Opcodes.GETFIELD, "net/minecraft/entity/DataWatcher", new MCPSidedString("watchedObjects", "field_75695_b ").toString(), "Ljava/util/Map;"));
+		list2.add(new FieldInsnNode(Opcodes.GETFIELD, "net/minecraft/entity/DataWatcher", new MCPSidedString("watchedObjects", "field_75695_b").toString(), "Ljava/util/Map;"));
 		list2.add(new MethodInsnNode(Opcodes.INVOKEINTERFACE, "java/util/Map", "size", "()I", true));
 		list2.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "net/minecraft/network/PacketBuffer", new MCPSidedString("writeVarIntToBuffer", "func_150787_b").toString(), "(I)V", false));
 		AbstractInsnNode index = ASMHelper.firstMethodInsn(func, new MethodInsnNode(Opcodes.INVOKEINTERFACE, "java/util/concurrent/locks/Lock", "lock", "()V", true));

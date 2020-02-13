@@ -36,6 +36,10 @@ public class RegistryConfig {
 	{
 		"net.aetherteam.aether.dungeons.worldgen.DungeonsBiome"
 	};
+	public static String[] fakes = new String[]
+	{
+		"org.blockartistry.mod.DynSurround.data.FakeBiome"
+	};
 	public static Set<Integer> passableDimIds;
 	public static Set<Integer> passableWatcherIds;
 	//optimizations
@@ -53,6 +57,7 @@ public class RegistryConfig {
 				
 		passable = cfg.getStringList("conflicts", "passable", passable, "passable Classes that are allowed to conflict(replace) a registry object");
 		passableSelf = cfg.getStringList("selfConflicts", "passable", passableSelf, "passable Classes that are allowed to conflict with itself");
+		fakes = cfg.getStringList("fakeObjects", "passable", fakes, "Classes that do not get registered and is a proxy of some sort(Fake objects)");
 		passableDimIds = getPassableIds(cfg, "conflictDimIds", "passable Dim ids(Not Provider) that are allowed to conflict. Only use if inputting the provider conflict class wasn't enough");
 		passableWatcherIds = getPassableIds(cfg, "conflictWatcherIds", "passable ids that data watchers are allowed to conflict with");
 		

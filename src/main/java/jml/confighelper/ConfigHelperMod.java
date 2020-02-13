@@ -31,7 +31,15 @@ public class ConfigHelperMod
     	Registries.registerBiome(BiomeGenBase.getBiomeGenArray()[161], 161, true);//fix vanilla
     	Enchantment e = Enchantment.aquaAffinity;//force Load vanilla Enchantment
     	DimensionManager.init();
-    	new DataWatcher(new EntityCreeper(null));
+    	try
+    	{
+    		EntityCreeper creeper = new EntityCreeper(null);
+    		System.out.println("size() " + creeper.getDataWatcher().watchedObjects.size());
+    	}
+    	catch(Throwable t)
+    	{
+    		t.printStackTrace();
+    	}
     }
 
 	/**
