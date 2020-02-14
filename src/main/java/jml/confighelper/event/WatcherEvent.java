@@ -22,8 +22,7 @@ public class WatcherEvent {
 			Registries.strictWatcher();//make sure it crashes after entity.init if a new data watcher id gets registered on the fly
 			if(Registries.hasWatcherConflicts())
 			{
-				Registries.writeWatcher();
-				Registries.makeCrashReport("Constructing DataWatcher", "DataWatcher Id Conflicts have been detected! Reconfigure your modpack");
+				Registries.makeCrashReport("Constructing DataWatcher", "DataWatcher Id Conflicts have been detected! Reconfigure your modpack", true);
 			}
 			else if(RegistryConfig.configMode && !outputted)
 			{

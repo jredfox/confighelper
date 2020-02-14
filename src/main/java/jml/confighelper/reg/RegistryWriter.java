@@ -102,10 +102,7 @@ public class RegistryWriter {
 				}
 			}
 		}
-		if(!filejson.isEmpty())
-		{
-			JavaUtil.saveJSONSafley(filejson, file);
-		}
+		JavaUtil.saveJSONSafley(filejson, file);
 	}
 	
 	private void writeFreeIds() throws IOException
@@ -192,7 +189,7 @@ public class RegistryWriter {
 	private void writeIds() throws IOException
 	{
 		BufferedWriter writer = JavaUtil.getWriter(new File(this.dirDump, dumpIdsNew + ext));
-		List<Registry.Entry> entries = this.reg.getEntriesSortable();
+		List<Registry.Entry> entries = this.reg.getSortable();
 		Collections.sort(entries, new Comparator<Registry.Entry>()
 		{
 			@Override

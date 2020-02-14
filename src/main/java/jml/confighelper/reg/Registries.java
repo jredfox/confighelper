@@ -42,6 +42,7 @@ import net.minecraft.world.biome.BiomeGenMutated;
 public class Registries {
 	
 	public static boolean loading = true;
+	public static boolean isCrashing;
 	public static Registry biomes = new Registry(DataType.BIOME);
 	public static Registry potions = new Registry(DataType.POTION);
 	public static Registry enchantments = new Registry(DataType.ENCHANTMENT);
@@ -180,12 +181,19 @@ public class Registries {
 
 	public static void write()
 	{
-		new RegistryWriter(Registries.biomes).write();
-		new RegistryWriter(Registries.potions).write();
-		new RegistryWriter(Registries.enchantments).write();
-		new RegistryWriter(Registries.dimensions).write();
-		new RegistryWriter(Registries.providers).write();
-		new RegistryWriter(Registries.entities).write();
+		try
+		{
+			new RegistryWriter(Registries.biomes).write();
+			new RegistryWriter(Registries.potions).write();
+			new RegistryWriter(Registries.enchantments).write();
+			new RegistryWriter(Registries.dimensions).write();
+			new RegistryWriter(Registries.providers).write();
+			new RegistryWriter(Registries.entities).write();
+		}
+		catch(Throwable t)
+		{
+			t.printStackTrace();
+		}
 		writeWatcher();
 	}
 
@@ -193,11 +201,28 @@ public class Registries {
 	{
 		if(Registries.datawatchers == null)
 			return;
-		new RegistryWriter(Registries.datawatchers).write();
+		try
+		{
+			new RegistryWriter(Registries.datawatchers).write();
+		}
+		catch(Throwable t)
+		{
+			t.printStackTrace();
+		}
 	}
-
+	
 	public static void makeCrashReport(String cat, String msg) 
 	{
+		makeCrashReport(cat, msg, false);
+	}
+
+	public static void makeCrashReport(String cat, String msg, boolean onlyWatcher) 
+	{
+		isCrashing = true;
+		if(!onlyWatcher)
+			Registries.write();
+		else
+			Registries.writeWatcher();
 		CrashReport.makeCrashReport(cat, msg);
 	}
 	

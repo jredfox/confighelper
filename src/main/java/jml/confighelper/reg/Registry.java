@@ -91,13 +91,16 @@ public class Registry implements Iterable<Registry.Entry>{
 
 	public int reg(Object obj, int id)
 	{
-		String clazz = getClass(obj).getName();
-		if(this.isFakeObj(clazz))
+		if(Registries.isCrashing)
 		{
-			return id;//do not register fake objects
+			System.out.println("Unexpected Registration during crashing! " + id + ", " + obj + ", " + this.dataType);
+			return id;
 		}
+		String clazz = getClass(obj).getName();
+		boolean passable = this.isPassable(clazz, id);
 		this.securityCheck();
-		this.checkId(obj, id);
+		if(!passable)
+			this.checkId(obj, id);//assume index out of bounds is a fake object
 		List<Registry.Entry> list = this.getEntryOrg(id);
 		if(list == null)
 		{
@@ -110,25 +113,23 @@ public class Registry implements Iterable<Registry.Entry>{
 		if(this.isPassableSelf(clazz) && list.contains(entry))
 		{
 			Registry.Entry old = list.get(list.indexOf(entry));
-			System.out.println("Self Conflict Found:" + id + " class:" + old.clazz);
 			return old.newId;
 		}
 		list.add(entry);
 		
+		if(passable)
+		{
+			entry.replaced = true;
+			return entry.newId;
+		}
+		
 		if(conflicting)
 		{
-			if(this.isPassable(clazz, id))
-			{
-				System.out.println("replacing index:" + id + " class:" + clazz);
-				entry.replaced = true;
-				return entry.newId;
-			}
 			entry.newId = this.getNewId(id);
 			this.checkId(obj, entry.newId);
 			this.hasConflicts = true;
 			if(this.canCrash())
 			{
-				Registries.write();
 				String cat = Registries.getCat();
 				Registries.makeCrashReport(cat, this.dataType + " Id conflict during " +  cat + " id:" + id + "=" + list.toString());
 			}
@@ -143,11 +144,12 @@ public class Registry implements Iterable<Registry.Entry>{
 		if(arr != null && arr.length != size)
 		{
 		    System.out.println("Patching " + this.dataType + "[] as it's size doesn't match:\t" + arr.length + " > " + size);
-			Object[] newArray = (Object[]) Array.newInstance(this.dataType.clazz, size);
+		    Class arrClass = ReflectionHandler.getArrayClass(arr);
+			Object[] newArray = (Object[]) Array.newInstance(arrClass, size);
 			for(Registry.Entry e : this)
 			{
 				System.out.println("assigning obj:" + e.obj + " > " + e.newId);
-				newArray[e.newId] = this.dataType.clazz.cast(e.obj);
+				newArray[e.newId] = arrClass.cast(e.obj);
 			}
 			this.setStaticArray(newArray);
 		}
@@ -201,19 +203,14 @@ public class Registry implements Iterable<Registry.Entry>{
 		return newIds;
 	}
 	
-	public boolean isFakeObj(String clazz) 
+	public boolean isPassableSelf(String clazz)
 	{
-		return JavaUtil.contains(RegistryConfig.fakes, clazz);
+		return JavaUtil.contains(RegistryConfig.passableSelf, clazz);
 	}
 	
 	public boolean isPassable(String clazz, int id) 
 	{
 		return JavaUtil.contains(RegistryConfig.passable, clazz);
-	}
-	               
-	public boolean isPassableSelf(String clazz)
-	{
-		return JavaUtil.contains(RegistryConfig.passableSelf, clazz);
 	}
 	
 	public int getNewId()
@@ -233,7 +230,7 @@ public class Registry implements Iterable<Registry.Entry>{
 	 */
 	public int getNewId(int org)
 	{
-		for(int i=this.newId; i <= this.limit; i++)
+		for(int i = this.newId; i <= this.limit; i++)
 		{
 			if(!this.containsId(this.newId) && !this.isVanillaId(this.newId))
 			{
@@ -251,7 +248,7 @@ public class Registry implements Iterable<Registry.Entry>{
 	 */
 	public int getNextFreeId(int newId)
 	{
-		for(int i=this.freeId; i <= this.limit; i++)
+		for(int i = this.freeId; i <= this.limit; i++)
 		{
 			if(!this.containsOrg(this.freeId))
 			{
@@ -267,7 +264,7 @@ public class Registry implements Iterable<Registry.Entry>{
 	{
 		if(this.isVanillaId(newId))
 			return newId;
-		for(int i=this.suggestedId; i <= this.limit; i++)
+		for(int i = this.suggestedId; i <= this.limit; i++)
 		{
 			if(!this.isVanillaId(this.suggestedId))
 			{
@@ -368,7 +365,7 @@ public class Registry implements Iterable<Registry.Entry>{
 	/**
 	 * get a list view of the Registry that can be sorted without messing with indexes here
 	 */
-	public List<Entry> getEntriesSortable() 
+	public List<Entry> getSortable() 
 	{
 		List<Registry.Entry> list = new ArrayList();
 		for(Registry.Entry entry : this)
@@ -493,25 +490,19 @@ public class Registry implements Iterable<Registry.Entry>{
 	}
     
     public static enum DataType{
-    	BIOME(BiomeGenBase.class),
-    	ENCHANTMENT(Enchantment.class),
-    	POTION(Potion.class),
-    	DIMENSION(DimensionManager.class),
-    	PROVIDER(DimensionManager.class),
-    	ENTITY(Entity.class),
-    	DATAWATCHER(DataWatcher.class),
-    	DATAWATCHERTYPE(WatcherDataType.class),
-    	ITEM(Item.class),
-    	BLOCK(Block.class),
-    	TILEENTITY(TileEntity.class),
-    	RECIPES(IRecipe.class),
-    	GUI(ReflectionHandler.getClass("net.minecraft.client.gui.Gui"));//if you need another enum type use ReflectionHandler.addEnum when registering them
-    	
-    	public Class clazz;
-    	private DataType(Class clazz)
-    	{
-    		this.clazz = clazz;
-    	}
+    	BIOME(),
+    	ENCHANTMENT(),
+    	POTION(),
+    	DIMENSION(),
+    	PROVIDER(),
+    	ENTITY(),
+    	DATAWATCHER(),
+    	DATAWATCHERTYPE(),
+    	ITEM(),
+    	BLOCK(),
+    	TILEENTITY(),
+    	RECIPES(),
+    	GUI();
     	
 		public String getName() 
 		{

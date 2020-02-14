@@ -30,15 +30,19 @@ public class RegistryConfig {
 		"chylex.hee.world.biome.BiomeGenHardcoreEnd",
 		"chylex.hee.world.WorldProviderHardcoreEnd",
 		"chylex.hee.entity.mob.EntityMobEnderman",
-		"chylex.hee.entity.block.EntityBlockEnderCrystal"
+		"chylex.hee.entity.block.EntityBlockEnderCrystal",
+		"org.blockartistry.mod.DynSurround.data.FakeBiome",
+		"mods.railcraft.common.carts.EntityCartCommand",
+		"mods.railcraft.common.carts.EntityCartBasic",
+		"mods.railcraft.common.carts.EntityCartChest",
+		"mods.railcraft.common.carts.EntityCartFurnace",
+		"mods.railcraft.common.carts.EntityCartTNT"
 	};
 	public static String[] passableSelf = new String[]
 	{
-		"net.aetherteam.aether.dungeons.worldgen.DungeonsBiome"
-	};
-	public static String[] fakes = new String[]
-	{
-		"org.blockartistry.mod.DynSurround.data.FakeBiome"
+		"net.aetherteam.aether.dungeons.worldgen.DungeonsBiome",
+		"danger.orespawn.BiomeGenUtopianPlains",
+		"net.minecraft.entity.item.EntityMinecartHopper"
 	};
 	public static Set<Integer> passableDimIds;
 	public static Set<Integer> passableWatcherIds;
@@ -57,7 +61,6 @@ public class RegistryConfig {
 				
 		passable = cfg.getStringList("conflicts", "passable", passable, "passable Classes that are allowed to conflict(replace) a registry object");
 		passableSelf = cfg.getStringList("selfConflicts", "passable", passableSelf, "passable Classes that are allowed to conflict with itself");
-		fakes = cfg.getStringList("fakeObjects", "passable", fakes, "Classes that do not get registered and is a proxy of some sort(Fake objects)");
 		passableDimIds = getPassableIds(cfg, "conflictDimIds", "passable Dim ids(Not Provider) that are allowed to conflict. Only use if inputting the provider conflict class wasn't enough");
 		passableWatcherIds = getPassableIds(cfg, "conflictWatcherIds", "passable ids that data watchers are allowed to conflict with");
 		

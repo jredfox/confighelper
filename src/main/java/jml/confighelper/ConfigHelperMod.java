@@ -44,7 +44,6 @@ public class ConfigHelperMod
     	Registries.strictRegs();
 		if(Registries.hasConflicts())
 		{
-			Registries.write();
 			Registries.makeCrashReport("Load Complete", "Id Conflicts have been detected! Reconfigure your modpack:" + Registries.getConflictTypes());
 		}
 		else if(RegistryConfig.configMode)

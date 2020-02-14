@@ -64,174 +64,194 @@ public class JavaUtil {
 	public static final String numberIds = "bsilfd";
 	public static final int arrayInitCapacity = 10;
 	public static final int fileCharLimit = 200;//since math path is 260 we want to be realitivly safe here
+	public static final float FLOAT_MIN = Float.MAX_VALUE * -1;
+	public static final float FLOAT_MAX = Float.MAX_VALUE;
+	public static final double DOUBLE_MIN = Double.MAX_VALUE * -1;
+	public static final double DOUBLE_MAX = Double.MAX_VALUE;
 	
-	/**
-	 * cast without loosing data and have a random negative number
-	 */
-	public static int castInt(long l)
+	public static double castDouble(double value)
 	{
-		if(l > Integer.MAX_VALUE)
-			return Integer.MAX_VALUE;
-		if(l < Integer.MIN_VALUE)
-			return Integer.MIN_VALUE;
-		return (int)l;
+		return value;
 	}
 	
-	public static short castShort(long l)
+	public static double castDouble(float value)
 	{
-		if(l > Short.MAX_VALUE)
-			return Short.MAX_VALUE;
-		else if(l < Short.MIN_VALUE)
-			return Short.MIN_VALUE;
-		return (short)l;
-	}
-	public static byte castByte(long l)
-	{
-		if(l > Byte.MAX_VALUE)
-			return Byte.MAX_VALUE;
-		if(l < Byte.MIN_VALUE)
-			return Byte.MIN_VALUE;
-		return (byte)l;
+		return (double) value;
 	}
 	
-	public static short castShort(int i)
+	public static double castDouble(long value)
 	{
-		if(i > Short.MAX_VALUE)
-			return Short.MAX_VALUE;
-		else if(i < Short.MIN_VALUE)
-			return Short.MIN_VALUE;
-		return (short)i;
-	}
-	public static byte castByte(int i)
-	{
-		if(i > Byte.MAX_VALUE)
-			return Byte.MAX_VALUE;
-		if(i < Byte.MIN_VALUE)
-			return Byte.MIN_VALUE;
-		return (byte)i;
-	}
-	public static byte castByte(short s)
-	{
-		if(s > Byte.MAX_VALUE)
-			return Byte.MAX_VALUE;
-		if(s < Byte.MIN_VALUE)
-			return Byte.MIN_VALUE;
-		return (byte)s;
+		return (double) value;
 	}
 	
-	public static byte castByte(float f) 
+	public static double castDouble(int value)
 	{
-		long l = toLong(f);
-		return JavaUtil.castByte(l);
+		return (double) value;
 	}
 	
-	public static byte castByte(double d) 
+	public static double castDouble(short value)
 	{
-		long l = toLong(d);
-		return JavaUtil.castByte(l);
+		return (short) value;
 	}
 	
-	public static short castShort(float f) 
+	public static double castDouble(byte value)
 	{
-		long l = toLong(f);
-		return JavaUtil.castShort(l);
+		return (double) value;
 	}
 	
-	public static short castShort(double d) 
+	//floats
+	public static float castFloat(double value)
 	{
-		long l = toLong(d);
-		return JavaUtil.castShort(l);
+		return (float) range(value, FLOAT_MIN, FLOAT_MAX);
 	}
 	
-	public static int castInt(float f) 
+	public static float castFloat(float value)
 	{
-		long l = toLong(f);
-		return JavaUtil.castInt(l);
+		return value;
 	}
 	
-	public static int castInt(double d) 
+	public static float castFloat(long value)
 	{
-		long l = toLong(d);
-		return JavaUtil.castInt(l);
+		return (float) value;
 	}
 	
-	public static long castLong(float f)
+	public static float castFloat(int value)
 	{
-		return toLong(f);
+		return (float) value;
 	}
 	
-	public static long castLong(double d)
+	public static float castFloat(short value)
 	{
-		return toLong(d);
+		return (float) value;
 	}
 	
-	public static float castFloat(double d)
+	public static float castFloat(byte value)
 	{
-		if(d > Float.MAX_VALUE)
-			return Float.MAX_VALUE;
-		else if (d < Float.MIN_VALUE)
-			return Float.MIN_VALUE;
-		return (float)d;
+		return (float) value;
 	}
 	
-	/**
-	 * doesn't work every time as java algorithms truncate to 0 sometimes when negative only????
-	 */
-	public static long toLong(double d)
+	//longs
+	public static long castLong(double value)
 	{
-		if(d > Long.MAX_VALUE)
-			return Long.MAX_VALUE;
-		if(d < Long.MIN_VALUE)
-			return Long.MIN_VALUE;
-		return (long) d;
+		return (long) range(value, Long.MIN_VALUE, Long.MAX_VALUE);
 	}
 	
-	/**
-	 * doesn't work every time as java algorithms truncate to 0 sometimes when negative only????
-	 */
-	public static long toLong(float f)
+	public static long castLong(float value)
 	{
-		if(f > Long.MAX_VALUE)
-			return Long.MAX_VALUE;
-		if(f < Long.MIN_VALUE)
-			return Long.MIN_VALUE;
-		return (long) f;
+		return (long) range(value, Long.MIN_VALUE, Long.MAX_VALUE);
 	}
 	
-	public static int castInt(Number obj)
+	public static long castLong(long value)
 	{
-		obj = getInt(obj);
-		if(obj instanceof Long)
-			return JavaUtil.castInt(obj.longValue());
-		return obj.intValue();
+		return value;
 	}
 	
-	public static short castShort(Number obj)
+	public static long castLong(int value)
 	{
-		obj = getInt(obj);
-		if(obj instanceof Long)
-			return JavaUtil.castShort(obj.longValue());
-		else if(obj instanceof Integer)
-			return JavaUtil.castShort(obj.intValue());
-		return obj.shortValue();
+		return (long) value;
 	}
 	
-	public static byte castByte(Number obj)
+	public static long castLong(short value)
 	{
-		obj = getInt(obj);
-		if(obj instanceof Long)
-			return JavaUtil.castByte(obj.longValue());
-		else if(obj instanceof Integer)
-			return JavaUtil.castByte(obj.intValue());
-		else if(obj instanceof Short)
-			return JavaUtil.castByte(obj.shortValue());
-		return obj.byteValue();
+		return (long) value;
 	}
 	
-	public static long castLong(Number obj)
+	public static long castLong(byte value)
 	{
-		obj = getInt(obj);
-		return obj.longValue();
+		return (long) value;
+	}
+	
+	//ints
+	public static int castInt(double value)
+	{
+		return (int) range(value, Integer.MIN_VALUE, Integer.MAX_VALUE);
+	}
+	
+	public static int castInt(float value)
+	{
+		return (int) range(value, Integer.MIN_VALUE, Integer.MAX_VALUE);
+	}
+	
+	public static int castInt(long value)
+	{
+		return (int) range(value, Integer.MIN_VALUE, Integer.MAX_VALUE);
+	}
+	
+	public static int castInt(int value)
+	{
+		return value;
+	}
+	
+	public static int castInt(short value)
+	{
+		return (int) value;
+	}
+	
+	public static int castInt(byte value)
+	{
+		return (int) value;
+	}
+	
+	//shorts
+	public static short castShort(double value)
+	{
+		return (short) range(value, Short.MIN_VALUE, Short.MAX_VALUE);
+	}
+	
+	public static short castShort(float value)
+	{
+		return (short) range(value, Short.MIN_VALUE, Short.MAX_VALUE);
+	}
+	
+	public static short castShort(long value)
+	{
+		return (short) range(value, Short.MIN_VALUE, Short.MAX_VALUE);
+	}
+	
+	public static short castShort(int value)
+	{
+		return (short) range(value, Short.MIN_VALUE, Short.MAX_VALUE);
+	}
+	
+	public static short castShort(short value)
+	{
+		return value;
+	}
+	
+	public static short castShort(byte value)
+	{
+		return (short) value;
+	}
+	
+	//bytes
+	public static byte castByte(double value)
+	{
+		return (byte) range(value, Byte.MIN_VALUE, Byte.MAX_VALUE);
+	}
+	
+	public static byte castByte(float value)
+	{
+		return (byte) range(value, Byte.MIN_VALUE, Byte.MAX_VALUE);
+	}
+	
+	public static byte castByte(long value)
+	{
+		return (byte) range(value, Byte.MIN_VALUE, Byte.MAX_VALUE);
+	}
+	
+	public static byte castByte(int value)
+	{
+		return (byte) range(value, Byte.MIN_VALUE, Byte.MAX_VALUE);
+	}
+	
+	public static byte castByte(short value)
+	{
+		return (byte) range(value, Byte.MIN_VALUE, Byte.MAX_VALUE);
+	}
+	
+	public static byte castByte(byte value)
+	{
+		return value;
 	}
 	
 	public static double castDouble(Number obj)
@@ -241,18 +261,56 @@ public class JavaUtil {
 	
 	public static float castFloat(Number obj)
 	{
+		if(obj instanceof Double)
+			return castFloat(obj.doubleValue());
 		return obj.floatValue();
+	}
+	
+	public static long castLong(Number obj)
+	{
+		obj = castWholeNumber(obj);
+		return obj.longValue();
+	}
+	
+	public static int castInt(Number obj)
+	{
+		obj = castWholeNumber(obj);
+		if(obj instanceof Long)
+			return JavaUtil.castInt(obj.longValue());
+		return obj.intValue();
+	}
+	
+	public static short castShort(Number obj)
+	{
+		obj = castWholeNumber(obj);
+		if(obj instanceof Long)
+			return JavaUtil.castShort(obj.longValue());
+		else if(obj instanceof Integer)
+			return JavaUtil.castShort(obj.intValue());
+		return obj.shortValue();
+	}
+	
+	public static byte castByte(Number obj)
+	{
+		obj = castWholeNumber(obj);
+		if(obj instanceof Long)
+			return JavaUtil.castByte(obj.longValue());
+		else if(obj instanceof Integer)
+			return JavaUtil.castByte(obj.intValue());
+		else if(obj instanceof Short)
+			return JavaUtil.castByte(obj.shortValue());
+		return obj.byteValue();
 	}
 	
 	/**
 	 * if double/float convert to integer of long else do nothing
 	 */
-	public static Number getInt(Number obj) 
+	public static Number castWholeNumber(Number obj) 
 	{
 		if(isDouble(obj))
-			obj = new Long(JavaUtil.toLong(obj.doubleValue() ));
+			obj = new Long(JavaUtil.castLong(obj.doubleValue() ));
 		else if(isFloat(obj))
-			obj = new Long(JavaUtil.toLong(obj.floatValue() ));
+			obj = new Long(JavaUtil.castLong(obj.floatValue() ));
 		return obj;
 	}
 	
@@ -886,7 +944,7 @@ public class JavaUtil {
 		return builder.toString();
 	}
 	
-	public static <T extends Comparable> void reverse(List<T> org)
+	public static void reverse(List org)
 	{
 		Collections.reverse(org);
 	}
@@ -949,6 +1007,11 @@ public class JavaUtil {
 	public static boolean isNullorEmpty(String str) 
 	{
 		return str == null || str.isEmpty();
+	}
+	
+	public static File getParentFile(File f)
+	{
+		return f.getAbsoluteFile().getParentFile();
 	}
 	
 	/**

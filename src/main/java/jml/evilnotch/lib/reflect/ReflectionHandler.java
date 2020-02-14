@@ -361,7 +361,12 @@ public class ReflectionHandler {
     	return null;
     } 
     
-    public static Class getArraySourceClass(Class clazz)
+    public static Class getArrayClass(Object[] arr)
+    {
+    	return getArrayClass(arr.getClass());
+    }
+    
+    public static Class getArrayClass(Class clazz)
     {
     	Validate.isTrue(clazz.isArray());
     	return clazz.getComponentType();
