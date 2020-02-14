@@ -130,6 +130,8 @@ public class Registry implements Iterable<Registry.Entry>{
 			this.hasConflicts = true;
 			if(this.canCrash())
 			{
+				Registries.isCrashing = true;
+				this.grabNames(list);//grab the names and specify crashing early so the crash report prints out properly
 				String cat = Registries.getCat();
 				Registries.makeCrashReport(cat, this.dataType + " Id conflict during " +  cat + " id:" + id + "=" + list.toString());
 			}
@@ -423,23 +425,27 @@ public class Registry implements Iterable<Registry.Entry>{
    	 */
    	public void grabNames()
    	{
-   		this.setNames();
-   		this.setModNames();
-   	}
-   	
-   	public void setNames()
-   	{
    		for(Registry.Entry e : this)
-   			e.setName(this.grabName(e));
+   		{
+   			this.grabNames(e);
+   		}
    	}
    	
-   	public void setModNames()
+	public void grabNames(List<Registry.Entry> list) 
+	{
+		for(Registry.Entry e : list)
+		{
+			this.grabNames(e);
+		}
+	}
+	
+   	public void grabNames(Registry.Entry e) 
    	{
-   		for(Registry.Entry e : this)
-			e.setModName();
-   	}
-   	
-	protected String grabName(Registry.Entry entry)
+		e.setName(this.getName(e));
+		e.setModName();
+	}
+
+	protected String getName(Registry.Entry entry)
 	{
 		try
 		{
@@ -563,7 +569,7 @@ public class Registry implements Iterable<Registry.Entry>{
 		@Override
     	public String toString()
     	{
-    		return "(name:" + this.name + ",newId:" + this.newId + ",class:" + this.clazz + ")";
+    		return "(name:" + this.name + ", newId:" + this.newId + ", class:" + this.clazz + ", " + this.modName + ")";
     	}
     	
     	@Override
