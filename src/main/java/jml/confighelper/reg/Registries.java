@@ -47,7 +47,7 @@ public class Registries {
 	public static Registry potions = new Registry(DataType.POTION);
 	public static Registry enchantments = new Registry(DataType.ENCHANTMENT);
 	public static Registry dimensions = new RegistryDim();
-	public static Registry providers = new RegistryProvider();
+	public static Registry providers = new Registry(DataType.PROVIDER);
 	public static Registry entities = new Registry(DataType.ENTITY);
 	/**
 	 * the last EntityPlayer data watcher object list. Warning will be null on startup

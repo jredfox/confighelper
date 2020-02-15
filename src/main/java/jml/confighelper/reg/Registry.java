@@ -249,16 +249,12 @@ public class Registry implements Iterable<Registry.Entry>{
 				this.newIdLower--;
 			}
 		}
-		Registries.makeCrashReport(Registries.getCat(), this.dataType.getName() + " has run out of " + (positive ? "positive": "negative") + " Ids! " + this.limitLower + "-" + this.limit);
+		Registries.makeCrashReport(Registries.getCat(), this.dataType + " Registry has run out of Ids(" + (positive ? "positive": "negative") + ") Id Range: " + this.limitLower + "-" + this.limit);
 		return -1;
 	}
 	
 	public int freeId;
-	public int freeIdLower;
-	/**
-	 * returns the next free id for users to use in the config
-	 * WARNING DO NOT CALL TILL AFTER THE REGISTRIES ARE DONE
-	 */
+	public int freeIdLower = -1;
 	public int getNextFreeId(int org)
 	{
 		boolean positive = org >= 0;
@@ -288,7 +284,7 @@ public class Registry implements Iterable<Registry.Entry>{
 	}
 	
 	public int suggestedId;//the virtual suggested id index
-	public int suggestedIdLower;
+	public int suggestedIdLower = -1;
 	public int getNextSuggestedId(int org)
 	{
 		boolean positive = org >= 0;
@@ -305,7 +301,7 @@ public class Registry implements Iterable<Registry.Entry>{
 		}
 		else
 		{
-			for(int i = this.suggestedIdLower; i <= this.limitLower; i++)
+			for(int i = this.suggestedIdLower; i >= this.limitLower; i++)
 			{
 				if(!this.isVanillaId(this.suggestedIdLower))
 				{

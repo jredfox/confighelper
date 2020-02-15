@@ -57,21 +57,25 @@ public class RegistryWriter {
 	{
 		try
 		{
+			this.reg.resetInfoIds();
 			this.reg.grabNames();
 			this.writeConflicts();
 			this.writeFreeIds();
 			this.writeSuggestions();
 			if(RegistryConfig.dumpIds)
 				this.writeIds();
-			this.reg.resetInfoIds();
 		}
 		catch(Throwable t)
 		{
 			t.printStackTrace();
 		}
+		finally
+		{
+			this.reg.resetInfoIds();
+		}
 	}
 
-	private void writeConflicts() throws IOException
+	protected void writeConflicts() throws IOException
 	{
 		File file = new File(this.dir, conflicts + conflictExt);
 		JSONObject filejson = new JSONObject();
@@ -79,33 +83,49 @@ public class RegistryWriter {
 		{
 			if(reg.isConflicting(id))
 			{
-				JSONArray arr = new JSONArray();
-				filejson.put(this.reg.dataType.getName() + "-id:" + id, arr);
-				for(Registry.Entry entry : this.reg.getEntryOrg(id))
+				if(this.reg instanceof RegistryInt)
 				{
 					JSONObject json = new JSONObject();
-					arr.add(json);
-					boolean nonInt = !(this.reg instanceof RegistryInt);
-					if(nonInt)
+					List<Registry.Entry> entries = this.reg.getEntryOrg(id);
+					json.put("conflicts", entries.size() - 1);
+					if(replacedIntReg(entries))
+						json.put("replaced", true);
+					filejson.put(this.reg.dataType.getName() + "-id:" + id, json);
+				}
+				else
+				{
+					JSONArray arr = new JSONArray();
+					filejson.put(this.reg.dataType.getName() + "-id:" + id, arr);
+					
+					for(Registry.Entry entry : this.reg.getEntryOrg(id))
 					{
+						JSONObject json = new JSONObject();
+						arr.add(json);
 						json.put("name", entry.name);
 						json.put("mod", entry.modName);
-					}
-					if(entry.replaced)
-						json.put("replaced", true);
-					if(entry.newId != entry.org)
-						json.put("freeId", this.reg.getNextFreeId(entry.newId));
-					if(!nonInt)
-						json.put("memoryIndex", entry.newId);
-					if(nonInt)
+						if(entry.replaced)
+							json.put("replaced", true);
+						if(entry.newId != entry.org)
+							json.put("freeId", this.reg.getNextFreeId(entry.newId));
 						json.put("class", entry.clazz);
+					}
 				}
 			}
 		}
 		JavaUtil.saveJSONSafley(filejson, file);
 	}
 	
-	private void writeFreeIds() throws IOException
+	private boolean replacedIntReg(List<Registry.Entry> entries) 
+	{
+		for(Registry.Entry entry : entries)
+		{
+			if(entry.replaced)
+				return true;
+		}
+		return false;
+	}
+
+	protected void writeFreeIds() throws IOException
 	{
 		BufferedWriter writer = JavaUtil.getWriter(new File(this.dir, freeids + ext));
 		Set<IdChunk> chunks = IdChunk.configureAround(this.reg.limitLower, this.reg.limit, this.reg.getOrgIds());
@@ -116,7 +136,7 @@ public class RegistryWriter {
 		writer.close();
 	}
 
-	private void writeSuggestions() throws IOException
+	protected void writeSuggestions() throws IOException
 	{
 		BufferedWriter writer = JavaUtil.getWriter(new File(this.dir, suggested + ext));
 		Map<String,List<Registry.Entry>> entries = new TreeMap();//modname, list of entries
@@ -179,14 +199,14 @@ public class RegistryWriter {
 		writer.close();
 	}
 	
-	public boolean canSuggest(Registry reg, Entry e) 
+	protected boolean canSuggest(Registry reg, Entry e) 
 	{
 		if(e.replaced || e.obj instanceof BiomeGenMutated)
 			return false;
 		return !reg.isVanillaId(e.newId);
 	}
 	
-	private void writeIds() throws IOException
+	protected void writeIds() throws IOException
 	{
 		BufferedWriter writer = JavaUtil.getWriter(new File(this.dirDump, dumpIdsNew + ext));
 		List<Registry.Entry> entries = this.reg.getSortable();
