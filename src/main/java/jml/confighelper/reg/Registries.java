@@ -211,7 +211,7 @@ public class Registries {
 		}
 	}
 	
-	public static void makeCrashReport(String cat, String msg) 
+	public static void makeCrashReport(String cat, String msg)
 	{
 		makeCrashReport(cat, msg, false);
 	}

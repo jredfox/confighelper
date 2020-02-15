@@ -22,6 +22,6 @@ public abstract class RegistryCustom extends Registry{
 	}
 	
 	@Override
-	protected abstract String grabName(Registry.Entry entry);
+	protected abstract String getName(Registry.Entry entry);
 
 }

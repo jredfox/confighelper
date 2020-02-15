@@ -126,7 +126,6 @@ public class Registry implements Iterable<Registry.Entry>{
 		if(conflicting)
 		{
 			entry.newId = this.getNewId(id);
-			this.checkId(obj, entry.newId);
 			this.hasConflicts = true;
 			if(this.canCrash())
 			{
@@ -217,62 +216,103 @@ public class Registry implements Iterable<Registry.Entry>{
 	
 	public int getNewId()
 	{
-		return this.getNewId(true);
-	}
-	
-	public int getNewId(boolean positive)
-	{
-		int id = positive ? 0 : -1;
-		return this.getNewId(id);
+		return this.getNewId(1);
 	}
 	
 	public int newId;//the newId(semi-auto) index
+	public int newIdLower = -1;
 	/**
 	 * gets the next id
 	 */
 	public int getNewId(int org)
 	{
-		for(int i = this.newId; i <= this.limit; i++)
+		boolean positive = org >= 0;
+		if(positive)
 		{
-			if(!this.containsId(this.newId) && !this.isVanillaId(this.newId))
+			for(int i = this.newId; i <= this.limit; i++)
 			{
-				return this.newId++;
+				if(!this.containsId(this.newId) && !this.isVanillaId(this.newId))
+				{
+					return this.newId++;
+				}
+				this.newId++;
 			}
-			this.newId++;
 		}
+		else
+		{
+			for(int i = this.newIdLower; i >= this.limitLower; i--)
+			{
+				if(!this.containsId(this.newIdLower) && !this.isVanillaId(this.newIdLower))
+				{
+					return this.newIdLower--;
+				}
+				this.newIdLower--;
+			}
+		}
+		Registries.makeCrashReport(Registries.getCat(), this.dataType.getName() + " has run out of " + (positive ? "positive": "negative") + " Ids! " + this.limitLower + "-" + this.limit);
 		return -1;
 	}
 	
 	public int freeId;
+	public int freeIdLower;
 	/**
 	 * returns the next free id for users to use in the config
 	 * WARNING DO NOT CALL TILL AFTER THE REGISTRIES ARE DONE
 	 */
-	public int getNextFreeId(int newId)
+	public int getNextFreeId(int org)
 	{
-		for(int i = this.freeId; i <= this.limit; i++)
+		boolean positive = org >= 0;
+		if(positive)
 		{
-			if(!this.containsOrg(this.freeId))
+			for(int i = this.freeId; i <= this.limit; i++)
 			{
-				return this.freeId++;
+				if(!this.containsOrg(this.freeId))
+				{
+					return this.freeId++;
+				}
+				this.freeId++;
 			}
-			this.freeId++;
+		}
+		else
+		{
+			for(int i = this.freeIdLower; i >= this.limitLower; i++)
+			{
+				if(!this.containsOrg(this.freeIdLower))
+				{
+					return this.freeIdLower--;
+				}
+				this.freeIdLower--;
+			}
 		}
 		return -1;
 	}
 	
 	public int suggestedId;//the virtual suggested id index
-	public int getNextSuggestedId(int newId)
+	public int suggestedIdLower;
+	public int getNextSuggestedId(int org)
 	{
-		if(this.isVanillaId(newId))
-			return newId;
-		for(int i = this.suggestedId; i <= this.limit; i++)
+		boolean positive = org >= 0;
+		if(positive)
 		{
-			if(!this.isVanillaId(this.suggestedId))
+			for(int i = this.suggestedId; i <= this.limit; i++)
 			{
-				return this.suggestedId++;
+				if(!this.isVanillaId(this.suggestedId))
+				{
+					return this.suggestedId++;
+				}
+				this.suggestedId++;
 			}
-			this.suggestedId++;
+		}
+		else
+		{
+			for(int i = this.suggestedIdLower; i <= this.limitLower; i++)
+			{
+				if(!this.isVanillaId(this.suggestedIdLower))
+				{
+					return this.suggestedIdLower--;
+				}
+				this.suggestedIdLower--;
+			}
 		}
 		return -1;
 	}
@@ -280,11 +320,13 @@ public class Registry implements Iterable<Registry.Entry>{
 	public void resetSuggestedIds()
 	{
 		this.suggestedId = 0;
+		this.suggestedIdLower = -1;
 	}
 	
 	public void resetFreeIds()
 	{
 		this.freeId = 0;
+		this.freeIdLower = -1;
 	}
 	
 	/**
