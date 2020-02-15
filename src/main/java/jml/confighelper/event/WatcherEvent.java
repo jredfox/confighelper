@@ -13,22 +13,22 @@ import net.minecraftforge.event.entity.EntityEvent.EntityConstructing;
 
 public class WatcherEvent {
 	
-	private static boolean outputted;
+	private static boolean checked;
 	@SubscribeEvent(priority=EventPriority.LOWEST)
 	public void checkReg(EntityConstructing event)
 	{
-		if(event.entity instanceof EntityPlayer)
+		if(!checked && event.entity instanceof EntityPlayer)
 		{
-			Registries.strictWatcher();//make sure it crashes after entity.init if a new data watcher id gets registered on the fly
+			checked = true;
+			if(RegistryConfig.configMode && !Registries.hasWatcherConflicts())
+			{
+				Registries.writeWatcher();
+			}
 			if(Registries.hasWatcherConflicts())
 			{
 				Registries.makeCrashReport("Constructing DataWatcher", "DataWatcher Id Conflicts have been detected! Reconfigure your modpack", true);
 			}
-			else if(RegistryConfig.configMode && !outputted)
-			{
-				outputted = true;
-				Registries.writeWatcher();
-			}
+			Registries.strictWatcher();
 		}
 	}
 }

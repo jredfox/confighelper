@@ -40,15 +40,16 @@ public class ConfigHelperMod
     {
     	Registries.loadComplete();
     	Registries.nextDimFrozen = Registries.nextDim;
-    	Registries.loading = false;
-    	Registries.strictRegs();
-		if(Registries.hasConflicts())
-		{
-			Registries.makeCrashReport("Load Complete", "Id Conflicts have been detected! Reconfigure your modpack:" + Registries.getConflictTypes());
-		}
-		else if(RegistryConfig.configMode)
+    	Registries.setCat("Load Complete");
+		if(RegistryConfig.configMode && !Registries.hasConflicts())
 		{
 			Registries.write();
 		}
+		if(Registries.hasConflicts())
+		{
+			Registries.makeCrashReport(Registries.getCat(), "Id Conflicts have been detected! Reconfigure your modpack:" + Registries.getConflictTypes());
+		}
+	   	Registries.strictRegs();
+		Registries.setCat("In Game");
     }
 }

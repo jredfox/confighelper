@@ -41,7 +41,7 @@ import net.minecraft.world.biome.BiomeGenMutated;
  */
 public class Registries {
 	
-	public static boolean loading = true;
+	public static String cat = "Loading";
 	public static boolean isCrashing;
 	public static Registry biomes = new Registry(DataType.BIOME);
 	public static Registry potions = new Registry(DataType.POTION);
@@ -218,6 +218,11 @@ public class Registries {
 
 	public static void makeCrashReport(String cat, String msg, boolean onlyWatcher) 
 	{
+		if(isCrashing)
+		{
+			System.out.println("Cannot make crash report as the game is already Crashing!" + msg);
+			return;
+		}
 		isCrashing = true;
 		if(!onlyWatcher)
 			Registries.write();
@@ -231,7 +236,12 @@ public class Registries {
 	 */
 	public static String getCat()
 	{
-		return Registries.loading ? "Loading" : "In Game";
+		return cat;
+	}
+	
+	public static void setCat(String c)
+	{
+		cat = c;
 	}
 	
 	public static String getConflictTypes() 
@@ -253,7 +263,7 @@ public class Registries {
 		if(Registries.datawatchers != null && Registries.entities.hasConflicts)
 			b.append(Registries.datawatchers.dataType + ", ");
 		String c = b.toString();
-		return c.substring(0, c.length()-2) + "]";
+		return c.substring(0, c.length() - 2) + "]";
 	}
 	
 	

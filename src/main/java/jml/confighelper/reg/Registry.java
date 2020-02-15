@@ -96,6 +96,7 @@ public class Registry implements Iterable<Registry.Entry>{
 			System.out.println("Unexpected Registration during crashing! " + id + ", " + obj + ", " + this.dataType);
 			return id;
 		}
+		
 		String clazz = getClass(obj).getName();
 		boolean passable = this.isPassable(clazz, id);
 		this.securityCheck();
