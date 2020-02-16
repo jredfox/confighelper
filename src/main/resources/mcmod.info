@@ -3,7 +3,7 @@
   "modid": "confighelper",
   "name": "Config Helper",
   "description": "Configure modpacks with ease no more id conflicts! Optimiztions for modpacks",
-  "version": "${version}",
+  "version": "1.2.4.7",
   "mcversion": "${mcversion}",
   "url": "",
   "updateUrl": "",

@@ -2,6 +2,7 @@ package jml.confighelper.reg;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import com.google.common.collect.ListMultimap;
 
@@ -21,6 +22,7 @@ import jml.confighelper.datawatcher.WatcherString;
 import jml.confighelper.reg.Registry.DataType;
 import jml.evilnotch.lib.JavaUtil;
 import jml.evilnotch.lib.minecraft.CrashReport;
+import jml.evilnotch.lib.reflect.ReflectionHandler;
 import net.minecraft.block.Block;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.Entity;
@@ -33,6 +35,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraft.world.biome.BiomeGenMutated;
+import net.minecraftforge.common.DimensionManager;
 
 /**
  * The central Registry system for all data types to be used upon
@@ -42,7 +45,8 @@ import net.minecraft.world.biome.BiomeGenMutated;
 public class Registries {
 	
 	public static String cat = "Loading";
-	public static boolean isCrashing;
+	public static boolean isCrashing;//basically is in the process of crashing but, hasn't nessarly called Registries#makeCrashReport()
+	private static boolean hasCrashed;//the game has crashed
 	public static Registry biomes = new Registry(DataType.BIOME);
 	public static Registry potions = new Registry(DataType.POTION);
 	public static Registry enchantments = new Registry(DataType.ENCHANTMENT);
@@ -215,15 +219,16 @@ public class Registries {
 	{
 		makeCrashReport(cat, msg, false);
 	}
-
+	
 	public static void makeCrashReport(String cat, String msg, boolean onlyWatcher) 
 	{
-		if(isCrashing)
+		if(hasCrashed)
 		{
 			System.out.println("Cannot make crash report as the game is already Crashing!" + msg);
 			return;
 		}
 		isCrashing = true;
+		hasCrashed = true;
 		if(!onlyWatcher)
 			Registries.write();
 		else
@@ -333,14 +338,11 @@ public class Registries {
 	 */
 	public static int guessDimOrgId(int providerId) 
 	{
-		for(List<Registry.Entry> li : dimensions.reg.values())
+		for(Registry.Entry e : dimensions)
 		{
-			for(Registry.Entry e : li)
-			{
-				EntryDimension dim = (EntryDimension) e.obj;
-				if(providerId == dim.providerNewId)
-					return e.org;
-			}
+			EntryDimension dim = (EntryDimension) e.obj;
+			if(providerId == dim.providerNewId)
+				return e.org;
 		}
 		System.out.println("GUESS DIM ID FROM PROVIDER FAILED! returning default:\t" + providerId);
 		return providerId;

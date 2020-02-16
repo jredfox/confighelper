@@ -32,7 +32,7 @@ import net.minecraftforge.common.DimensionManager;
 
 public class Registry implements Iterable<Registry.Entry>{
 	
-	public Map<Integer,List<Registry.Entry>> reg = new LinkedHashMap<Integer,List<Registry.Entry>>();
+	public Map<Integer, List<Registry.Entry>> reg = new LinkedHashMap<Integer, List<Registry.Entry>>();
 	public Set<Integer> vanillaIds = new HashSet();//the full list of vanilla ids per Registry
 	public int limit;//the registry limit
 	public int limitLower;
@@ -111,18 +111,20 @@ public class Registry implements Iterable<Registry.Entry>{
 		
 		boolean conflicting = this.containsId(id);
 		Registry.Entry entry = new Registry.Entry(obj, clazz, id);
-		if(this.isPassableSelf(clazz) && list.contains(entry))
+		boolean contains = list.contains(entry);
+		if(this.isPassableSelf(clazz) && contains)
 		{
 			Registry.Entry old = list.get(list.indexOf(entry));
 			return old.newId;
 		}
-		list.add(entry);
-		
-		if(passable)
+		else if(passable)
 		{
 			entry.replaced = true;
+			if(!contains)
+				list.add(entry);
 			return entry.newId;
 		}
+		list.add(entry);
 		
 		if(conflicting)
 		{
@@ -141,7 +143,7 @@ public class Registry implements Iterable<Registry.Entry>{
 
 	public void securityCheck() 
 	{
-		int size = this.size();
+		int size = this.sizeLimit();
 		Object[] arr = this.getStaticArray();
 		if(arr != null && arr.length != size)
 		{
@@ -178,9 +180,20 @@ public class Registry implements Iterable<Registry.Entry>{
 		return null;
 	}
 
-	public int size()
+	public int sizeLimit()
 	{
 		return this.limit + 1;
+	}
+	
+	/**
+	 * returns all the array sizes
+	 */
+	public int size()
+	{
+		int size = 0;
+		for(List<Registry.Entry> li : this.reg.values())
+			size += li.size();
+		return size;
 	}
 
 	public void checkId(Object obj, int id)
@@ -370,7 +383,9 @@ public class Registry implements Iterable<Registry.Entry>{
 	{
 		if(entry instanceof EntryEntity)
 			return ((EntryEntity)entry).clazz;
-		if(entry instanceof Class)
+		else if(entry instanceof EntryDimension)
+			return Integer.class;
+		else if(entry instanceof Class)
 			return (Class) entry;
 		return entry.getClass();
 	}
@@ -404,11 +419,19 @@ public class Registry implements Iterable<Registry.Entry>{
 	}
 	
 	/**
+	 * get the original id from the newId
+	 */
+	public int getOrg(int newId)
+	{
+		return getEntry(newId).org;
+	}
+	
+	/**
 	 * get a list view of the Registry that can be sorted without messing with indexes here
 	 */
 	public List<Entry> getSortable() 
 	{
-		List<Registry.Entry> list = new ArrayList();
+		List<Registry.Entry> list = new ArrayList(this.size());
 		for(Registry.Entry entry : this)
 			list.add(entry);
 		return list;
@@ -420,31 +443,14 @@ public class Registry implements Iterable<Registry.Entry>{
 	 */
 	public void unreg(int newId)
 	{
-		unreg(newId, true);
-	}
-	
-	/**
-	 * unregisters the first instanceof of the entry it finds
-	 */
-	public void unregFirst(int newId)
-	{
-		unreg(newId, false);
-	}
-	
-	protected void unreg(int newId, boolean all)
-	{
-		for(List<Registry.Entry> li : this.reg.values())
+		Iterator<Registry.Entry> it = this.iterator();
+		while(it.hasNext())
 		{
-			Iterator<Registry.Entry> it = li.iterator();
-			while(it.hasNext())
+			Registry.Entry e = it.next();
+			if(e.newId == newId)
 			{
-				Registry.Entry e = it.next();
-				if(e.newId == newId)
-				{
-					it.remove();
-					if(!all)
-						return;
-				}
+				it.remove();
+				return;
 			}
 		}
 	}
