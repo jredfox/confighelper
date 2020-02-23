@@ -69,8 +69,8 @@ processResources
 }
 jar {
     manifest {
-        attributes 'FMLCorePlugin': 'jml.evilnotch.lib.asm.ASMPlugin',
+        attributes 'FMLCorePlugin': 'jml.confighelper.asm.Plugin',
         'FMLCorePluginContainsFMLMod': 'false',
-	    'FMLAT': 'confighelper_at.cfg'
+	'FMLAT': 'confighelper_at.cfg'
     }
 }
