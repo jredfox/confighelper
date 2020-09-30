@@ -34,7 +34,7 @@ public class ReflectEnum {
 		{
 			Class classReflectFactory = ReflectionHandler.getClass("sun.reflect.ReflectionFactory");
 			Class classCtrAcess = ReflectionHandler.getClass("sun.reflect.ConstructorAccessor");
-			Class classFieldAcess = Class.forName("sun.reflect.FieldAccessor");
+			Class classFieldAcess = ReflectionHandler.getClass("sun.reflect.FieldAccessor");
 			
 			factory = ReflectionHandler.getMethod(classReflectFactory, "getReflectionFactory").invoke(null);
 			ctrAccessor = ReflectionHandler.getMethod(classReflectFactory,"newConstructorAccessor", Constructor.class);

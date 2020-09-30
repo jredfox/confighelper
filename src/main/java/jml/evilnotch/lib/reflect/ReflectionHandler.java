@@ -392,7 +392,7 @@ public class ReflectionHandler {
     	return base.isInstance(obj);
     }
     
-    public static Object newInstance(Class clazz)
+    public static <T> T newInstance(Class<T> clazz)
     {
     	try
     	{
