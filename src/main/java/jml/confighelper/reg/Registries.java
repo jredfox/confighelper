@@ -103,7 +103,7 @@ public class Registries {
 	public static int registerEntity(Class<? extends Entity> entity, String entityName, int id) 
 	{
 		if(id == Short.MAX_VALUE)
-			id++;//work around EntityEggs from screwing up recipes
+			id = Integer.MAX_VALUE;
 		return register(new EntryEntity(entity, entityName), id, entities);
 	}
 	

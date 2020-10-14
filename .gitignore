@@ -1,2 +1,7 @@
 
 src/main/java/purejava/Main.java
+src/main/java/net/minecraft/command/CommandEnchantment.java
+src/main/java/net/minecraft/enchantment/Enchantment.java
+src/main/java/net/minecraft/enchantment/EnchantmentHelper.java
+src/main/java/net/minecraft/item/ItemEnchantedBook.java
+src/main/java/net/minecraft/item/ItemStack.java
