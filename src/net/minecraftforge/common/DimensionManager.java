@@ -4,33 +4,24 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
-import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 import java.util.logging.Level;
 
-import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.HashMultiset;
-import com.google.common.collect.ImmutableListMultimap;
-import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.MapMaker;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Multiset;
-import com.google.common.collect.Sets;
 import com.jredfox.crashwconflicts.CrashWConflicts;
 
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.FMLLog;
-
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.ChunkCoordIntPair;
 import net.minecraft.world.MinecraftException;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldManager;
@@ -61,7 +52,7 @@ public class DimensionManager
     {
         if (getProviders().containsKey(id))
         {
-            id = CrashWConflicts.getFreeId(CrashWConflicts.providers, getStaticProviderIDs(), id);
+            id = CrashWConflicts.getFreeId(CrashWConflicts.providers, getStaticProviderIDs(), id, provider.getClass().getName(), getProviders().get(id).getName());
         }
         getProviders().put(id, provider);
         spawnSettings.put(id, keepLoaded);
@@ -125,7 +116,7 @@ public class DimensionManager
         }
         if (getDimensions().containsKey(id))
         {
-           id = CrashWConflicts.getFreeId(CrashWConflicts.dimensions, getStaticDimensionIDs(), id);
+           id = CrashWConflicts.getFreeId(CrashWConflicts.dimensions, getStaticDimensionIDs(), id, "", "");
         }
         getDimensions().put(id, providerType);
         if (id >= 0)

@@ -107,7 +107,7 @@ public abstract class Enchantment
         this.type = par3EnumEnchantmentType;
         if (enchantmentsList[par1] != null)
         {
-        	par1 = CrashWConflicts.getFreeId(CrashWConflicts.enchantments, enchantmentsList, par1);
+        	par1 = CrashWConflicts.getFreeId(CrashWConflicts.enchantments, enchantmentsList, par1, this.getClass().getName(), enchantmentsList[par1].getClass().getName());
         }
         this.effectId = par1;
         enchantmentsList[par1] = this;

@@ -339,7 +339,7 @@ public class Block
 
         if (blocksList[par1] != null)
         {
-        	par1 = CrashWConflicts.getFreeId(CrashWConflicts.blocks, blocksList, par1);
+        	par1 = CrashWConflicts.getFreeId(CrashWConflicts.blocks, blocksList, par1, this.getClass().getName(), blocksList[par1].getClass().getName());
 //            throw new IllegalArgumentException("Slot " + par1 + " is already occupied by " + blocksList[par1] + " when adding " + this);
         }
         this.blockMaterial = par2Material;

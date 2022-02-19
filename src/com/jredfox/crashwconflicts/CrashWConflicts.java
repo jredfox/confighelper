@@ -7,11 +7,14 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
+
+import com.jredfox.crashwconflicts.tst.D;
+import com.jredfox.crashwconflicts.tst.E;
 
 import cpw.mods.fml.common.ITickHandler;
 import cpw.mods.fml.common.Mod;
@@ -21,60 +24,69 @@ import cpw.mods.fml.common.TickType;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.registry.EntityRegistry;
-import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.TickRegistry;
 import cpw.mods.fml.relauncher.Side;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.enchantment.Enchantment;
-import net.minecraft.enchantment.EnchantmentOxygen;
+import net.minecraft.enchantment.EnchantmentProtection;
 import net.minecraft.entity.EntityList;
-import net.minecraft.entity.monster.EntityCreeper;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemAppleGold;
 import net.minecraft.potion.Potion;
 import net.minecraft.util.ReportedException;
-import net.minecraft.world.WorldProvider;
 import net.minecraft.world.biome.BiomeGenBase;
-import net.minecraftforge.common.DimensionManager;
+import net.minecraft.world.biome.BiomeGenOcean;
 
 @Mod(modid = "crash-w-conflicts", name = "Crash With Conflicts", version = "1.0.0")
 public class CrashWConflicts implements ITickHandler{
 	
 	public static boolean hasConflicts;
-	public static List<Integer> items = new ArrayList<Integer>();
-	public static List<Integer> blocks = new ArrayList<Integer>();
-	public static List<Integer> biomes = new ArrayList<Integer>();
-	public static List<Integer> enchantments = new ArrayList<Integer>();
-	public static List<Integer> potions = new ArrayList<Integer>();
-	public static List<Integer> entities = new ArrayList<Integer>();
-	public static List<Integer> providers = new ArrayList<Integer>();
-	public static List<Integer> dimensions = new ArrayList<Integer>();
+	public static Map<Integer, String> items = new HashMap();//TODO: change to Set
+	public static Map<Integer, String> blocks = new HashMap();
+	public static Map<Integer, String> biomes = new HashMap();
+	public static Map<Integer, String> enchantments = new HashMap();
+	public static Map<Integer, String> potions = new HashMap();
+	public static Map<Integer, String> entities = new HashMap();
+	public static Map<Integer, String> providers = new HashMap();
+	public static Map<Integer, String> dimensions = new HashMap();
 	public static String[] types = {"items", "blocks", "biomes", "enchantments", "potions", "entities", "providers", "dimensions"};//TE's are auto done and DataWatchers force crash if they do in fact conflict
 	
 	@PreInit
 	public static void preInit(FMLPreInitializationEvent pi)
 	{
-		//DimensionTest
-		DimensionManager.registerDimension(0, 0);
-		DimensionManager.registerDimension(-1, -1);
-		DimensionManager.registerProviderType(-1, WorldProvider.class, true);
-		DimensionManager.registerProviderType(0, WorldProvider.class, true);
+//		//DimensionTest
+//		DimensionManager.registerDimension(0, 0);//TODO: finish up dimension/provider conflict handling
+//		DimensionManager.registerDimension(-1, -1);
+//		DimensionManager.registerProviderType(-1, WorldProvider.class, true);
+//		DimensionManager.registerProviderType(0, WorldProvider.class, true);
 		
+		//conflict test
+//		new Item(69).setUnlocalizedName("item.tst");
+//		new Block(1, Material.anvil).setUnlocalizedName("tile.tst");
+//		new BiomeGenOcean(3);
+//		new EnchantmentProtection(1, 5, 1);
+//		new Potion(3, false, 400);
+//		EntityList.addMapping(E.class, "a", 14);
+//		EntityRegistry.registerGlobalEntityID(D.class, "a", 14);
+//		new Item(69).setUnlocalizedName("item.tst");
+//		new Block(1, Material.anvil).setUnlocalizedName("tile.tst");
+//		new BiomeGenOcean(3);
+//		new EnchantmentProtection(1, 5, 1);
+//		new Potion(3, false, 400);
 		TickRegistry.registerTickHandler(new CrashWConflicts(), Side.CLIENT);
 	}
-	
+
 	@PostInit
 	public static void postInit(FMLPostInitializationEvent pi)
 	{
 		dumpIds();
 	}
 	
-	public static <T> int getFreeId(List<Integer> conflicts, T[] arr, int id) 
+	public static <T> int getFreeId(Map<Integer, String> conflicts, T[] arr, int id, String newreg, String oldreg) 
 	{
     	CrashWConflicts.hasConflicts = true;
-    	conflicts.add((Integer)id);
+    	conflicts.put((Integer)id, conflicts.containsKey(id) ? conflicts.get(id) + ", " + newreg : oldreg + ", " + newreg);
     	for(int i = arr.length-1; i>=0 ;i--)
     	{
     		if(arr[i] == null)
@@ -83,10 +95,10 @@ public class CrashWConflicts implements ITickHandler{
     	throw new RuntimeException("out of free ids!");
 	}
 	
-	public static int getFreeEntId(List<Integer> conflicts, Set<Integer> keySet, int id) 
+	public static int getFreeEntId(Map<Integer, String> conflicts, Set<Integer> keySet, int id, String newreg, String oldreg) 
 	{
     	CrashWConflicts.hasConflicts = true;
-    	conflicts.add((Integer)id);
+    	conflicts.put((Integer)id, conflicts.containsKey(id) ? conflicts.get(id) + ", " + newreg : oldreg + ", " + newreg);
     	for(int i = 255; i>=0; i--)
     	{
     		if(!keySet.contains(i))
@@ -189,18 +201,18 @@ public class CrashWConflicts implements ITickHandler{
 		return arr;
 	}
 	
-	public static void writeConflicts(List<Integer>... lists) throws IOException
+	public static void writeConflicts(Map<Integer, String>... lists) throws IOException
 	{
 		File dir = new File(new File("").getAbsoluteFile(), "crashwconflicts");
 		dir.mkdirs();
 		int index = 0;
-		for(List<Integer> arr : lists)
+		for(Map<Integer, String> arr : lists)
 		{
 			String type = types[index];
 			BufferedWriter fw = getWriter(new File(dir, "conflicts-" + type + ".txt"));
-			for(Integer id : arr)
+			for(Integer id : arr.keySet())
 			{
-				fw.write("" + (index == 0 ? (id - 256) : id) + " ");//ids for some reason are +256
+				fw.write("" + (index == 0 ? (id - 256) : id) + " = " + arr.get(id) + System.lineSeparator());//ids for some reason are +256
 				fw.flush();
 			}
 			fw.close();
@@ -231,7 +243,8 @@ public class CrashWConflicts implements ITickHandler{
 	}
 
 	@Override
-	public String getLabel() {
+	public String getLabel() 
+	{
 		return this.getClass().getSimpleName();
 	}
 

@@ -88,7 +88,7 @@ public class Potion
     public Potion(int par1, boolean par2, int par3)
     {
         if(potionTypes[par1] != null)
-        	par1 = CrashWConflicts.getFreeId(CrashWConflicts.potions, potionTypes, par1);
+        	par1 = CrashWConflicts.getFreeId(CrashWConflicts.potions, potionTypes, par1, this.getClass().getName(), potionTypes[par1].getName());
         this.id = par1;
         potionTypes[par1] = this;
         this.isBadEffect = par2;

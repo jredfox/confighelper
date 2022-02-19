@@ -258,7 +258,7 @@ public class Item
     	par1 = 256 + par1;
         if(itemsList[par1] != null)
         {
-        	par1 = CrashWConflicts.getFreeId(CrashWConflicts.items, itemsList, par1);
+        	par1 = CrashWConflicts.getFreeId(CrashWConflicts.items, itemsList, par1, this.getClass().getName(), itemsList[par1].getClass().getName());
         }
         this.itemID = par1;
         itemsList[par1] = this;
