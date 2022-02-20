@@ -50,9 +50,9 @@ public class DimensionManager
 
     public static boolean registerProviderType(int id, Class<? extends WorldProvider> provider, boolean keepLoaded)
     {
-        if (getProviders().containsKey(id))
+        if(getProviders().containsKey(id))
         {
-            id = CrashWConflicts.getFreeId(CrashWConflicts.providers, getStaticProviderIDs(), id, provider.getClass().getName(), getProviders().get(id).getName());
+            id = CrashWConflicts.getFreeDimId(id, true, provider.getName(), getProviders().get(id).getName());
         }
         getProviders().put(id, provider);
         spawnSettings.put(id, keepLoaded);
@@ -116,7 +116,7 @@ public class DimensionManager
         }
         if (getDimensions().containsKey(id))
         {
-           id = CrashWConflicts.getFreeId(CrashWConflicts.dimensions, getStaticDimensionIDs(), id, "", "");
+           id = CrashWConflicts.getFreeDimId(id, false, null, null);
         }
         getDimensions().put(id, providerType);
         if (id >= 0)

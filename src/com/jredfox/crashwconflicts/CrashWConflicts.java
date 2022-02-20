@@ -13,9 +13,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import com.jredfox.crashwconflicts.tst.D;
-import com.jredfox.crashwconflicts.tst.E;
-
 import cpw.mods.fml.common.ITickHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.PostInit;
@@ -23,26 +20,24 @@ import cpw.mods.fml.common.Mod.PreInit;
 import cpw.mods.fml.common.TickType;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import cpw.mods.fml.common.registry.EntityRegistry;
 import cpw.mods.fml.common.registry.TickRegistry;
 import cpw.mods.fml.relauncher.Side;
 import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.enchantment.Enchantment;
-import net.minecraft.enchantment.EnchantmentProtection;
 import net.minecraft.entity.EntityList;
 import net.minecraft.item.Item;
 import net.minecraft.potion.Potion;
 import net.minecraft.util.ReportedException;
+import net.minecraft.world.WorldProvider;
 import net.minecraft.world.biome.BiomeGenBase;
-import net.minecraft.world.biome.BiomeGenOcean;
+import net.minecraftforge.common.DimensionManager;
 
 @Mod(modid = "crash-w-conflicts", name = "Crash With Conflicts", version = "1.0.0")
 public class CrashWConflicts implements ITickHandler{
 	
 	public static boolean hasConflicts;
-	public static Map<Integer, String> items = new HashMap();//TODO: change to Set
+	public static Map<Integer, String> items = new HashMap();
 	public static Map<Integer, String> blocks = new HashMap();
 	public static Map<Integer, String> biomes = new HashMap();
 	public static Map<Integer, String> enchantments = new HashMap();
@@ -55,8 +50,8 @@ public class CrashWConflicts implements ITickHandler{
 	@PreInit
 	public static void preInit(FMLPreInitializationEvent pi)
 	{
-//		//DimensionTest
-//		DimensionManager.registerDimension(0, 0);//TODO: finish up dimension/provider conflict handling
+		//DimensionTest
+//		DimensionManager.registerDimension(0, 0);
 //		DimensionManager.registerDimension(-1, -1);
 //		DimensionManager.registerProviderType(-1, WorldProvider.class, true);
 //		DimensionManager.registerProviderType(0, WorldProvider.class, true);
@@ -93,6 +88,20 @@ public class CrashWConflicts implements ITickHandler{
     			return i;
     	}
     	throw new RuntimeException("out of free ids!");
+	}
+	
+	public static int getFreeDimId(int id, boolean provider, String newreg, String oldreg)
+	{
+		CrashWConflicts.hasConflicts = true;
+		Map<Integer, String> conflicts = provider ? providers : dimensions;
+		String reg = provider ? (conflicts.containsKey(id) ? conflicts.get(id) + ", " + newreg : oldreg + ", " + newreg) : "";
+		conflicts.put(id, reg);
+		for(int i=-4096;i<4097;i++)
+		{
+			if(provider ? !DimensionManager.getProviders().contains(i) : !DimensionManager.getDimensions().contains(i))
+				return i;
+		}
+		throw new RuntimeException("out of free ids!");
 	}
 	
 	public static int getFreeEntId(Map<Integer, String> conflicts, Set<Integer> keySet, int id, String newreg, String oldreg) 
@@ -142,19 +151,19 @@ public class CrashWConflicts implements ITickHandler{
 			BufferedWriter fw = getWriter(new File(dir, "freeids-" + type + ".txt"));
 			
 			//hardcoded dim s***
-//			if(arr == null && index >= types.length - 2)
-//			{
-//				boolean isDim = index == types.length - 1;
-//				for(int j = -4096; j < 4097; j++)
-//				{
-//					if(isDim && !DimensionManager.getDimensions().keySet().contains(j) || !isDim && !DimensionManager.getProviders().keySet().contains(j))
-//					{	
-//						fw.write("" + j + " ");
-//						fw.flush();
-//					}
-//				}
-//				continue;
-//			}
+			if(arr == null && index >= types.length - 2)
+			{
+				boolean isDim = index == types.length - 1;
+				for(int j = -4096; j < 4097; j++)
+				{
+					if(isDim && !DimensionManager.getDimensions().keySet().contains(j) || !isDim && !DimensionManager.getProviders().keySet().contains(j))
+					{	
+						fw.write("" + j + " ");
+						fw.flush();
+					}
+				}
+				continue;
+			}
 			
 			if(arr == null)
 				continue;
@@ -212,7 +221,8 @@ public class CrashWConflicts implements ITickHandler{
 			BufferedWriter fw = getWriter(new File(dir, "conflicts-" + type + ".txt"));
 			for(Integer id : arr.keySet())
 			{
-				fw.write("" + (index == 0 ? (id - 256) : id) + " = " + arr.get(id) + System.lineSeparator());//ids for some reason are +256
+				String cfid = arr.get(id);
+				fw.write("" + (index == 0 ? (id - 256) : id) + (cfid.trim().isEmpty() ? "" : " = " + cfid) + System.lineSeparator());//ids for some reason are +256
 				fw.flush();
 			}
 			fw.close();
@@ -247,5 +257,4 @@ public class CrashWConflicts implements ITickHandler{
 	{
 		return this.getClass().getSimpleName();
 	}
-
 }
