@@ -29,8 +29,8 @@ import net.minecraft.entity.EntityList;
 import net.minecraft.item.Item;
 import net.minecraft.potion.Potion;
 import net.minecraft.util.ReportedException;
-import net.minecraft.world.WorldProvider;
 import net.minecraft.world.biome.BiomeGenBase;
+import net.minecraftforge.common.Configuration;
 import net.minecraftforge.common.DimensionManager;
 
 @Mod(modid = "crash-w-conflicts", name = "Crash With Conflicts", version = "1.0.0")
@@ -76,6 +76,11 @@ public class CrashWConflicts implements ITickHandler{
 	public static void postInit(FMLPostInitializationEvent pi)
 	{
 		dumpIds();
+//		for(int i=0;i<Item.itemsList.length;i++)
+//		{
+//			if(Item.itemsList[i] != null)
+//				System.out.println((i - 256) + " name:" + Item.itemsList[i].getUnlocalizedName());
+//		}
 	}
 	
 	public static <T> int getFreeId(Map<Integer, String> conflicts, T[] arr, int id, String newreg, String oldreg) 
@@ -113,7 +118,7 @@ public class CrashWConflicts implements ITickHandler{
     		if(!keySet.contains(i))
     			return i;
     	}
-    	return -1;
+    	throw new RuntimeException("out of free ids!");
 	}
 	
 	/**
@@ -171,8 +176,9 @@ public class CrashWConflicts implements ITickHandler{
 			int j = 0;
 			for(Object o : arr)
 			{
+				int num = index == 0 ? j - 256 : j;
 				if(o == null)
-					fw.write("" + j + " ");
+					fw.write("" + num + " ");
 				j++;
 			}
 			fw.close();
