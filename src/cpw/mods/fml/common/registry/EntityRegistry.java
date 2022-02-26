@@ -209,27 +209,7 @@ public class EntityRegistry
             FMLLog.warning("Compensating for modloader out of range compensation by mod : entityId %d for mod %s is now %d", id, Loader.instance().activeModContainer().getModId(), realId);
             realId += 3000;
         }
-
-        if (realId < 0)
-        {
-            realId += Byte.MAX_VALUE;
-        }
-        try
-        {
-            UnsignedBytes.checkedCast(realId);
-        }
-        catch (IllegalArgumentException e)
-        {
-            FMLLog.log(Level.SEVERE, "The entity ID %d for mod %s is not an unsigned byte and may not work", id, Loader.instance().activeModContainer().getModId());
-            throw new RuntimeException("crashing entity id out of bounds:" + id);
-        }
-
-        if (!availableIndicies.get(realId))
-        {
-            FMLLog.severe("The mod %s has attempted to register an entity ID %d which is already reserved. This could cause severe problems", Loader.instance().activeModContainer().getModId(), id);
-        }
-        availableIndicies.clear(realId);
-        return realId;
+        return EntityList.IDtoClassMapping.containsKey(realId) ? findGlobalUniqueEntityId() : realId;
     }
 
     public static void registerGlobalEntityID(Class <? extends Entity > entityClass, String entityName, int id, int backgroundEggColour, int foregroundEggColour)
@@ -314,14 +294,15 @@ public class EntityRegistry
         }
     }
 
+    public static int globalIndex = 255;
     public static int findGlobalUniqueEntityId()
     {
-        int res = instance().availableIndicies.nextSetBit(0);
-        if (res < 0)
-        {
-            throw new RuntimeException("No more entity indicies left");
-        }
-        return res;
+    	for(int i = 255 ; i>=0; i--)
+    	{
+    		if(!EntityList.IDtoClassMapping.containsKey(i))
+    			return i;
+    	}
+        throw new RuntimeException("EntityRegistry is out of free ids!");
     }
 
     public EntityRegistration lookupModSpawn(Class<? extends Entity> clazz, boolean keepLooking)

@@ -13,13 +13,17 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import com.jredfox.crashwconflicts.proxy.Proxy;
+
 import cpw.mods.fml.common.ITickHandler;
+import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.Mod;
-import cpw.mods.fml.common.Mod.PostInit;
 import cpw.mods.fml.common.Mod.PreInit;
+import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.TickType;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.TickRegistry;
 import cpw.mods.fml.relauncher.Side;
 import net.minecraft.block.Block;
@@ -30,10 +34,9 @@ import net.minecraft.item.Item;
 import net.minecraft.potion.Potion;
 import net.minecraft.util.ReportedException;
 import net.minecraft.world.biome.BiomeGenBase;
-import net.minecraftforge.common.Configuration;
 import net.minecraftforge.common.DimensionManager;
 
-@Mod(modid = "crash-w-conflicts", name = "Crash With Conflicts", version = "1.0.0")
+@Mod(modid = "crash-w-conflicts", name = "Crash With Conflicts", version = "1.0.1")
 public class CrashWConflicts implements ITickHandler{
 	
 	public static boolean hasConflicts;
@@ -46,6 +49,10 @@ public class CrashWConflicts implements ITickHandler{
 	public static Map<Integer, String> providers = new HashMap();
 	public static Map<Integer, String> dimensions = new HashMap();
 	public static String[] types = {"items", "blocks", "biomes", "enchantments", "potions", "entities", "providers", "dimensions"};//TE's are auto done and DataWatchers force crash if they do in fact conflict
+	public static int entId = 255;
+	public static File cwcDir = new File("data/crashwconflicts").getAbsoluteFile();
+	@SidedProxy(clientSide="com.jredfox.crashwconflicts.proxy.ClientProxy", serverSide="com.jredfox.crashwconflicts.proxy.Proxy")
+	public static Proxy proxy;
 	
 	@PreInit
 	public static void preInit(FMLPreInitializationEvent pi)
@@ -71,21 +78,11 @@ public class CrashWConflicts implements ITickHandler{
 //		new Potion(3, false, 400);
 		TickRegistry.registerTickHandler(new CrashWConflicts(), Side.CLIENT);
 	}
-
-	@PostInit
-	public static void postInit(FMLPostInitializationEvent pi)
-	{
-		dumpIds();
-//		for(int i=0;i<Item.itemsList.length;i++)
-//		{
-//			if(Item.itemsList[i] != null)
-//				System.out.println((i - 256) + " name:" + Item.itemsList[i].getUnlocalizedName());
-//		}
-	}
 	
 	public static <T> int getFreeId(Map<Integer, String> conflicts, T[] arr, int id, String newreg, String oldreg) 
 	{
     	CrashWConflicts.hasConflicts = true;
+		newreg = newreg + " mod:\"" + Loader.instance().activeModContainer().getModId() + "\"" +" modName:\"" + Loader.instance().activeModContainer().getName() + "\"";
     	conflicts.put((Integer)id, conflicts.containsKey(id) ? conflicts.get(id) + ", " + newreg : oldreg + ", " + newreg);
     	for(int i = arr.length-1; i>=0 ;i--)
     	{
@@ -98,6 +95,7 @@ public class CrashWConflicts implements ITickHandler{
 	public static int getFreeDimId(int id, boolean provider, String newreg, String oldreg)
 	{
 		CrashWConflicts.hasConflicts = true;
+		newreg = !provider ? "" : newreg + " mod:\"" + Loader.instance().activeModContainer().getModId() + "\"" +" modName:\"" + Loader.instance().activeModContainer().getName() + "\"";
 		Map<Integer, String> conflicts = provider ? providers : dimensions;
 		String reg = provider ? (conflicts.containsKey(id) ? conflicts.get(id) + ", " + newreg : oldreg + ", " + newreg) : "";
 		conflicts.put(id, reg);
@@ -112,8 +110,9 @@ public class CrashWConflicts implements ITickHandler{
 	public static int getFreeEntId(Map<Integer, String> conflicts, Set<Integer> keySet, int id, String newreg, String oldreg) 
 	{
     	CrashWConflicts.hasConflicts = true;
+		newreg = newreg + " mod:\"" + Loader.instance().activeModContainer().getModId() + "\"" +" modName:\"" + Loader.instance().activeModContainer().getName() + "\"";
     	conflicts.put((Integer)id, conflicts.containsKey(id) ? conflicts.get(id) + ", " + newreg : oldreg + ", " + newreg);
-    	for(int i = 255; i>=0; i--)
+    	for(int i = entId ; i>=0; i--)
     	{
     		if(!keySet.contains(i))
     			return i;
@@ -128,8 +127,11 @@ public class CrashWConflicts implements ITickHandler{
 	{
 		try 
 		{
+			long ms = System.currentTimeMillis();
+			cwcDir.mkdirs();
 			writeFreeIds();
 			writeConflicts(items, blocks, biomes, enchantments, potions, entities, providers, dimensions);
+			System.out.println("done dumpingIds:" + (System.currentTimeMillis() - ms) + "ms");
 		}
 		catch (IOException e)
 		{
@@ -139,6 +141,7 @@ public class CrashWConflicts implements ITickHandler{
 		if(hasConflicts)
 		{
 			CrashReport c = CrashReport.makeCrashReport(new RuntimeException("id conflict"), "minecraft cannot continue with id conflicts shutting down! reconfigure your modpack ;)");
+			proxy.displayCrash(c);
 			throw new ReportedException(c);
 		}
 		else
@@ -147,39 +150,38 @@ public class CrashWConflicts implements ITickHandler{
 	
 	public static void writeFreeIds() throws IOException
 	{
-		File dir = new File(new File("").getAbsoluteFile(), "crashwconflicts");
-		dir.mkdirs();
 		int index = 0;
 		for(String type : types)
 		{
 			Object[] arr = getArr(index);
-			BufferedWriter fw = getWriter(new File(dir, "freeids-" + type + ".txt"));
-			
-			//hardcoded dim s***
-			if(arr == null && index >= types.length - 2)
+			BufferedWriter fw = getWriter(new File(cwcDir, "freeids-" + type + ".txt"));
+			if(arr != null)
+			{
+				int j = 0;
+				for(Object o : arr)
+				{
+					int num = index == 0 ? j - 256 : j;
+					if(o == null)
+					{
+						fw.write("" + num + " ");
+						if(j % 400 == 0)
+							fw.flush();
+					}
+					j++;
+				}
+			}
+			else
 			{
 				boolean isDim = index == types.length - 1;
 				for(int j = -4096; j < 4097; j++)
 				{
-					if(isDim && !DimensionManager.getDimensions().keySet().contains(j) || !isDim && !DimensionManager.getProviders().keySet().contains(j))
+					if(isDim ? !DimensionManager.getDimensions().keySet().contains(j) : !DimensionManager.getProviders().keySet().contains(j))
 					{	
 						fw.write("" + j + " ");
-						fw.flush();
+						if(j % 400 == 0)
+							fw.flush();
 					}
 				}
-				continue;
-			}
-			
-			if(arr == null)
-				continue;
-			
-			int j = 0;
-			for(Object o : arr)
-			{
-				int num = index == 0 ? j - 256 : j;
-				if(o == null)
-					fw.write("" + num + " ");
-				j++;
 			}
 			fw.close();
 			index++;
@@ -201,7 +203,7 @@ public class CrashWConflicts implements ITickHandler{
 			case 4:
 				return Potion.potionTypes;
 			case 5:
-				return getArr(EntityList.IDtoClassMapping.keySet(), 256);
+				return getArr(EntityList.IDtoClassMapping.keySet(), entId + 1);
 			default:
 				return null;
 		}
@@ -218,18 +220,18 @@ public class CrashWConflicts implements ITickHandler{
 	
 	public static void writeConflicts(Map<Integer, String>... lists) throws IOException
 	{
-		File dir = new File(new File("").getAbsoluteFile(), "crashwconflicts");
-		dir.mkdirs();
 		int index = 0;
 		for(Map<Integer, String> arr : lists)
 		{
 			String type = types[index];
-			BufferedWriter fw = getWriter(new File(dir, "conflicts-" + type + ".txt"));
+			BufferedWriter fw = getWriter(new File(cwcDir, "conflicts-" + type + ".txt"));
+			int j = 0;
 			for(Integer id : arr.keySet())
 			{
 				String cfid = arr.get(id);
 				fw.write("" + (index == 0 ? (id - 256) : id) + (cfid.trim().isEmpty() ? "" : " = " + cfid) + System.lineSeparator());//ids for some reason are +256
-				fw.flush();
+				if(j++ % 100 == 0)
+					fw.flush();
 			}
 			fw.close();
 			index++;
@@ -244,14 +246,19 @@ public class CrashWConflicts implements ITickHandler{
 	@Override
 	public void tickStart(EnumSet<TickType> type, Object... tickData)
 	{
-		if(hasConflicts)
+		
+	}
+
+	public boolean firstTick = true;
+	@Override
+	public void tickEnd(EnumSet<TickType> type, Object... tickData) 
+	{
+		if(hasConflicts || firstTick)
 		{
+			firstTick = false;
 			dumpIds();
 		}
 	}
-
-	@Override
-	public void tickEnd(EnumSet<TickType> type, Object... tickData) {}
 
 	@Override
 	public EnumSet<TickType> ticks() {
