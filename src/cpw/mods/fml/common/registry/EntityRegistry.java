@@ -35,6 +35,7 @@ import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.primitives.UnsignedBytes;
 import com.google.common.primitives.UnsignedInteger;
+import com.jredfox.crashwconflicts.CrashWConflicts;
 
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.FMLLog;
@@ -196,11 +197,11 @@ public class EntityRegistry
             FMLLog.warning("The mod %s tried to register the entity class %s which was already registered - if you wish to override default naming for FML mod entities, register it here first", modId, entityClass);
             return;
         }
-        id = instance().validateAndClaimId(id);
+        id = instance().validateAndClaimId(id, entityClass);
         EntityList.addMapping(entityClass, entityName, id);
     }
 
-    private int validateAndClaimId(int id)
+    private int validateAndClaimId(int id, Class<? extends Entity> c)
     {
         // workaround for broken ML
         int realId = id;
@@ -209,7 +210,7 @@ public class EntityRegistry
             FMLLog.warning("Compensating for modloader out of range compensation by mod : entityId %d for mod %s is now %d", id, Loader.instance().activeModContainer().getModId(), realId);
             realId += 3000;
         }
-        return EntityList.IDtoClassMapping.containsKey(realId) ? findGlobalUniqueEntityId() : realId;
+        return EntityList.IDtoClassMapping.containsKey(realId) && !CrashWConflicts.isPassable(id, c) ? findGlobalUniqueEntityId() : realId;
     }
 
     public static void registerGlobalEntityID(Class <? extends Entity > entityClass, String entityName, int id, int backgroundEggColour, int foregroundEggColour)
@@ -229,7 +230,7 @@ public class EntityRegistry
             FMLLog.warning("The mod %s tried to register the entity class %s which was already registered - if you wish to override default naming for FML mod entities, register it here first", modId, entityClass);
             return;
         }
-        id = instance().validateAndClaimId(id);
+        id = instance().validateAndClaimId(id, entityClass);
         EntityList.addMapping(entityClass, entityName, id, backgroundEggColour, foregroundEggColour);
     }
 
@@ -294,10 +295,9 @@ public class EntityRegistry
         }
     }
 
-    public static int globalIndex = 255;
     public static int findGlobalUniqueEntityId()
     {
-    	for(int i = 255 ; i>=0; i--)
+    	for(int i = CrashWConflicts.entId ; i>=0; i--)
     	{
     		if(!EntityList.IDtoClassMapping.containsKey(i))
     			return i;

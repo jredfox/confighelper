@@ -22,6 +22,7 @@ public class ItemBlock extends Item
     {
         super(par1);
         this.blockID = this.itemID >= Block.blocksList.length ? 257 : this.itemID;//if itemId is > maxIndex then set it to 257
+        this.itemID = this.blockID;//adjust this for stupid code like ItemSlab
     }
 
     /**
@@ -39,6 +40,10 @@ public class ItemBlock extends Item
      */
     public int getSpriteNumber()
     {
+    	if(Block.blocksList[this.blockID] == null)
+    	{
+    		System.out.println("null blockid:" + this.blockID + " item:" + Item.itemsList[this.itemID] + " " + Block.blocksList[this.itemID]);
+    	}
         return Block.blocksList[this.blockID].getItemIconName() != null ? 1 : 0;
     }
 
@@ -194,7 +199,16 @@ public class ItemBlock extends Item
      */
     public String getUnlocalizedName()
     {
-        return Block.blocksList[this.blockID].getUnlocalizedName();
+    	try
+    	{
+    		return Block.blocksList[this.blockID].getUnlocalizedName();
+    	}
+    	catch(Exception e)
+    	{
+    		e.printStackTrace();
+    		System.out.println("block id has errored:" + this.blockID);
+    		return "tile.errored.name";
+    	}
     }
 
     @SideOnly(Side.CLIENT)

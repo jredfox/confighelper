@@ -17,6 +17,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.MapMaker;
 import com.google.common.collect.Multiset;
 import com.jredfox.crashwconflicts.CrashWConflicts;
+import com.jredfox.crashwconflicts.Passable;
 
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.FMLLog;
@@ -52,7 +53,7 @@ public class DimensionManager
     {
         if(getProviders().containsKey(id))
         {
-            id = CrashWConflicts.getFreeDimId(id, true, provider.getName(), getProviders().get(id).getName());
+            id = CrashWConflicts.getFreeDimId(true, id, provider, provider.getName(), getProviders().get(id).getName());
         }
         getProviders().put(id, provider);
         spawnSettings.put(id, keepLoaded);
@@ -116,7 +117,7 @@ public class DimensionManager
         }
         if (getDimensions().containsKey(id))
         {
-           id = CrashWConflicts.getFreeDimId(id, false, null, null);
+           id = CrashWConflicts.getFreeDimId(false, id, Passable.class, null, null);
         }
         getDimensions().put(id, providerType);
         if (id >= 0)

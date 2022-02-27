@@ -165,7 +165,7 @@ public abstract class BiomeGenBase
         this.worldGeneratorForest = new WorldGenForest(false);
         this.worldGeneratorSwamp = new WorldGenSwamp();
         if( biomeList[par1] != null)
-        	par1 = CrashWConflicts.getFreeId(CrashWConflicts.biomes, biomeList, par1, this.getClass().getName(), biomeList[par1].getClass().getName());
+        	par1 = CrashWConflicts.getFreeId(CrashWConflicts.biomes, biomeList, par1, this.getClass(), biomeList[par1].getClass().getName());
         this.biomeID = par1;
         
         biomeList[par1] = this;

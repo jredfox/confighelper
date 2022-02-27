@@ -41,13 +41,14 @@ public class ItemData {
 
     public ItemData(Item item, ModContainer mc)
     {
-        this.itemId = item instanceof ItemBlock ? (item.itemID >= Block.blocksList.length ? 257 : item.itemID) : item.itemID;
         if (item.getClass().equals(ItemBlock.class))
         {
+        	this.itemId = item.itemID >= Block.blocksList.length ? 257 : item.itemID;
         	this.itemType =  Block.blocksList[this.getItemId()].getClass().getName();
         }
         else
         {
+        	this.itemId = item.itemID;
             this.itemType = item.getClass().getName();
         }
         this.modId = mc.getModId();

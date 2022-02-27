@@ -10,10 +10,13 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import com.jredfox.crashwconflicts.proxy.Proxy;
+import com.jredfox.crashwconflicts.tst.D;
+import com.jredfox.crashwconflicts.tst.E;
 
 import cpw.mods.fml.common.ITickHandler;
 import cpw.mods.fml.common.Loader;
@@ -21,19 +24,22 @@ import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.PreInit;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.TickType;
-import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import cpw.mods.fml.common.registry.GameRegistry;
+import cpw.mods.fml.common.registry.EntityRegistry;
 import cpw.mods.fml.common.registry.TickRegistry;
 import cpw.mods.fml.relauncher.Side;
 import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.enchantment.Enchantment;
+import net.minecraft.enchantment.EnchantmentProtection;
 import net.minecraft.entity.EntityList;
 import net.minecraft.item.Item;
 import net.minecraft.potion.Potion;
 import net.minecraft.util.ReportedException;
 import net.minecraft.world.biome.BiomeGenBase;
+import net.minecraft.world.biome.BiomeGenOcean;
+import net.minecraftforge.common.Configuration;
 import net.minecraftforge.common.DimensionManager;
 
 @Mod(modid = "crash-w-conflicts", name = "Crash With Conflicts", version = "1.0.1")
@@ -48,16 +54,23 @@ public class CrashWConflicts implements ITickHandler{
 	public static Map<Integer, String> entities = new HashMap();
 	public static Map<Integer, String> providers = new HashMap();
 	public static Map<Integer, String> dimensions = new HashMap();
+	public static Set<Passable> passables = new HashSet();
 	public static String[] types = {"items", "blocks", "biomes", "enchantments", "potions", "entities", "providers", "dimensions"};//TE's are auto done and DataWatchers force crash if they do in fact conflict
-	public static int entId = 255;
-	public static File cwcDir = new File("data/crashwconflicts").getAbsoluteFile();
+	public static int entId = 127;
+	public static File cwcMain = new File("config/cwc").getAbsoluteFile();
+	public static File cwcDir = new File(cwcMain, "dumpIds");
 	@SidedProxy(clientSide="com.jredfox.crashwconflicts.proxy.ClientProxy", serverSide="com.jredfox.crashwconflicts.proxy.Proxy")
 	public static Proxy proxy;
 	
+	static
+	{
+		initCfg();//called in <clinit> to prevent other conflicts from happening in pre-init before this mod is loaded
+	}
+	
 	@PreInit
 	public static void preInit(FMLPreInitializationEvent pi)
-	{
-		//DimensionTest
+	{	
+//		//DimensionTest
 //		DimensionManager.registerDimension(0, 0);
 //		DimensionManager.registerDimension(-1, -1);
 //		DimensionManager.registerProviderType(-1, WorldProvider.class, true);
@@ -69,21 +82,57 @@ public class CrashWConflicts implements ITickHandler{
 //		new BiomeGenOcean(3);
 //		new EnchantmentProtection(1, 5, 1);
 //		new Potion(3, false, 400);
-//		EntityList.addMapping(E.class, "a", 14);
 //		EntityRegistry.registerGlobalEntityID(D.class, "a", 14);
+//		EntityList.addMapping(E.class, "a", 14);
 //		new Item(69).setUnlocalizedName("item.tst");
 //		new Block(1, Material.anvil).setUnlocalizedName("tile.tst");
 //		new BiomeGenOcean(3);
 //		new EnchantmentProtection(1, 5, 1);
 //		new Potion(3, false, 400);
+//		ItemBlock
 		TickRegistry.registerTickHandler(new CrashWConflicts(), Side.CLIENT);
 	}
-	
-	public static <T> int getFreeId(Map<Integer, String> conflicts, T[] arr, int id, String newreg, String oldreg) 
+
+	public static void initCfg()
 	{
+		Configuration cfg = new Configuration(new File(cwcMain, "cwc.cfg"));
+		cfg.load();
+		entId = cfg.get("global", "entityIdLimit", entId).getInt();
+		String[] arr = cfg.get("global", "passable", new String[0], "for dimensions use null as the class. Format=num:class:modid").getStringList();
+		for(String s : arr)
+		{
+			try
+			{
+				String[] parts = s.split(":");
+				String c = parts[1].trim();
+				passables.add(new Passable(Integer.parseInt(parts[0]), c.equals("null") ? Passable.class : Class.forName(parts[1]), parts[2]));
+			}
+			catch (Throwable t)
+			{
+				System.err.println("skipping passable:" + s);
+				t.printStackTrace();
+			}
+		}
+		if(cfg.hasChanged())
+			cfg.save();
+	}
+	
+	public static boolean isPassable(int id, Class<?> nc) 
+	{
+		boolean p = passables.contains(new Passable(id, nc, Loader.instance().activeModContainer().getModId()));
+		if(p)
+			System.out.println("skipping passable:" + id + " " + nc);
+		return p;
+	}
+
+	public static <T> int getFreeId(Map<Integer, String> conflicts, T[] arr, int id, Class<?> nc, String oldreg) 
+	{
+		if(isPassable(conflicts == CrashWConflicts.items ? id - 256 : id, nc))
+			return id;
     	CrashWConflicts.hasConflicts = true;
-		newreg = newreg + " mod:\"" + Loader.instance().activeModContainer().getModId() + "\"" +" modName:\"" + Loader.instance().activeModContainer().getName() + "\"";
-    	conflicts.put((Integer)id, conflicts.containsKey(id) ? conflicts.get(id) + ", " + newreg : oldreg + ", " + newreg);
+    	String newreg = nc.getName();
+		newreg = newreg + " modid:\"" + Loader.instance().activeModContainer().getModId() + "\"" +" modName:\"" + Loader.instance().activeModContainer().getName() + "\"";
+		conflicts.put((Integer)id, conflicts.containsKey(id) ? conflicts.get(id) + ", " + newreg : oldreg + ", " + newreg);
     	for(int i = arr.length-1; i>=0 ;i--)
     	{
     		if(arr[i] == null)
@@ -91,11 +140,13 @@ public class CrashWConflicts implements ITickHandler{
     	}
     	throw new RuntimeException("out of free ids!");
 	}
-	
-	public static int getFreeDimId(int id, boolean provider, String newreg, String oldreg)
+
+	public static int getFreeDimId(boolean provider, int id, Class<?> nc, String newreg, String oldreg)
 	{
+		if(isPassable(id, nc))
+			return id;
 		CrashWConflicts.hasConflicts = true;
-		newreg = !provider ? "" : newreg + " mod:\"" + Loader.instance().activeModContainer().getModId() + "\"" +" modName:\"" + Loader.instance().activeModContainer().getName() + "\"";
+		newreg = !provider ? "" : newreg + " modid:\"" + Loader.instance().activeModContainer().getModId() + "\"" +" modName:\"" + Loader.instance().activeModContainer().getName() + "\"";
 		Map<Integer, String> conflicts = provider ? providers : dimensions;
 		String reg = provider ? (conflicts.containsKey(id) ? conflicts.get(id) + ", " + newreg : oldreg + ", " + newreg) : "";
 		conflicts.put(id, reg);
@@ -107,10 +158,13 @@ public class CrashWConflicts implements ITickHandler{
 		throw new RuntimeException("out of free ids!");
 	}
 	
-	public static int getFreeEntId(Map<Integer, String> conflicts, Set<Integer> keySet, int id, String newreg, String oldreg) 
+	public static int getFreeEntId(Map<Integer, String> conflicts, Set<Integer> keySet, int id, Class<?> nc, String oldreg) 
 	{
+		if(isPassable(id, nc))
+			return id;
+		String newreg = nc.getName();
     	CrashWConflicts.hasConflicts = true;
-		newreg = newreg + " mod:\"" + Loader.instance().activeModContainer().getModId() + "\"" +" modName:\"" + Loader.instance().activeModContainer().getName() + "\"";
+		newreg = newreg + " modid:\"" + Loader.instance().activeModContainer().getModId() + "\"" +" modName:\"" + Loader.instance().activeModContainer().getName() + "\"";
     	conflicts.put((Integer)id, conflicts.containsKey(id) ? conflicts.get(id) + ", " + newreg : oldreg + ", " + newreg);
     	for(int i = entId ; i>=0; i--)
     	{
@@ -161,6 +215,11 @@ public class CrashWConflicts implements ITickHandler{
 				for(Object o : arr)
 				{
 					int num = index == 0 ? j - 256 : j;
+					if(num <= 0)
+					{
+						j++;
+						continue;//0 seems to be a reserved id everywhere so don't use it as a free id
+					}
 					if(o == null)
 					{
 						fw.write("" + num + " ");
