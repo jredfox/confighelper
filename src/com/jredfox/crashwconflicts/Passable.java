@@ -3,10 +3,10 @@ package com.jredfox.crashwconflicts;
 public class Passable {
 
 	public int id;
-	public Class<?> clazz;
+	public String clazz;
 	public String modid;
 	
-	public Passable(int id, Class<?> c, String mId)
+	public Passable(int id, String c, String mId)
 	{
 		this.id = id;
 		this.clazz = c;
