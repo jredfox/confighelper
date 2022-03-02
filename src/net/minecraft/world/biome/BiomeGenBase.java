@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Random;
 
 import com.jredfox.crashwconflicts.CrashWConflicts;
+import com.jredfox.util.RegTypes;
+import com.jredfox.util.RegUtils;
 
 import net.minecraft.block.Block;
 import net.minecraft.entity.EnumCreatureType;
@@ -147,6 +149,7 @@ public abstract class BiomeGenBase
 
     public BiomeGenBase(int par1)
     {
+    	RegUtils.registerOrgId(RegTypes.BIOMES, par1);
         this.topBlock = (byte)Block.grass.blockID;
         this.fillerBlock = (byte)Block.dirt.blockID;
         this.field_76754_C = 5169201;
@@ -165,7 +168,7 @@ public abstract class BiomeGenBase
         this.worldGeneratorForest = new WorldGenForest(false);
         this.worldGeneratorSwamp = new WorldGenSwamp();
         if( biomeList[par1] != null)
-        	par1 = CrashWConflicts.getFreeId(CrashWConflicts.biomes, biomeList, par1, this.getClass(), biomeList[par1].getClass().getName());
+        	par1 = CrashWConflicts.getFreeId(CrashWConflicts.biomes, biomeList, par1, this.getClass(), biomeList[par1].getClass());
         this.biomeID = par1;
         
         biomeList[par1] = this;

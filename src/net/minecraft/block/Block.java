@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Random;
 
 import com.jredfox.crashwconflicts.CrashWConflicts;
+import com.jredfox.util.RegTypes;
+import com.jredfox.util.RegUtils;
 
 import net.minecraft.block.material.Material;
 import net.minecraft.client.particle.EffectRenderer;
@@ -337,9 +339,10 @@ public class Block
         this.blockParticleGravity = 1.0F;
         this.slipperiness = 0.6F;
 
+        RegUtils.registerOrgId(RegTypes.BLOCKS, par1);
         if (blocksList[par1] != null)
         {
-        	par1 = CrashWConflicts.getFreeId(CrashWConflicts.blocks, blocksList, par1, this.getClass(), blocksList[par1].getClass().getName());
+        	par1 = CrashWConflicts.getFreeId(CrashWConflicts.blocks, blocksList, par1, this.getClass(), blocksList[par1].getClass());
 //            throw new IllegalArgumentException("Slot " + par1 + " is already occupied by " + blocksList[par1] + " when adding " + this);
         }
         this.blockMaterial = par2Material;

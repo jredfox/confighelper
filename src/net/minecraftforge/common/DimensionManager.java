@@ -18,6 +18,8 @@ import com.google.common.collect.MapMaker;
 import com.google.common.collect.Multiset;
 import com.jredfox.crashwconflicts.CrashWConflicts;
 import com.jredfox.crashwconflicts.Passable;
+import com.jredfox.util.RegTypes;
+import com.jredfox.util.RegUtils;
 
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.FMLLog;
@@ -51,6 +53,7 @@ public class DimensionManager
 
     public static boolean registerProviderType(int id, Class<? extends WorldProvider> provider, boolean keepLoaded)
     {
+    	RegUtils.registerOrgId(RegTypes.PROVIDERS, id);
         if(getProviders().containsKey(id))
         {
             id = CrashWConflicts.getFreeDimId(true, id, provider, provider.getName(), getProviders().get(id).getName());
@@ -115,6 +118,7 @@ public class DimensionManager
         {
             throw new IllegalArgumentException(String.format("Failed to register dimension for id %d, provider type %d does not exist", id, providerType));
         }
+        RegUtils.registerOrgId(RegTypes.DIMENSIONS, id);
         if (getDimensions().containsKey(id))
         {
            id = CrashWConflicts.getFreeDimId(false, id, Passable.class, null, null);

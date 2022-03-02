@@ -7,6 +7,8 @@ import java.util.Set;
 import java.util.logging.Level;
 
 import com.jredfox.crashwconflicts.CrashWConflicts;
+import com.jredfox.util.RegTypes;
+import com.jredfox.util.RegUtils;
 
 import cpw.mods.fml.common.FMLLog;
 import net.minecraft.entity.ai.EntityMinecartMobSpawner;
@@ -90,6 +92,7 @@ public class EntityList
      */
     public static void addMapping(Class par0Class, String par1Str, int par2)
     {
+    	RegUtils.registerOrgId(RegTypes.ENTITIES, par2);
     	if(IDtoClassMapping.containsKey((Integer)par2))
     		par2 = CrashWConflicts.getFreeEntId(CrashWConflicts.entities, (Set<Integer>)IDtoClassMapping.keySet(), par2, par0Class, ((Class)IDtoClassMapping.get(par2)).getName());
         stringToClassMapping.put(par1Str, par0Class);

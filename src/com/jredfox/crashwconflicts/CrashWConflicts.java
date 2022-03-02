@@ -6,8 +6,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.EnumSet;
@@ -17,6 +15,9 @@ import java.util.Map;
 import java.util.Set;
 
 import com.jredfox.crashwconflicts.proxy.Proxy;
+import com.jredfox.util.IdChunk;
+import com.jredfox.util.RegTypes;
+import com.jredfox.util.RegUtils;
 
 import cpw.mods.fml.common.ITickHandler;
 import cpw.mods.fml.common.Loader;
@@ -32,17 +33,19 @@ import net.minecraft.crash.CrashReport;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.EntityList;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.potion.Potion;
 import net.minecraft.util.ReportedException;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraftforge.common.Configuration;
 import net.minecraftforge.common.DimensionManager;
 
-@Mod(modid = "crash-w-conflicts", name = "Crash With Conflicts", version = "b30")
+@Mod(modid = "crash-w-conflicts", name = "Crash With Conflicts", version = "b31")
 public class CrashWConflicts implements ITickHandler{
 	
 	public static boolean hasConflicts;
 	public static Map<Integer, String> items = new HashMap();
+	public static Map<Integer, Boolean> itemBlockFlags = new HashMap();
 	public static Map<Integer, String> blocks = new HashMap();
 	public static Map<Integer, String> biomes = new HashMap();
 	public static Map<Integer, String> enchantments = new HashMap();
@@ -50,8 +53,15 @@ public class CrashWConflicts implements ITickHandler{
 	public static Map<Integer, String> entities = new HashMap();
 	public static Map<Integer, String> providers = new HashMap();
 	public static Map<Integer, String> dimensions = new HashMap();
+	public static Set<Integer> itemsOrg = new HashSet();
+	public static Set<Integer> blocksOrg = new HashSet();
+	public static Set<Integer> biomesOrg = new HashSet();
+	public static Set<Integer> enchantmentsOrg = new HashSet();
+	public static Set<Integer> potionsOrg = new HashSet();
+	public static Set<Integer> entitiesOrg = new HashSet();
+	public static Set<Integer> providersOrg = new HashSet();
+	public static Set<Integer> dimensionsOrg = new HashSet();
 	public static Set<Passable> passables = new HashSet();
-	public static String[] types = {"items", "blocks", "biomes", "enchantments", "potions", "entities", "providers", "dimensions"};//TE's are auto done and DataWatchers force crash if they do in fact conflict
 	public static int entId = 127;
 	public static boolean writeFreeIds;
 	public static boolean autocfg;
@@ -60,9 +70,10 @@ public class CrashWConflicts implements ITickHandler{
 	@SidedProxy(clientSide="com.jredfox.crashwconflicts.proxy.ClientProxy", serverSide="com.jredfox.crashwconflicts.proxy.Proxy")
 	public static Proxy proxy;
 	
-	static
+	public CrashWConflicts()
 	{
-		initCfg();//called in <clinit> to prevent other conflicts from happening in pre-init before this mod is loaded
+		initCfg();//called in mod's conctructor to prevent other conflicts from happening in pre-init before this mod is loaded. <clinit> can cause class initialization errors if the RegTypes's class isn't initialized yet
+		RegUtils.init();
 	}
 	
 	@PreInit
@@ -127,14 +138,16 @@ public class CrashWConflicts implements ITickHandler{
 		return p;
 	}
 
-	public static <T> int getFreeId(Map<Integer, String> conflicts, T[] arr, int id, Class<?> nc, String oldreg) 
+	public static <T> int getFreeId(Map<Integer, String> conflicts, T[] arr, int id, Class<?> nc, Class<?> oldreg) 
 	{
 		if(isPassable(conflicts == CrashWConflicts.items ? id - 256 : id, nc))
 			return id;
     	CrashWConflicts.hasConflicts = true;
     	String newreg = nc.getName();
+    	if(arr == Item.itemsList && (RegUtils.isClassExtending(ItemBlock.class, nc) || RegUtils.isClassExtending(ItemBlock.class, oldreg)))
+    		itemBlockFlags.put(id, true);
 		newreg = newreg + " modid:\"" + Loader.instance().activeModContainer().getModId() + "\"" +" modName:\"" + Loader.instance().activeModContainer().getName() + "\"";
-		conflicts.put((Integer)id, conflicts.containsKey(id) ? conflicts.get(id) + ", " + newreg : oldreg + ", " + newreg);
+		conflicts.put((Integer)id, conflicts.containsKey(id) ? conflicts.get(id) + ", " + newreg : oldreg.getName() + ", " + newreg);
     	for(int i = arr.length-1; i>=0 ;i--)
     	{
     		if(arr[i] == null)
@@ -152,7 +165,7 @@ public class CrashWConflicts implements ITickHandler{
 		Map<Integer, String> conflicts = provider ? providers : dimensions;
 		String reg = provider ? (conflicts.containsKey(id) ? conflicts.get(id) + ", " + newreg : oldreg + ", " + newreg) : "";
 		conflicts.put(id, reg);
-		for(int i=-4096;i<4097;i++)
+		for(int i=Short.MIN_VALUE;i<Short.MAX_VALUE;i++)
 		{
 			if(provider ? !DimensionManager.getProviders().contains(i) : !DimensionManager.getDimensions().contains(i))
 				return i;
@@ -168,14 +181,14 @@ public class CrashWConflicts implements ITickHandler{
     	CrashWConflicts.hasConflicts = true;
 		newreg = newreg + " modid:\"" + Loader.instance().activeModContainer().getModId() + "\"" +" modName:\"" + Loader.instance().activeModContainer().getName() + "\"";
     	conflicts.put((Integer)id, conflicts.containsKey(id) ? conflicts.get(id) + ", " + newreg : oldreg + ", " + newreg);
-    	for(int i = entId ; i>=0; i--)
+    	for(int i = RegUtils.getMax(RegTypes.ENTITIES) ; i>=0; i--)
     	{
     		if(!keySet.contains(i))
     			return i;
     	}
     	throw new RuntimeException("out of free ids!");
 	}
-	
+
 	/**
 	 * dump conflicts and free ids then crash the game
 	 */
@@ -187,7 +200,9 @@ public class CrashWConflicts implements ITickHandler{
 			cwcDir.mkdirs();
 			if(writeFreeIds)
 				writeFreeIds();
-			writeConflicts(items, blocks, biomes, enchantments, potions, entities, providers, dimensions);
+			writeConflicts(new RegTypes[]{
+					RegTypes.ITEMS, RegTypes.BLOCKS, RegTypes.BIOMES, RegTypes.ENCHANTMENTS, RegTypes.POTIONS, RegTypes.ENTITIES, RegTypes.PROVIDERS, RegTypes.DIMENSIONS},
+					items, blocks, biomes, enchantments, potions, entities, providers, dimensions);
 			System.out.println("done dumpingIds:" + (System.currentTimeMillis() - ms) + "ms");
 		}
 		catch (IOException e)
@@ -207,102 +222,42 @@ public class CrashWConflicts implements ITickHandler{
 	
 	public static void writeFreeIds() throws IOException
 	{
-		int index = 0;
-		for(String type : types)
+		for(RegTypes type : RegTypes.values())
 		{
-			Object[] arr = getArr(index);
-			BufferedWriter fw = getWriter(new File(cwcDir, "freeids-" + type + ".txt"));
-			if(arr != null)
+			int min = RegUtils.getMin(type);
+			int max = RegUtils.getMax(type);
+			Set<Integer> org = RegUtils.getOrgIds(type);
+			System.out.println(type + "" + " min:" + min + " max:" + max + org);
+			Set<IdChunk> chunky = IdChunk.configureAround(min, max, org);
+			BufferedWriter fw = RegUtils.getWriter(new File(cwcDir, "freeids-" + type.name().substring(0, 1) + type.name().toLowerCase().substring(1) + ".txt"));
+			int count = 0;
+			for(IdChunk chunk : chunky)
 			{
-				int j = 0;
-				for(Object o : arr)
-				{
-					int num = index == 0 ? j - 256 : j;
-					if(num <= 0)
-					{
-						j++;
-						continue;//0 seems to be a reserved id everywhere so don't use it as a free id
-					}
-					if(o == null)
-					{
-						fw.write("" + num + " ");
-						if(j % 400 == 0)
-							fw.flush();
-					}
-					j++;
-				}
-			}
-			else
-			{
-				boolean isDim = index == types.length - 1;
-				for(int j = -4096; j < 4097; j++)
-				{
-					if(isDim ? !DimensionManager.getDimensions().keySet().contains(j) : !DimensionManager.getProviders().keySet().contains(j))
-					{	
-						fw.write("" + j + " ");
-						if(j % 400 == 0)
-							fw.flush();
-					}
-				}
+				fw.write(chunk + System.lineSeparator());
+				if(count++ % 100 == 0)
+					fw.flush();
 			}
 			fw.close();
-			index++;
 		}
 	}
 	
-	private static Object[] getArr(int i)
-	{
-		switch (i)
-		{
-			case 0:
-				return Item.itemsList;
-			case 1:
-				return Block.blocksList;
-			case 2:
-				return BiomeGenBase.biomeList;
-			case 3:
-				return Enchantment.enchantmentsList;
-			case 4:
-				return Potion.potionTypes;
-			case 5:
-				return getArr(EntityList.IDtoClassMapping.keySet(), entId + 1);
-			default:
-				return null;
-		}
-	}
-
-	public static Object[] getArr(Collection<Integer> col, int size) 
-	{
-		Integer[] arr = new Integer[size];
-		for(Integer i : col)
-			if(i < arr.length)
-				arr[i] = (Integer)i;//take the index of the id and turn it into a non null object aka itself as a non free id
-		return arr;
-	}
-	
-	public static void writeConflicts(Map<Integer, String>... lists) throws IOException
+	public static void writeConflicts(RegTypes[] types, Map<Integer, String>... lists) throws IOException
 	{
 		int index = 0;
 		for(Map<Integer, String> arr : lists)
 		{
-			String type = types[index];
-			BufferedWriter fw = getWriter(new File(cwcDir, "conflicts-" + type + ".txt"));
+			BufferedWriter fw = RegUtils.getWriter(new File(cwcDir, "conflicts-" + types[index].name().toLowerCase() + ".txt"));
 			int j = 0;
 			for(Integer id : arr.keySet())
 			{
 				String cfid = arr.get(id);
-				fw.write("" + (index == 0 ? (id - 256) : id) + (cfid.trim().isEmpty() ? "" : " = " + cfid) + System.lineSeparator());//ids for some reason are +256
+				fw.write("" + (index == 0 ? (id - 256 + (itemBlockFlags.containsKey(id) ? " blockId:" + id : "")) : id) + (cfid.trim().isEmpty() ? "" : " = " + cfid) + System.lineSeparator());//ids for some reason are +256
 				if(j++ % 100 == 0)
 					fw.flush();
 			}
 			fw.close();
 			index++;
 		}
-	}
-
-	private static BufferedWriter getWriter(File f) throws FileNotFoundException
-	{
-		return new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f), StandardCharsets.UTF_8));
 	}
 
 	@Override

@@ -1,6 +1,8 @@
 package net.minecraft.potion;
 
 import com.jredfox.crashwconflicts.CrashWConflicts;
+import com.jredfox.util.RegTypes;
+import com.jredfox.util.RegUtils;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -87,8 +89,9 @@ public class Potion
 
     public Potion(int par1, boolean par2, int par3)
     {
+    	RegUtils.registerOrgId(RegTypes.POTIONS, par1);
         if(potionTypes[par1] != null)
-        	par1 = CrashWConflicts.getFreeId(CrashWConflicts.potions, potionTypes, par1, this.getClass(), potionTypes[par1].getClass().getName());
+        	par1 = CrashWConflicts.getFreeId(CrashWConflicts.potions, potionTypes, par1, this.getClass(), potionTypes[par1].getClass());
         this.id = par1;
         potionTypes[par1] = this;
         this.isBadEffect = par2;
