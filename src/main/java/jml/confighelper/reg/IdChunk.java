@@ -1,13 +1,12 @@
 package jml.confighelper.reg;
 
-import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-
-import com.google.common.base.Objects;
+import java.util.TreeSet;
 
 public class IdChunk {
 	
@@ -21,23 +20,29 @@ public class IdChunk {
 	}
 	
 	/**
-	 * used for configuring around ids rather then ranging through the ids
-	 * the Set(Integer) needs to be ordered from least to greatest
+	 * generates id chunks that are not found from inside the collection of numbers
 	 */
-	public static Set<IdChunk> configureAround(int min, int max, Set<Integer> ids)
+	public static Set<IdChunk> fromAround(int min, int max, Collection<Integer> ids)
 	{
-		Iterator<Integer> it = ids.iterator();
+		if(ids.isEmpty())
+			return Collections.EMPTY_SET;
+		if(!(ids instanceof TreeSet))
+			ids = new TreeSet(ids);
 		Set<IdChunk> chunks = new LinkedHashSet();
 		int minId = min;
 		int maxId = max;
-		while(it.hasNext())
+		for(Integer taken : ids)
 		{
-			int usedId = it.next();
-			maxId = usedId - 1;
+			if(taken < min)
+				continue;
+			else if(taken > max)
+				break;
+			maxId = taken - 1;
 			if(maxId >= minId)
 				chunks.add(new IdChunk(minId, maxId));
-			minId = usedId + 1;//reset min id for the next use
+			minId = taken + 1;//reset min id for the next use
 		}
+		//add the last chunk if applicable
 		if(minId <= max)
 		{
 			maxId = max;
@@ -47,54 +52,68 @@ public class IdChunk {
 	}
 	
 	/**
-	 * the Set(Integer) needs to be ordered from least to greatest
+	 * generates id chunks from ids inside the collection of numbers
 	 */
-	public static Set<IdChunk> configureRanges(Set<Integer> ids)
+	public static Set<IdChunk> from(Collection<Integer> ids)
 	{
-		List<IdChunk> chunks = new ArrayList();
-		int index;
-		for(Integer i : ids)
-		{
-			index = chunks.size() - 1;
-			if(index == -1)
-			{
-				chunks.add(new IdChunk(i, i));
-				continue;
-			}
-			IdChunk chunk = chunks.get(index);
-			if(chunk.maxId + 1 == i)
-			{
-				chunk.maxId++;
-			}
-			else
-			{
-				chunks.add(new IdChunk(i, i));
-			}
-		}
-		return new LinkedHashSet(chunks);
+		return from(Integer.MIN_VALUE, Integer.MAX_VALUE, ids);
 	}
 	
+	/**
+	 * generates id chunks from ids inside the collection of numbers
+	 */
+	public static Set<IdChunk> from(int min, int max, Collection<Integer> ids)
+	{
+		if(ids.isEmpty())
+			return Collections.EMPTY_SET;
+		if(!(ids instanceof TreeSet))
+			ids = new TreeSet(ids);
+		
+		LinkedHashSet<IdChunk> chunks = new LinkedHashSet();
+		TreeSet s = (TreeSet)ids;
+		IdChunk last = null;
+		for(Integer id : ids)
+		{
+			if(id < min)
+				continue;
+			else if(id > max)
+				break;//skip out of bounds ids
+			if(last != null && last.canAppend(id))
+			{
+				last.maxId = id;
+				continue;
+			}
+			IdChunk chunk = new IdChunk(id, id);
+			chunks.add(chunk);
+			last = chunk;
+		}
+		return chunks;
+	}
+	
+	public boolean canAppend(Integer id) 
+	{
+		return this.maxId + 1 == id || this.maxId == id;
+	}
+
 	@Override
 	public boolean equals(Object other)
 	{
 		if(!(other instanceof IdChunk))
 			return false;
 		IdChunk c = (IdChunk)other;
-		return this.minId == c.minId && this.maxId == c.maxId;
+		return this.minId == c.minId;
 	}
 	
 	@Override
 	public int hashCode()
 	{
-		return Objects.hashCode(this.minId, this.maxId);
+		return this.minId;
 	}
 	
 	@Override
 	public String toString()
-	{
-		if(this.minId == this.maxId)
-			return "id:(" + this.minId + ")";
-		return "id:(" + this.minId + " - " + this.maxId + ")"; 
+	{ 
+		return "id:(" + (this.minId == this.maxId ? this.minId : this.minId + " - " + this.maxId) + ")";
 	}
 
 }
