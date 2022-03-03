@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import com.jredfox.crashwconflicts.proxy.Proxy;
 import com.jredfox.util.IdChunk;
@@ -227,14 +228,13 @@ public class CrashWConflicts implements ITickHandler{
 			int min = RegUtils.getMin(type);
 			int max = RegUtils.getMax(type);
 			Set<Integer> org = RegUtils.getOrgIds(type);
-			System.out.println(type + "" + " min:" + min + " max:" + max + org);
-			Set<IdChunk> chunky = IdChunk.configureAround(min, max, org);
+			Set<IdChunk> chunky = IdChunk.fromAround(min, max, org);
 			BufferedWriter fw = RegUtils.getWriter(new File(cwcDir, "freeids-" + type.name().substring(0, 1) + type.name().toLowerCase().substring(1) + ".txt"));
 			int count = 0;
 			for(IdChunk chunk : chunky)
 			{
 				fw.write(chunk + System.lineSeparator());
-				if(count++ % 100 == 0)
+				if(count++ % 300 == 0)
 					fw.flush();
 			}
 			fw.close();
