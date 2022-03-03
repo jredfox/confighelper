@@ -30,6 +30,7 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.registry.TickRegistry;
 import cpw.mods.fml.relauncher.Side;
 import net.minecraft.block.Block;
+import net.minecraft.client.Minecraft;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.EntityList;
@@ -41,7 +42,7 @@ import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraftforge.common.Configuration;
 import net.minecraftforge.common.DimensionManager;
 
-@Mod(modid = "crash-w-conflicts", name = "Crash With Conflicts", version = "b31")
+@Mod(modid = "crash-w-conflicts", name = "Crash With Conflicts", version = "b32")
 public class CrashWConflicts implements ITickHandler{
 	
 	public static boolean hasConflicts;
@@ -109,7 +110,7 @@ public class CrashWConflicts implements ITickHandler{
 		cfg.load();
 		entId = cfg.get("global", "entityIdLimit", entId).getInt();
 		writeFreeIds = cfg.get("global", "writeFreeIds", true).getBoolean(true);
-//		autocfg = cfg.get("global", "auto-config", false).getBoolean(false);
+		autocfg = cfg.get("global", "autoConfig", false).getBoolean(false);
 		String[] arr = cfg.get("global", "passable", new String[0], "for dimensions use null as the class. Format=num:class:modid").getStringList();
 		for(String s : arr)
 		{
@@ -215,6 +216,7 @@ public class CrashWConflicts implements ITickHandler{
 		{
 			CrashReport c = CrashReport.makeCrashReport(new RuntimeException("id conflict"), "minecraft cannot continue with id conflicts shutting down! reconfigure your modpack ;)");
 			proxy.displayCrash(c);
+			isCrashing = true;
 			throw new ReportedException(c);
 		}
 		else
@@ -267,16 +269,20 @@ public class CrashWConflicts implements ITickHandler{
 	}
 
 	public boolean firstTick = true;
+	public static boolean isCrashing;
 	@Override
 	public void tickEnd(EnumSet<TickType> type, Object... tickData) 
 	{
 		if(hasConflicts || firstTick)
-		{
-			firstTick = false;
-			if(autocfg)
-				AutoConfig.autocfg();
-			dumpIds();
-		}
+			postLoad();
+	}
+
+	public void postLoad()
+	{
+		dumpIds();
+		if(autocfg)
+			new AutoConfig().load().run();
+		firstTick = false;
 	}
 
 	@Override

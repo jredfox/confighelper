@@ -8,15 +8,14 @@ import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import com.jredfox.crashwconflicts.CrashWConflicts;
 
 import net.minecraft.block.Block;
 import net.minecraft.enchantment.Enchantment;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.item.Item;
 import net.minecraft.potion.Potion;
@@ -36,6 +35,8 @@ public class RegUtils {
 	
 	public static <T> void registerOrgId(RegTypes type, int id) 
 	{
+		if(CrashWConflicts.isCrashing)
+			throw new RuntimeException("stop registering while crashing:" + type + " id:" + id);
 		getOrgIds(type).add(id);
 	}
 	
@@ -144,6 +145,39 @@ public class RegUtils {
 		for(int i : arr)
 			li.add(i);
 		return li;
+	}
+
+	public static void getDirFiles(File dir, Set<File> files, String ext, boolean blackList) 
+	{
+	    for (File file : dir.listFiles()) 
+	    {
+	    	boolean isType = blackList ? (!file.getName().endsWith(ext)) : (file.getName().endsWith(ext) || ext.equals("*") );
+	        if (file.isFile() && isType)
+	        {
+	            files.add(file);
+	        }
+	        else if (file.isDirectory()) 
+	        {
+	        	getDirFiles(file, files, ext, blackList);
+	        }
+	    }
+	}
+	
+	public static void getDirFiles(File dir, Set<File> files) 
+	{
+		getDirFiles(dir, files, "*", false);
+	}
+	
+	public static Set<File> getDirFiles(File dir, String ext)
+	{
+		Set<File> files = new HashSet();
+		if(!dir.isDirectory())
+		{
+			files.add(dir);
+			return files;
+		}
+		getDirFiles(dir, files, ext, false);
+		return files;
 	}
 
 }
