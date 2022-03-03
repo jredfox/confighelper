@@ -13,9 +13,8 @@ public class ClientProxy extends Proxy{
 	{
 		if(CrashWConflicts.isCrashing)
 			return;
-		Minecraft.getMinecraft().displayCrashReport(c);
 		CrashWConflicts.isCrashing = true;
-		throw new ReportedException(c);
+		Minecraft.getMinecraft().displayCrashReport(c);
 	}
 
 }

@@ -1,6 +1,8 @@
 package com.jredfox.crashwconflicts;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -13,6 +15,7 @@ import com.jredfox.util.RegTypes;
 import com.jredfox.util.RegUtils;
 
 import net.minecraft.crash.CrashReport;
+import net.minecraft.util.ReportedException;
 import net.minecraftforge.common.Configuration;
 import net.minecraftforge.common.Property;
 
@@ -51,12 +54,17 @@ public class AutoConfig {
 		}
 		
 		//parse the auto config data entries
-		String[] arr = cfg.get("autoconfig", "entries", new String[]{}, "the format is \"file.cfg;category:dataType\" To add more categories just append the \";category:dataType\"").getStringList();
+		String[] arr = cfg.get("autoconfig", "entries", new String[]{"\"root/config;item:itemId;block:blockId;biome:biomeId;biomes:biomeId\""}, "the format is \"file.cfg;category:dataType\" To add more categories just append the \";category:dataType\"").getStringList();
 		for(String s : arr)
 		{
 			s = s.substring(1, s.length() - 1).trim();
 			String[] vals = s.split(";");
 			File file = this.getFile(vals[0]);
+			if(!file.exists())
+			{
+				System.err.println("config entry is maulformed or contains an invalid file skipping. File:\"" + file.getAbsolutePath() + "\" config entry:" + s);
+				continue;
+			}
 			Cat[] cats = new Cat[vals.length - 1];
 			for(int i=1;i<vals.length;i++)
 			{
@@ -156,7 +164,7 @@ public class AutoConfig {
 		if(i > dt.range.maxId)
 		{
 			if(CrashWConflicts.proxy != null)
-				CrashWConflicts.proxy.displayCrash(new CrashReport("id limit exceeded", new RuntimeException("out of free ids for:" + dt.type)));
+				throw new ReportedException(new CrashReport("id limit exceeded", new RuntimeException("out of free ids for:" + dt.type)));
 			else if(!CrashWConflicts.isCrashing)
 				throw new RuntimeException("out of free ids for:" + dt.type);
 		}

@@ -42,7 +42,7 @@ import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraftforge.common.Configuration;
 import net.minecraftforge.common.DimensionManager;
 
-@Mod(modid = "crash-w-conflicts", name = "Crash With Conflicts", version = "b33")
+@Mod(modid = "crash-w-conflicts", name = "Crash With Conflicts", version = "b34")
 public class CrashWConflicts implements ITickHandler{
 	
 	public static boolean hasConflicts;
@@ -216,8 +216,6 @@ public class CrashWConflicts implements ITickHandler{
 		{
 			CrashReport c = CrashReport.makeCrashReport(new RuntimeException("id conflict"), "minecraft cannot continue with id conflicts shutting down! reconfigure your modpack ;)");
 			proxy.displayCrash(c);
-			isCrashing = true;
-			throw new ReportedException(c);
 		}
 		else
 			System.out.println("\n\n----> conflict free UwU\n");
