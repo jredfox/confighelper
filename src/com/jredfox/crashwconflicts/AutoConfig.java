@@ -1,10 +1,9 @@
 package com.jredfox.crashwconflicts;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +14,6 @@ import com.jredfox.util.RegTypes;
 import com.jredfox.util.RegUtils;
 
 import net.minecraft.crash.CrashReport;
-import net.minecraft.util.ReportedException;
 import net.minecraftforge.common.Configuration;
 import net.minecraftforge.common.Property;
 
@@ -24,6 +22,7 @@ public class AutoConfig {
 	public Map<String, DataTypeEntry> dataTypes = new HashMap();
 	public List<Config> cfgs = new ArrayList();
 	public List<File> blacklisted = new ArrayList();
+	public Set<String> done = new HashSet();
 	
 	public AutoConfig()
 	{
@@ -96,6 +95,7 @@ public class AutoConfig {
 		this.dataTypes.clear();
 		this.cfgs.clear();
 		this.blacklisted.clear();
+		this.done.clear();
 	}
 
 	/**
@@ -111,7 +111,7 @@ public class AutoConfig {
 			{
 				if(this.blacklisted.contains(f))
 				{
-					System.out.println("skipping blacklisted file:" + f);
+					System.out.println("skipping blf:" + f);
 					continue;
 				}
 				Configuration cfg = new Configuration(f);
@@ -121,7 +121,7 @@ public class AutoConfig {
 					DataTypeEntry dt = this.dataTypes.get(cat.dataType);
 					if(dt == null)
 					{
-						System.err.println("skipping null dataType:" + cat.dataType);
+						System.err.println("skipping NULL dataType:" + cat.dataType);
 						continue;
 					}
 					
@@ -129,6 +129,11 @@ public class AutoConfig {
 					{
 						for(String cn : cfg.getCategoryNames())
 						{
+							if(this.hasDone(f, cn))
+							{
+								System.out.println("skipping dupe cat:" + cn + " from:*");
+								continue;
+							}
 							for(Property p : cfg.getCategory(cn).values())
 							{
 								if(p.isIntValue())
@@ -138,6 +143,11 @@ public class AutoConfig {
 					}
 					else if(cfg.hasCategory(cat.cat))
 					{
+						if(hasDone(f, cat.cat))
+						{
+							System.out.println("skipping dupe cat:" + cat.cat + " from:" + cat.dataType);
+							continue;
+						}
 						for(Property p : cfg.getCategory(cat.cat).values())
 						{
 							if(p.isIntValue())
@@ -148,6 +158,12 @@ public class AutoConfig {
 				cfg.save();
 			}
 		}
+	}
+
+	public boolean hasDone(File f, String cn)
+	{
+		String catUri = f.getPath() + ";" + cn;
+		return !this.done.add(catUri);
 	}
 
 	public int nextId(DataTypeEntry dt) 
@@ -164,7 +180,7 @@ public class AutoConfig {
 		if(i > dt.range.maxId)
 		{
 			if(CrashWConflicts.proxy != null)
-				throw new ReportedException(new CrashReport("id limit exceeded", new RuntimeException("out of free ids for:" + dt.type)));
+				CrashWConflicts.proxy.displayCrash(new CrashReport("id limit exceeded", new RuntimeException("out of free ids for:" + dt.type)));
 			else if(!CrashWConflicts.isCrashing)
 				throw new RuntimeException("out of free ids for:" + dt.type);
 		}

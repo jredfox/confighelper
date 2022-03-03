@@ -1,5 +1,8 @@
 package com.jredfox.crashwconflicts.proxy;
 
+import java.awt.Color;
+import java.awt.Graphics;
+
 import com.jredfox.crashwconflicts.CrashWConflicts;
 
 import net.minecraft.client.Minecraft;
@@ -15,6 +18,7 @@ public class ClientProxy extends Proxy{
 			return;
 		CrashWConflicts.isCrashing = true;
 		Minecraft.getMinecraft().displayCrashReport(c);
+		throw new ReportedException(c);
 	}
 
 }
