@@ -258,7 +258,7 @@ public class Item
     public Item(int par1)
     {
     	par1 = 256 + par1;
-    	RegUtils.registerOrgId(RegTypes.ITEMS, par1);
+    	RegUtils.registerOrgId(RegTypes.ITEM, par1);
         if(itemsList[par1] != null)
         {
         	par1 = CrashWConflicts.getFreeId(CrashWConflicts.items, itemsList, par1, this.getClass(), itemsList[par1].getClass());

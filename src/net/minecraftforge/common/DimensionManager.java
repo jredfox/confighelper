@@ -53,7 +53,7 @@ public class DimensionManager
 
     public static boolean registerProviderType(int id, Class<? extends WorldProvider> provider, boolean keepLoaded)
     {
-    	RegUtils.registerOrgId(RegTypes.PROVIDERS, id);
+    	RegUtils.registerOrgId(RegTypes.PROVIDER, id);
         if(getProviders().containsKey(id))
         {
             id = CrashWConflicts.getFreeDimId(true, id, provider, provider.getName(), getProviders().get(id).getName());
@@ -118,7 +118,7 @@ public class DimensionManager
         {
             throw new IllegalArgumentException(String.format("Failed to register dimension for id %d, provider type %d does not exist", id, providerType));
         }
-        RegUtils.registerOrgId(RegTypes.DIMENSIONS, id);
+        RegUtils.registerOrgId(RegTypes.DIMENSION, id);
         if (getDimensions().containsKey(id))
         {
            id = CrashWConflicts.getFreeDimId(false, id, Passable.class, null, null);

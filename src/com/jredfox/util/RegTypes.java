@@ -1,13 +1,13 @@
 package com.jredfox.util;
 
 public enum RegTypes {
-	ITEMS, //Item
-	BLOCKS, //Block
+	ITEM, //Item
+	BLOCK, //Block
 	BLOCK_GEN, //Block
-	BIOMES, //BiomeGenBase 
-	ENCHANTMENTS, //Enchantment
-	POTIONS, //Potion
-	ENTITIES,  //EntityList
-	PROVIDERS, //DimensionManager
-	DIMENSIONS; //DimensionManager
+	BIOME, //BiomeGenBase 
+	ENCHANTMENT, //Enchantment
+	POTION, //Potion
+	ENTITY,  //EntityList
+	PROVIDER, //DimensionManager
+	DIMENSION; //DimensionManager
 }

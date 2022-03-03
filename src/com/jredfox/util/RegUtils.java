@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
+import java.lang.reflect.Array;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -28,6 +29,46 @@ import net.minecraftforge.common.DimensionManager;
  */
 public class RegUtils {
 	
+	/**
+	 * generated from 
+	 * for(RegTypes t : RegTypes.values())
+	 * 		System.out.println(t + "" + RegUtils.getOrgIds(t));
+	 */
+	public static final List<Integer> id_items = RegUtils.asArr(new int[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 2256, 2257, 2258, 2259, 2260, 2261, 2262, 2263, 2264, 2265, 2266, 2267, 256, 257, 258, 259, 260, 261, 262, 263, 264, 265, 266, 267, 268, 269, 270, 271, 272, 273, 274, 275, 276, 277, 278, 279, 280, 281, 282, 283, 284, 285, 286, 287, 288, 289, 290, 291, 292, 293, 294, 295, 296, 297, 298, 299, 300, 301, 302, 303, 304, 305, 306, 307, 308, 309, 310, 311, 312, 313, 314, 315, 316, 317, 318, 319, 320, 321, 322, 323, 324, 325, 326, 327, 328, 329, 330, 331, 332, 333, 334, 335, 336, 337, 338, 339, 340, 341, 342, 343, 344, 345, 346, 347, 348, 349, 350, 351, 352, 353, 354, 355, 356, 357, 358, 359, 360, 361, 362, 363, 364, 365, 366, 367, 368, 369, 370, 371, 372, 373, 374, 375, 376, 377, 378, 379, 380, 381, 382, 383, 384, 385, 386, 387, 388, 389, 390, 391, 392, 393, 394, 395, 396, 397, 398, 399, 400, 401, 402, 403, 404, 405, 406, 407, 408});
+	public static final List<Integer> id_blocks = RegUtils.asArr(new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158});
+	public static final List<Integer> id_biomes = RegUtils.asArr(new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22});
+	public static final List<Integer> id_enchantments = RegUtils.asArr(new int[]{0, 32, 1, 33, 2, 34, 3, 35, 4, 5, 6, 7, 16, 48, 17, 49, 18, 50, 19, 51, 20, 21});
+	public static final List<Integer> id_potions = RegUtils.asArr(new int[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20});
+	public static final List<Integer> id_entities = RegUtils.asArr(new int[]{1, 2, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 200, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 120});
+	public static final List<Integer> id_dimensions = RegUtils.asArr(new int[]{0, -1, 1});
+	public static final List<Integer> id_empty = new ArrayList(0);
+	
+	public static List<Integer> getVanillaIds(RegTypes type)
+	{
+		switch(type)
+		{
+			case ITEM:
+				return id_items;
+			case BLOCK:
+				return id_blocks;
+			case BLOCK_GEN:
+				return id_blocks;
+			case BIOME:
+				return id_biomes;
+			case ENCHANTMENT:
+				return id_enchantments;
+			case POTION:
+				return id_potions;
+			case ENTITY:
+				return id_entities;
+			case DIMENSION:
+				return id_dimensions;
+			case PROVIDER:
+				return id_dimensions;
+		}
+		return id_empty;
+	}
+	
 	public static boolean isClassExtending(Class<? extends Object> base, Class<? extends Object> toCompare) 
 	{
 		return base.isAssignableFrom(toCompare);
@@ -44,23 +85,23 @@ public class RegUtils {
 	{
 		switch(type)
 		{
-			case ITEMS:
+			case ITEM:
 				return Item.itemsList.length - 1;
-			case BLOCKS:
+			case BLOCK:
 				return Block.blocksList.length - 1;
 			case BLOCK_GEN:
 				return 255;
-			case BIOMES:
+			case BIOME:
 				return BiomeGenBase.biomeList.length - 1;
-			case ENCHANTMENTS:
+			case ENCHANTMENT:
 				return Enchantment.enchantmentsList.length - 1;
-			case POTIONS:
+			case POTION:
 				return Potion.potionTypes.length - 1;
-			case ENTITIES:
+			case ENTITY:
 				return CrashWConflicts.entId;
-			case PROVIDERS:
+			case PROVIDER:
 				return Integer.MAX_VALUE;
-			case DIMENSIONS:
+			case DIMENSION:
 				return Integer.MAX_VALUE;
 		}
 		return -1;
@@ -70,15 +111,15 @@ public class RegUtils {
 	{
 		switch(type)
 		{
-			case ITEMS:
+			case ITEM:
 				return Block.blocksList.length - 256;//avoid ItemBlocks as free ids it's -1 for length then +1 to start the index so no need to say -1 +1
-			case BLOCKS:
+			case BLOCK:
 				return 256;
 			case BLOCK_GEN:
 				return 0;
-			case PROVIDERS:
+			case PROVIDER:
 				return Integer.MIN_VALUE;
-			case DIMENSIONS:
+			case DIMENSION:
 				return Integer.MIN_VALUE;
 			default:
 				return 0;
@@ -103,23 +144,23 @@ public class RegUtils {
 	{
 		switch(type)
 		{
-			case ITEMS:
+			case ITEM:
 				return CrashWConflicts.itemsOrg;
-			case BLOCKS:
+			case BLOCK:
 				return CrashWConflicts.blocksOrg;
 			case BLOCK_GEN:
 				return CrashWConflicts.blocksOrg;
-			case BIOMES:
+			case BIOME:
 				return CrashWConflicts.biomesOrg;
-			case ENCHANTMENTS:
+			case ENCHANTMENT:
 				return CrashWConflicts.enchantmentsOrg;
-			case POTIONS:
+			case POTION:
 				return CrashWConflicts.potionsOrg;
-			case ENTITIES:
+			case ENTITY:
 				return CrashWConflicts.entitiesOrg;
-			case PROVIDERS:
+			case PROVIDER:
 				return CrashWConflicts.providersOrg;
-			case DIMENSIONS:
+			case DIMENSION:
 				return CrashWConflicts.dimensionsOrg;
 		}
 		return null;
@@ -178,6 +219,17 @@ public class RegUtils {
 		}
 		getDirFiles(dir, files, ext, false);
 		return files;
+	}
+
+	public static <T> T[] toArray(Collection<T> col, Class<T> clazz)
+	{
+	    T[] li = (T[]) Array.newInstance(clazz, col.size());
+	    int index = 0;
+	    for(T obj : col)
+	    {
+	        li[index++] = obj;
+	    }
+	    return li;
 	}
 
 }

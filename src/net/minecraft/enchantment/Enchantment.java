@@ -105,7 +105,7 @@ public abstract class Enchantment
 
     protected Enchantment(int par1, int par2, EnumEnchantmentType par3EnumEnchantmentType)
     {
-    	RegUtils.registerOrgId(RegTypes.ENCHANTMENTS, par1);
+    	RegUtils.registerOrgId(RegTypes.ENCHANTMENT, par1);
         this.weight = par2;
         this.type = par3EnumEnchantmentType;
         if (enchantmentsList[par1] != null)

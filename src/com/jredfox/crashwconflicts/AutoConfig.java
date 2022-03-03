@@ -3,6 +3,7 @@ package com.jredfox.crashwconflicts;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -11,6 +12,7 @@ import com.jredfox.util.IdChunk;
 import com.jredfox.util.RegTypes;
 import com.jredfox.util.RegUtils;
 
+import net.minecraft.crash.CrashReport;
 import net.minecraftforge.common.Configuration;
 import net.minecraftforge.common.Property;
 
@@ -30,25 +32,17 @@ public class AutoConfig {
 		clearOld();
 		Configuration cfg = new Configuration(new File(CrashWConflicts.cwcMain, "autoConfig.cfg"));
 		cfg.load();
-		//parse the data types
-		String[] defaultData = new String[]
-		{
-			"itemId:" + RegUtils.getMin(RegTypes.ITEMS) + ":" + RegUtils.getMax(RegTypes.ITEMS),
-			"blockId:" + RegUtils.getMin(RegTypes.BLOCKS) + ":" + RegUtils.getMax(RegTypes.BLOCKS),
-			"biomeId:" + RegUtils.getMin(RegTypes.BIOMES) + ":" + RegUtils.getMax(RegTypes.BIOMES),
-			"enchantmentId:" + RegUtils.getMin(RegTypes.ENCHANTMENTS) + ":" + RegUtils.getMax(RegTypes.ENCHANTMENTS),
-			"potionId:" + RegUtils.getMin(RegTypes.POTIONS) + ":" + RegUtils.getMax(RegTypes.POTIONS),
-			"entityId:" + RegUtils.getMin(RegTypes.ENTITIES) + ":" + RegUtils.getMax(RegTypes.ENTITIES),
-			"dimensionId:" + RegUtils.getMin(RegTypes.DIMENSIONS) + ":" + RegUtils.getMax(RegTypes.DIMENSIONS),
-			"providerId:" + RegUtils.getMin(RegTypes.PROVIDERS) + ":" + RegUtils.getMax(RegTypes.PROVIDERS),
-		};
-		String[] dataTypes = cfg.get("autoconfig", "dataTypes", defaultData).getStringList();
+		Set<String> defaultData = new LinkedHashSet();
+		for(RegTypes t : RegTypes.values())
+			defaultData.add(t.name().toLowerCase() + "Id:" + RegUtils.getMin(t) + ":" + RegUtils.getMax(t));
+		String[] dataTypes = cfg.get("autoconfig", "dataTypes", RegUtils.toArray(defaultData, String.class)).getStringList();
 		for(String line : dataTypes)
 		{
 			String[] vals = line.split(":");
 			String type = vals[0].toLowerCase().trim();
 			this.dataTypes.put(type, new DataTypeEntry(type, new IdChunk(Integer.parseInt(vals[1].trim()), Integer.parseInt(vals[2].trim()))));
 		}
+//		System.out.println(IdChunk.fromAround(0, Integer.MAX_VALUE, RegUtils.id_items));
 		
 		//add the blacklisted files for auto config not to touch
 		for(String s : cfg.get("autoconfig", "blacklisted", new String[]{"forge.cfg", "forgeChunkLoading.cfg"}).getStringList())
@@ -67,7 +61,7 @@ public class AutoConfig {
 			for(int i=1;i<vals.length;i++)
 			{
 				String[] catArr = vals[i].split(":");
-				String cat = catArr[0];
+				String cat = catArr[0].trim();
 				String dataType = catArr[1].trim();
 				Cat catObj = new Cat(cat, dataType);
 				cats[i - 1] = catObj;
@@ -91,8 +85,9 @@ public class AutoConfig {
 
 	public void clearOld()
 	{
-		dataTypes.clear();
-		cfgs.clear();
+		this.dataTypes.clear();
+		this.cfgs.clear();
+		this.blacklisted.clear();
 	}
 
 	/**
@@ -129,7 +124,7 @@ public class AutoConfig {
 							for(Property p : cfg.getCategory(cn).values())
 							{
 								if(p.isIntValue())
-									p.set(dt.index++);
+									p.set(this.nextId(dt));
 							}
 						}
 					}
@@ -138,7 +133,7 @@ public class AutoConfig {
 						for(Property p : cfg.getCategory(cat.cat).values())
 						{
 							if(p.isIntValue())
-								p.set(dt.index++);
+								p.set(this.nextId(dt));
 						}
 					}
 				}
@@ -147,19 +142,54 @@ public class AutoConfig {
 		}
 	}
 
+	public int nextId(DataTypeEntry dt) 
+	{
+		List<Integer> vanilla = RegUtils.getVanillaIds(dt.regType);
+		while(vanilla.contains(dt.index))
+			dt.index++;
+		this.checkId(dt.index, dt);
+		return dt.index++;//return the result and then increment dt.index by one for next use
+	}
+
+	public void checkId(int i, DataTypeEntry dt)
+	{
+		if(i > dt.range.maxId)
+		{
+			if(CrashWConflicts.proxy != null)
+				CrashWConflicts.proxy.displayCrash(new CrashReport("id limit exceeded", new RuntimeException("out of free ids for:" + dt.type)));
+			else if(!CrashWConflicts.isCrashing)
+				throw new RuntimeException("out of free ids for:" + dt.type);
+		}
+	}
+
 	public class DataTypeEntry
 	{
 		public String type;
 		public IdChunk range;
 		public int index;
+		public RegTypes regType;//vanilla data types only
 		
 		public DataTypeEntry(String type, IdChunk chunk)
 		{
 			this.type = type;
+			this.regType = this.getRegType(type);
 			this.range = chunk;
 			this.index = chunk.minId;
 		}
 		
+		public RegTypes getRegType(String type)
+		{
+			try
+			{
+				return RegTypes.valueOf(type.toUpperCase().substring(0, type.length() - 2));
+			}
+			catch(Throwable t)
+			{
+				System.err.println("NULL DataType for:\"" + type.toUpperCase() + "\" Vanilla ids won't work on this DataType!");
+				return null;
+			}
+		}
+
 		@Override
 		public String toString()
 		{

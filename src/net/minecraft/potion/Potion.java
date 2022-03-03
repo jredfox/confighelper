@@ -89,7 +89,7 @@ public class Potion
 
     public Potion(int par1, boolean par2, int par3)
     {
-    	RegUtils.registerOrgId(RegTypes.POTIONS, par1);
+    	RegUtils.registerOrgId(RegTypes.POTION, par1);
         if(potionTypes[par1] != null)
         	par1 = CrashWConflicts.getFreeId(CrashWConflicts.potions, potionTypes, par1, this.getClass(), potionTypes[par1].getClass());
         this.id = par1;

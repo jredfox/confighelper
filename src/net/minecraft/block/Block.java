@@ -339,7 +339,7 @@ public class Block
         this.blockParticleGravity = 1.0F;
         this.slipperiness = 0.6F;
 
-        RegUtils.registerOrgId(RegTypes.BLOCKS, par1);
+        RegUtils.registerOrgId(RegTypes.BLOCK, par1);
         if (blocksList[par1] != null)
         {
         	par1 = CrashWConflicts.getFreeId(CrashWConflicts.blocks, blocksList, par1, this.getClass(), blocksList[par1].getClass());

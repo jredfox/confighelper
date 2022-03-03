@@ -42,7 +42,7 @@ import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraftforge.common.Configuration;
 import net.minecraftforge.common.DimensionManager;
 
-@Mod(modid = "crash-w-conflicts", name = "Crash With Conflicts", version = "b32")
+@Mod(modid = "crash-w-conflicts", name = "Crash With Conflicts", version = "b33")
 public class CrashWConflicts implements ITickHandler{
 	
 	public static boolean hasConflicts;
@@ -183,7 +183,7 @@ public class CrashWConflicts implements ITickHandler{
     	CrashWConflicts.hasConflicts = true;
 		newreg = newreg + " modid:\"" + Loader.instance().activeModContainer().getModId() + "\"" +" modName:\"" + Loader.instance().activeModContainer().getName() + "\"";
     	conflicts.put((Integer)id, conflicts.containsKey(id) ? conflicts.get(id) + ", " + newreg : oldreg + ", " + newreg);
-    	for(int i = RegUtils.getMax(RegTypes.ENTITIES) ; i>=0; i--)
+    	for(int i = RegUtils.getMax(RegTypes.ENTITY) ; i>=0; i--)
     	{
     		if(!keySet.contains(i))
     			return i;
@@ -203,7 +203,7 @@ public class CrashWConflicts implements ITickHandler{
 			if(writeFreeIds)
 				writeFreeIds();
 			writeConflicts(new RegTypes[]{
-					RegTypes.ITEMS, RegTypes.BLOCKS, RegTypes.BIOMES, RegTypes.ENCHANTMENTS, RegTypes.POTIONS, RegTypes.ENTITIES, RegTypes.PROVIDERS, RegTypes.DIMENSIONS},
+					RegTypes.ITEM, RegTypes.BLOCK, RegTypes.BIOME, RegTypes.ENCHANTMENT, RegTypes.POTION, RegTypes.ENTITY, RegTypes.PROVIDER, RegTypes.DIMENSION},
 					items, blocks, biomes, enchantments, potions, entities, providers, dimensions);
 			System.out.println("done dumpingIds:" + (System.currentTimeMillis() - ms) + "ms");
 		}
