@@ -24,7 +24,7 @@ public class AutoConfig {
 	public List<Config> cfgs = new ArrayList();
 	public List<File> blacklisted = new ArrayList();
 	public Set<String> done = new HashSet();
-	public boolean useMaxIds;
+	public static boolean useMaxIds;
 	
 	public AutoConfig()
 	{

@@ -43,6 +43,32 @@ public class RegUtils {
 	public static final List<Integer> id_dimensions = RegUtils.asArr(new int[]{0, -1, 1});
 	public static final List<Integer> id_empty = new ArrayList(0);
 	
+//	public static <T> T[] getArr(RegTypes type)
+//	{
+//		switch(type)
+//		{
+//			case ITEM:
+//				return (T[]) Item.itemsList;
+//			case BLOCK:
+//				return (T[]) Block.blocksList;
+//			case BLOCK_GEN:
+//				return (T[]) Block.blocksList;
+//			case BIOME:
+//				return (T[]) BiomeGenBase.biomeList;
+//			case ENCHANTMENT:
+//				return (T[]) Enchantment.enchantmentsList;
+//			case POTION:
+//				return (T[]) Potion.potionTypes;
+//			case ENTITY:
+//				return (T[]) toArray(EntityList.IDtoClassMapping.keySet(), Integer.class);
+//			case DIMENSION:
+//				return (T[]) DimensionManager.getStaticDimensionIDs();
+//			case PROVIDER:
+//				return (T[]) DimensionManager.getStaticProviderIDs();//TODO: make this cached for AutoConfig
+//		}
+//		return null;
+//	}
+	
 	public static List<Integer> getVanillaIds(RegTypes type)
 	{
 		switch(type)
