@@ -1,0 +1,10 @@
+fix ghost conflicts by auto-reassigning captured conflict ids
+add blacklist for directory as a feature
+auto gen ids for blocks / items
+
+test:
+id chunks in memory grabbing starts at min
+forge config works
+configuration works
+verify that the autoconfig fully works
+
