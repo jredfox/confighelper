@@ -13,6 +13,7 @@ import com.jredfox.util.IdChunk;
 import com.jredfox.util.RegTypes;
 import com.jredfox.util.RegUtils;
 
+import cpw.mods.fml.common.FMLLog;
 import net.minecraft.crash.CrashReport;
 import net.minecraftforge.common.Configuration;
 import net.minecraftforge.common.Property;
@@ -23,6 +24,7 @@ public class AutoConfig {
 	public List<Config> cfgs = new ArrayList();
 	public List<File> blacklisted = new ArrayList();
 	public Set<String> done = new HashSet();
+	public boolean useMaxIds;
 	
 	public AutoConfig()
 	{
@@ -34,6 +36,7 @@ public class AutoConfig {
 		clearOld();
 		Configuration cfg = new Configuration(new File(CrashWConflicts.cwcMain, "autoConfig.cfg"));
 		cfg.load();
+		useMaxIds = cfg.get("autoconfig", "useMaxIdAlgorithm", true).getBoolean(true);
 		Set<String> defaultData = new LinkedHashSet();
 		for(RegTypes t : RegTypes.values())
 			defaultData.add(t.name().toLowerCase() + "Id:" + RegUtils.getMin(t) + ":" + RegUtils.getMax(t));
@@ -103,6 +106,7 @@ public class AutoConfig {
 	 */
 	public void run() 
 	{
+		long ms = System.currentTimeMillis();
 		for(Config cfgObj : this.cfgs)
 		{
 			Set<File> files = RegUtils.getDirFiles(cfgObj.cfgFile.getAbsoluteFile(), ".cfg");
@@ -114,8 +118,13 @@ public class AutoConfig {
 					System.out.println("skipping blf:" + f);
 					continue;
 				}
-				Configuration cfg = new Configuration(f);
-				cfg.load();
+				Configuration cfg = this.getConfiguration(f);
+				if(cfg == null)
+				{
+					FMLLog.warning("maulformed config skipping:%s", f);
+					continue;
+				}
+				
 				for(Cat cat : cfgObj.cats)
 				{
 					DataTypeEntry dt = this.dataTypes.get(cat.dataType);
@@ -158,6 +167,21 @@ public class AutoConfig {
 				cfg.save();
 			}
 		}
+		System.out.println("AutoConfig completed in:" + (System.currentTimeMillis() - ms) + "ms");
+	}
+
+	public Configuration getConfiguration(File f) 
+	{
+		try
+		{
+			Configuration cfg = new Configuration(f);
+			cfg.load();
+			return cfg;
+		}
+		catch(Throwable t)
+		{
+			return null;
+		}
 	}
 
 	public boolean hasDone(File f, String cn)
@@ -168,16 +192,27 @@ public class AutoConfig {
 
 	public int nextId(DataTypeEntry dt) 
 	{
-		List<Integer> vanilla = RegUtils.getVanillaIds(dt.regType);
-		while(vanilla.contains(dt.index))
-			dt.index++;
-		this.checkId(dt.index, dt);
-		return dt.index++;//return the result and then increment dt.index by one for next use
+		if(!useMaxIds)
+		{
+			List<Integer> vanilla = RegUtils.getVanillaIds(dt.regType);
+			while(vanilla.contains(dt.index))
+				dt.index++;
+			this.checkId(dt.index, dt);
+			return dt.index++;//return the result and then increment dt.index by one for next use
+		}
+		else
+		{
+			List<Integer> vanilla = RegUtils.getVanillaIds(dt.regType);
+			while(vanilla.contains(dt.index))
+				dt.index--;
+			this.checkId(dt.index, dt);
+			return dt.index--;//return the result and then increment dt.index by one for next use
+		}
 	}
 
 	public void checkId(int i, DataTypeEntry dt)
 	{
-		if(i > dt.range.maxId)
+		if(i > dt.range.maxId || i < dt.range.minId)
 		{
 			if(CrashWConflicts.proxy != null)
 				CrashWConflicts.proxy.displayCrash(new CrashReport("id limit exceeded", new RuntimeException("out of free ids for:" + dt.type)));
@@ -198,7 +233,7 @@ public class AutoConfig {
 			this.type = type;
 			this.regType = this.getRegType(type);
 			this.range = chunk;
-			this.index = chunk.minId;
+			this.index = useMaxIds ? chunk.maxId : chunk.minId;
 		}
 		
 		public RegTypes getRegType(String type)

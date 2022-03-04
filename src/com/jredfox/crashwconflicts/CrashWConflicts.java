@@ -42,7 +42,7 @@ import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraftforge.common.Configuration;
 import net.minecraftforge.common.DimensionManager;
 
-@Mod(modid = "crash-w-conflicts", name = "Crash With Conflicts", version = "b37")
+@Mod(modid = "crash-w-conflicts", name = "Crash With Conflicts", version = "b42")
 public class CrashWConflicts implements ITickHandler{
 	
 	public static boolean hasConflicts;
@@ -88,7 +88,7 @@ public class CrashWConflicts implements ITickHandler{
 //		DimensionManager.registerProviderType(0, WorldProvider.class, true);
 		
 		//conflict test
-//		new Item(69).setUnlocalizedName("item.tst");
+//		new Item(RegUtils.getMax(RegTypes.ITEM)).setUnlocalizedName("item.tst");
 //		new Block(1, Material.anvil).setUnlocalizedName("tile.tst");
 //		new BiomeGenOcean(3);
 //		new EnchantmentProtection(1, 5, 1);
@@ -246,7 +246,8 @@ public class CrashWConflicts implements ITickHandler{
 		int index = 0;
 		for(Map<Integer, String> arr : lists)
 		{
-			BufferedWriter fw = RegUtils.getWriter(new File(cwcDir, "conflicts-" + types[index].name().toLowerCase() + ".txt"));
+			RegTypes type = types[index];
+			BufferedWriter fw = RegUtils.getWriter(new File(cwcDir, "conflicts-" + type.name().substring(0, 1) + type.name().toLowerCase().substring(1) + ".txt"));
 			int j = 0;
 			for(Integer id : arr.keySet())
 			{
@@ -277,9 +278,9 @@ public class CrashWConflicts implements ITickHandler{
 
 	public void postLoad()
 	{
-		dumpIds();
 		if(autocfg)
 			new AutoConfig().load().run();
+		dumpIds();
 		firstTick = false;
 	}
 

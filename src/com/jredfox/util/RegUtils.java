@@ -86,7 +86,7 @@ public class RegUtils {
 		switch(type)
 		{
 			case ITEM:
-				return Item.itemsList.length - 1;
+				return Item.itemsList.length - 257;//256 + 1 itemdiff + 1 index diff
 			case BLOCK:
 				return Block.blocksList.length - 1;
 			case BLOCK_GEN:
