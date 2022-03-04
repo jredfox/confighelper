@@ -42,6 +42,7 @@ public class RegUtils {
 	public static final List<Integer> id_entities = RegUtils.asArr(new int[]{1, 2, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 200, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 120});
 	public static final List<Integer> id_dimensions = RegUtils.asArr(new int[]{0, -1, 1});
 	public static final List<Integer> id_empty = new ArrayList(0);
+	public static final int ITEM_SHIFT = 256;
 	
 //	public static <T> T[] getArr(RegTypes type)
 //	{
@@ -107,12 +108,39 @@ public class RegUtils {
 		getOrgIds(type).add(id);
 	}
 	
+	public static int getMin(RegTypes type)
+	{
+		return getMin(type, false);
+	}
+	
 	public static int getMax(RegTypes type)
+	{
+		return getMax(type, false);
+	}
+	
+	public static int getMin(RegTypes type, boolean unshifted) 
 	{
 		switch(type)
 		{
 			case ITEM:
-				return Item.itemsList.length - 257;//256 + 1 itemdiff + 1 index diff
+				return unshifted ? Block.blocksList.length : Block.blocksList.length - ITEM_SHIFT;//avoid ItemBlocks as free ids it's -1 for length then +1 to start the index so no need to say -1 +1
+			case BLOCK:
+				return 256;
+			case PROVIDER:
+				return Integer.MIN_VALUE;
+			case DIMENSION:
+				return Integer.MIN_VALUE;
+			default:
+				return 0;
+		}
+	}
+	
+	public static int getMax(RegTypes type, boolean unshifted)
+	{
+		switch(type)
+		{
+			case ITEM:
+				return unshifted ? Item.itemsList.length - 1 : Item.itemsList.length - (ITEM_SHIFT + 1);
 			case BLOCK:
 				return Block.blocksList.length - 1;
 			case BLOCK_GEN:
@@ -132,24 +160,10 @@ public class RegUtils {
 		}
 		return -1;
 	}
-
-	public static int getMin(RegTypes type) 
+	
+	public static IdChunk unshiftIdChunk(RegTypes type, IdChunk chunk)
 	{
-		switch(type)
-		{
-			case ITEM:
-				return Block.blocksList.length - 256;//avoid ItemBlocks as free ids it's -1 for length then +1 to start the index so no need to say -1 +1
-			case BLOCK:
-				return 256;
-			case BLOCK_GEN:
-				return 0;
-			case PROVIDER:
-				return Integer.MIN_VALUE;
-			case DIMENSION:
-				return Integer.MIN_VALUE;
-			default:
-				return 0;
-		}
+		return type == RegTypes.ITEM ? new IdChunk(chunk.minId - ITEM_SHIFT, chunk.maxId - ITEM_SHIFT) : chunk;
 	}
 
 	public static Object[] getArr(Collection<Integer> col, int size) 

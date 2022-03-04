@@ -24,7 +24,7 @@ public class AutoConfig {
 	public List<Config> cfgs = new ArrayList();
 	public List<File> blacklisted = new ArrayList();
 	public Set<String> done = new HashSet();
-	public static boolean useMaxIds;
+	public boolean useMaxIds;
 	
 	public AutoConfig()
 	{
@@ -47,7 +47,6 @@ public class AutoConfig {
 			String type = vals[0].toLowerCase().trim();
 			this.dataTypes.put(type, new DataTypeEntry(type, new IdChunk(Integer.parseInt(vals[1].trim()), Integer.parseInt(vals[2].trim()))));
 		}
-//		System.out.println(IdChunk.fromAround(0, Integer.MAX_VALUE, RegUtils.id_items));
 		
 		//add the blacklisted files for auto config not to touch
 		for(String s : cfg.get("autoconfig", "blacklisted", new String[]{"forge.cfg", "forgeChunkLoading.cfg"}).getStringList())

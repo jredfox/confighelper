@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import com.jredfox.crashwconflicts.cfg.ForgeConfig;
 import com.jredfox.crashwconflicts.proxy.Proxy;
 import com.jredfox.util.IdChunk;
 import com.jredfox.util.RegTypes;
@@ -72,10 +73,9 @@ public class CrashWConflicts implements ITickHandler{
 	@SidedProxy(clientSide="com.jredfox.crashwconflicts.proxy.ClientProxy", serverSide="com.jredfox.crashwconflicts.proxy.Proxy")
 	public static Proxy proxy;
 	
-	public CrashWConflicts()
+	static
 	{
 		initCfg();//called in mod's conctructor to prevent other conflicts from happening in pre-init before this mod is loaded. <clinit> can cause class initialization errors if the RegTypes's class isn't initialized yet
-		RegUtils.init();
 	}
 	
 	@PreInit
@@ -101,12 +101,13 @@ public class CrashWConflicts implements ITickHandler{
 //		new EnchantmentProtection(1, 5, 1);
 //		new Potion(3, false, 400);
 //		ItemBlock
+		RegUtils.init();
 		TickRegistry.registerTickHandler(new CrashWConflicts(), Side.CLIENT);
 	}
 
 	public static void initCfg()
 	{
-		Configuration cfg = new Configuration(new File(cwcMain, "cwc.cfg"));
+		ForgeConfig cfg = new ForgeConfig(new File(cwcMain, "cwc.cfg"));
 		cfg.load();
 		entId = cfg.get("global", "entityIdLimit", entId).getInt();
 		writeFreeIds = cfg.get("global", "writeFreeIds", true).getBoolean(true);
@@ -225,15 +226,15 @@ public class CrashWConflicts implements ITickHandler{
 	{
 		for(RegTypes type : RegTypes.values())
 		{
-			int min = RegUtils.getMin(type);
-			int max = RegUtils.getMax(type);
+			int min = RegUtils.getMin(type, true);
+			int max = RegUtils.getMax(type, true);
 			Set<Integer> org = RegUtils.getOrgIds(type);
 			Set<IdChunk> chunky = IdChunk.fromAround(min, max, org);
 			BufferedWriter fw = RegUtils.getWriter(new File(cwcDir, "freeids-" + type.name().substring(0, 1) + type.name().toLowerCase().substring(1) + ".txt"));
 			int count = 0;
 			for(IdChunk chunk : chunky)
 			{
-				fw.write(chunk + System.lineSeparator());
+				fw.write(RegUtils.unshiftIdChunk(type, chunk) + System.lineSeparator());
 				if(count++ % 300 == 0)
 					fw.flush();
 			}
@@ -252,7 +253,7 @@ public class CrashWConflicts implements ITickHandler{
 			for(Integer id : arr.keySet())
 			{
 				String cfid = arr.get(id);
-				fw.write("" + (index == 0 ? (id - 256 + (itemBlockFlags.containsKey(id) ? " blockId:" + id : "")) : id) + (cfid.trim().isEmpty() ? "" : " = " + cfid) + System.lineSeparator());//ids for some reason are +256
+				fw.write("" + (index == 0 ? (id - RegUtils.ITEM_SHIFT + (itemBlockFlags.containsKey(id) ? " blockId:" + id : "")) : id) + (cfid.trim().isEmpty() ? "" : " = " + cfid) + System.lineSeparator());//ids for some reason are +256
 				if(j++ % 100 == 0)
 					fw.flush();
 			}
