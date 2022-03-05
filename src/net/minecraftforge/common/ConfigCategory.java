@@ -1,6 +1,5 @@
 package net.minecraftforge.common;
 
-import static net.minecraftforge.common.Configuration.NEW_LINE;
 import static net.minecraftforge.common.Configuration.allowedProperties;
 
 import java.io.BufferedWriter;
@@ -10,9 +9,10 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+
+import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.base.Splitter;
 
 public class ConfigCategory implements Map<String, Property>
 {
@@ -22,6 +22,7 @@ public class ConfigCategory implements Map<String, Property>
     private Map<String, Property> properties = new TreeMap<String, Property>();
     public final ConfigCategory parent;
     private boolean changed = false;
+    private static String line_new = System.lineSeparator();
 
     public ConfigCategory(String name)
     {
@@ -100,7 +101,7 @@ public class ConfigCategory implements Map<String, Property>
         {
             out.write(data[x]);
         }
-        if (new_line) out.write(NEW_LINE);
+        if (new_line) out.write(System.lineSeparator());
     }
 
     public void write(BufferedWriter out, int indent) throws IOException
@@ -123,7 +124,7 @@ public class ConfigCategory implements Map<String, Property>
             }
         }
 
-        write(out, pad0, "####################", NEW_LINE);
+        write(out, pad0, "####################", line_new);
 
         if (!allowedProperties.matchesAllOf(name))
         {
@@ -188,7 +189,7 @@ public class ConfigCategory implements Map<String, Property>
             child.write(out, indent + 1);
         }
 
-        write(out, pad0, "}", NEW_LINE);
+        write(out, pad0, "}", line_new);
     }
 
     private String getIndent(int indent)

@@ -35,6 +35,7 @@ import net.minecraft.item.Item;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.collect.ImmutableSet;
+import com.jredfox.crashwconflicts.cfg.ConfigVars;
 import com.jredfox.util.RegTypes;
 import com.jredfox.util.RegUtils;
 
@@ -48,23 +49,19 @@ import cpw.mods.fml.relauncher.FMLInjectionData;
  */
 public class Configuration
 {
-    private static final int ITEM_SHIFT = 256;
-    private static final int ITEM_MIN = Block.blocksList.length - 256;
-    private static final int ITEM_MAX = Item.itemsList.length - 1;
-
     public static final String CATEGORY_GENERAL = "general";
     public static final String CATEGORY_BLOCK   = "block";
     public static final String CATEGORY_ITEM    = "item";
     public static final String ALLOWED_CHARS = "._-";
     public static final String DEFAULT_ENCODING = "UTF-8";
     public static final String CATEGORY_SPLITTER = ".";
-    public static final String NEW_LINE;
+    public static String newLine = System.getProperty("line.separator");
     private static final Pattern CONFIG_START = Pattern.compile("START: \"([^\\\"]+)\"");
     private static final Pattern CONFIG_END = Pattern.compile("END: \"([^\\\"]+)\"");
     public static final CharMatcher allowedProperties = CharMatcher.JAVA_LETTER_OR_DIGIT.or(CharMatcher.anyOf(ALLOWED_CHARS));
     private static Configuration PARENT = null;
 
-    File file;
+    public File file;
 
     private Map<String, ConfigCategory> categories = new TreeMap<String, ConfigCategory>();
     private Map<String, Configuration> children = new TreeMap<String, Configuration>();
@@ -74,12 +71,7 @@ public class Configuration
     private String fileName = null;
     public boolean isChild = false;
     private boolean changed = false;
-
-    static
-    {
-        NEW_LINE = System.getProperty("line.separator");
-    }
-
+    
     public Configuration()
     {
     	
@@ -140,24 +132,24 @@ public class Configuration
         return getBlockInternal(category, key, defaultID, comment, 0, 256); 
     }
 
-    private boolean[] mark_blocks = new boolean[4096];
     public Property getBlockInternal(String category, String key, int d, String comment, int lower, int upper)
     {
     	Property p = this.get(category, key, d, comment);
     	int id = p.getInt();
-    	if(id < lower || id > upper)
+    	if(id < lower || id >= upper)
     	{
-    		for(int i=upper;i>=lower;i--)
+    		for(int i=upper-1;i>=lower;i--)//have to do -1 because they used size for the upper but index for the lower
     		{
-    			if(!mark_blocks[i] && Block.blocksList[i] == null)
+    			if(!ConfigVars.mark_blocks[i] && Block.blocksList[i] == null)
     			{
-    				mark_blocks[i] = true;//keep track of what blocks we have used
+    				ConfigVars.mark_blocks[i] = true;//keep track of what blocks we have used
     				p.set(i);
     				return p;
     			}
     		}
     		throw new RuntimeException("out of free block ids for:" + this.file + " in cat:" + category + " min:" + lower + " max:" + upper);
     	}
+    	ConfigVars.mark_blocks[id] = true;//keep track of what's been registered
     	return p;
     }
 
@@ -167,19 +159,21 @@ public class Configuration
 
     public Property getItem(String category, String key, int defaultID, String comment)
     {
-    	int shifted = defaultID + ITEM_SHIFT;
-    	if(shifted < ITEM_MIN || shifted > ITEM_MAX)
-    		defaultID = this.nextItemID() - ITEM_SHIFT;//set out of bounds min item ids to max value
-    	return this.get(category, key, defaultID);
+    	Property p = this.get(category, key, defaultID);
+    	int id = p.getInt();
+    	int shifted = id + ConfigVars.ITEM_SHIFT;
+    	if(shifted < ConfigVars.ITEM_MIN || shifted > ConfigVars.ITEM_MAX)
+    		p.set(this.nextItemID() - ConfigVars.ITEM_SHIFT);//set out of bounds min item ids to max value
+    	ConfigVars.mark_items[p.getInt() + ConfigVars.ITEM_SHIFT] = true;
+    	return p;
     }
 
-    public static int item_index = Item.itemsList.length - 1;
     public int nextItemID() 
     {
-		for(int i=item_index;i>=0;i--)
+		for(int i=ConfigVars.item_index;i>=0;i--)
 		{
-			item_index--;
-			if(Item.itemsList[i] == null)
+			ConfigVars.item_index--;
+			if(!ConfigVars.mark_items[i] && Item.itemsList[i] == null)
 				return i;
 		}
 		throw new RuntimeException("Configuration is out of free ids!");
@@ -645,7 +639,7 @@ public class Configuration
                 FileOutputStream fos = new FileOutputStream(file);
                 BufferedWriter buffer = new BufferedWriter(new OutputStreamWriter(fos, defaultEncoding));
 
-                buffer.write("# Configuration file" + NEW_LINE + NEW_LINE);
+                buffer.write("# Configuration file" + newLine + newLine);
 
                 if (children.isEmpty())
                 {
@@ -655,9 +649,9 @@ public class Configuration
                 {
                     for (Map.Entry<String, Configuration> entry : children.entrySet())
                     {
-                        buffer.write("START: \"" + entry.getKey() + "\"" + NEW_LINE);
+                        buffer.write("START: \"" + entry.getKey() + "\"" + newLine);
                         entry.getValue().save(buffer);
-                        buffer.write("END: \"" + entry.getKey() + "\"" + NEW_LINE + NEW_LINE);
+                        buffer.write("END: \"" + entry.getKey() + "\"" + newLine + newLine);
                     }
                 }
 

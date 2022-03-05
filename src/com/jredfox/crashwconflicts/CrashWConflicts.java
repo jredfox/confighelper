@@ -2,20 +2,13 @@ package com.jredfox.crashwconflicts;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.nio.charset.StandardCharsets;
-import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 
-import com.jredfox.crashwconflicts.cfg.ForgeConfig;
 import com.jredfox.crashwconflicts.proxy.Proxy;
 import com.jredfox.util.IdChunk;
 import com.jredfox.util.RegTypes;
@@ -30,16 +23,9 @@ import cpw.mods.fml.common.TickType;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.registry.TickRegistry;
 import cpw.mods.fml.relauncher.Side;
-import net.minecraft.block.Block;
-import net.minecraft.client.Minecraft;
 import net.minecraft.crash.CrashReport;
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.entity.EntityList;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
-import net.minecraft.potion.Potion;
-import net.minecraft.util.ReportedException;
-import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraftforge.common.Configuration;
 import net.minecraftforge.common.DimensionManager;
 
@@ -107,7 +93,7 @@ public class CrashWConflicts implements ITickHandler{
 
 	public static void initCfg()
 	{
-		ForgeConfig cfg = new ForgeConfig(new File(cwcMain, "cwc.cfg"));
+		Configuration cfg = new Configuration(new File(cwcMain, "cwc.cfg"));
 		cfg.load();
 		entId = cfg.get("global", "entityIdLimit", entId).getInt();
 		writeFreeIds = cfg.get("global", "writeFreeIds", true).getBoolean(true);
