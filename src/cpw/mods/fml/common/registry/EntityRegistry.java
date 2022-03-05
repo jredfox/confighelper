@@ -201,7 +201,7 @@ public class EntityRegistry
         EntityList.addMapping(entityClass, entityName, id);
     }
 
-    private int validateAndClaimId(int id, Class<? extends Entity> c)
+    public int validateAndClaimId(int id, Class<? extends Entity> c)
     {
         // workaround for broken ML
         int realId = id;
@@ -211,6 +211,14 @@ public class EntityRegistry
             realId += 3000;
         }
         return EntityList.IDtoClassMapping.containsKey(realId) && !CrashWConflicts.isPassable(id, c) ? findGlobalUniqueEntityId() : realId;
+    }
+    
+    /**
+     * this is a proxy for mods still looking for the old id method even though it's suppose to be private
+     */
+    public int validateAndClaimId(int id)
+    {
+    	return findGlobalUniqueEntityId();
     }
 
     public static void registerGlobalEntityID(Class <? extends Entity > entityClass, String entityName, int id, int backgroundEggColour, int foregroundEggColour)

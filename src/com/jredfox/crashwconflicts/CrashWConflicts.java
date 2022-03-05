@@ -131,7 +131,6 @@ public class CrashWConflicts implements ITickHandler{
 
 	public static <T> int getFreeId(Map<Integer, String> conflicts, T[] arr, int id, Class<?> nc, Class<?> oldreg) 
 	{
-		RegTypes type = RegUtils.getRegType(conflicts);
 		if(isPassable(conflicts == CrashWConflicts.items ? id - 256 : id, nc))
 			return id;
     	CrashWConflicts.hasConflicts = true;
@@ -140,7 +139,12 @@ public class CrashWConflicts implements ITickHandler{
     		itemBlockFlags.put(id, true);
 		newreg = newreg + " modid:\"" + Loader.instance().activeModContainer().getModId() + "\"" +" modName:\"" + Loader.instance().activeModContainer().getName() + "\"";
 		conflicts.put((Integer)id, conflicts.containsKey(id) ? conflicts.get(id) + ", " + newreg : oldreg.getName() + ", " + newreg);
-    	return getConflictedId(type);
+    	for(int i = arr.length-1; i>=0 ;i--)
+    	{
+    		if(arr[i] == null)
+    			return i;
+    	}
+    	throw new RuntimeException("out of free ids!");
 	}
 
 	public static int getFreeDimId(boolean provider, int id, Class<?> nc, String newreg, String oldreg)
@@ -152,7 +156,12 @@ public class CrashWConflicts implements ITickHandler{
 		Map<Integer, String> conflicts = provider ? providers : dimensions;
 		String reg = provider ? (conflicts.containsKey(id) ? conflicts.get(id) + ", " + newreg : oldreg + ", " + newreg) : "";
 		conflicts.put(id, reg);
-		return getConflictedId(RegTypes.DIMENSION);
+		for(int i=Short.MIN_VALUE;i<Short.MAX_VALUE;i++)
+		{
+			if(provider ? !DimensionManager.getProviders().contains(i) : !DimensionManager.getDimensions().contains(i))
+				return i;
+		}
+		throw new RuntimeException("out of free ids!");
 	}
 	
 	public static int getFreeEntId(Map<Integer, String> conflicts, Set<Integer> keySet, int id, Class<?> nc, String oldreg) 
@@ -163,17 +172,12 @@ public class CrashWConflicts implements ITickHandler{
     	CrashWConflicts.hasConflicts = true;
 		newreg = newreg + " modid:\"" + Loader.instance().activeModContainer().getModId() + "\"" +" modName:\"" + Loader.instance().activeModContainer().getName() + "\"";
     	conflicts.put((Integer)id, conflicts.containsKey(id) ? conflicts.get(id) + ", " + newreg : oldreg + ", " + newreg);
-    	return getConflictedId(RegTypes.ENTITY);
-	}
-	
-	public static int getConflictedId(RegTypes type)
-	{
-		return getConflictedId(type, true);
-	}
-	
-	public static int getConflictedId(RegTypes type, boolean unshifted) 
-	{
-		return RegUtils.getMax(type, unshifted);//for conflicted ids always return the same index
+    	for(int i = RegUtils.getMax(RegTypes.ENTITY) ; i>=0; i--)
+    	{
+    		if(!keySet.contains(i))
+    			return i;
+    	}
+    	throw new RuntimeException("out of free ids!");
 	}
 
 	/**
