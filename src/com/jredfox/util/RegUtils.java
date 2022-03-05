@@ -272,4 +272,12 @@ public class RegUtils {
 	    return li;
 	}
 
+	/**
+	 * returns if the specified file is inside the base dir
+	 */
+	public static boolean isInsideDir(File baseDir, File file)
+	{
+		return file.getAbsolutePath().startsWith(baseDir.getAbsolutePath());
+	}
+
 }

@@ -22,7 +22,8 @@ public class AutoConfig {
 	
 	public Map<String, DataTypeEntry> dataTypes = new HashMap();
 	public List<Config> cfgs = new ArrayList();
-	public List<File> blacklisted = new ArrayList();
+	public List<File> blfs = new ArrayList();
+	public List<File> blDirs = new ArrayList();
 	public Set<String> done = new HashSet();
 	public boolean useMaxIds;
 	
@@ -51,7 +52,11 @@ public class AutoConfig {
 		//add the blacklisted files for auto config not to touch
 		for(String s : cfg.get("autoconfig", "blacklisted", new String[]{"forge.cfg", "forgeChunkLoading.cfg"}).getStringList())
 		{
-			this.blacklisted.add(this.getFile(s));
+			File f = this.getFile(s);
+			if(f.isDirectory())
+				this.blDirs.add(f);
+			else
+				this.blfs.add(f);
 		}
 		
 		//parse the auto config data entries
@@ -96,7 +101,8 @@ public class AutoConfig {
 	{
 		this.dataTypes.clear();
 		this.cfgs.clear();
-		this.blacklisted.clear();
+		this.blfs.clear();
+		this.blDirs.clear();
 		this.done.clear();
 	}
 
@@ -112,7 +118,7 @@ public class AutoConfig {
 			boolean isDir = files.size() > 1;
 			for(File f : files)
 			{
-				if(this.blacklisted.contains(f))
+				if(this.isBlackListed(f))
 				{
 					System.out.println("skipping blf:" + f);
 					continue;
@@ -167,6 +173,24 @@ public class AutoConfig {
 			}
 		}
 		System.out.println("AutoConfig completed in:" + (System.currentTimeMillis() - ms) + "ms");
+	}
+
+	/**
+	 * returns if the file is a blacklisted file or is inside of a blacklisted directory
+	 */
+	public boolean isBlackListed(File f) 
+	{
+		return this.blfs.contains(f) || this.isBlacklistedDir(f);
+	}
+
+	public boolean isBlacklistedDir(File f) 
+	{
+		for(File blDir : this.blDirs)
+		{
+			if(RegUtils.isInsideDir(blDir, f))
+				return true;
+		}
+		return false;
 	}
 
 	public Configuration getConfiguration(File f) 

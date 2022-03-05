@@ -29,7 +29,7 @@ import net.minecraft.item.ItemBlock;
 import net.minecraftforge.common.Configuration;
 import net.minecraftforge.common.DimensionManager;
 
-@Mod(modid = "crash-w-conflicts", name = "Crash With Conflicts", version = "b42")
+@Mod(modid = "crash-w-conflicts", name = "Crash With Conflicts", version = "b43")
 public class CrashWConflicts implements ITickHandler{
 	
 	public static boolean hasConflicts;
