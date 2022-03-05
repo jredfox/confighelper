@@ -52,6 +52,8 @@ public class AutoConfig {
 		//add the blacklisted files for auto config not to touch
 		for(String s : cfg.get("autoconfig", "blacklisted", new String[]{"forge.cfg", "forgeChunkLoading.cfg"}).getStringList())
 		{
+			if(s.isEmpty())
+				continue;
 			File f = this.getFile(s);
 			if(f.isDirectory())
 				this.blDirs.add(f);
@@ -63,6 +65,8 @@ public class AutoConfig {
 		String[] arr = cfg.get("autoconfig", "entries", new String[]{"\"root/config;item:itemId;block:blockId;biome:biomeId;biomes:biomeId\""}, "the format is \"file.cfg;category:dataType\" To add more categories just append the \";category:dataType\"").getStringList();
 		for(String s : arr)
 		{
+			if(s.isEmpty())
+				continue;
 			s = s.substring(1, s.length() - 1).trim();
 			String[] vals = s.split(";");
 			File file = this.getFile(vals[0]);
