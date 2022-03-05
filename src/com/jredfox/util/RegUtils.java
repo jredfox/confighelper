@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.jredfox.crashwconflicts.CrashWConflicts;
@@ -158,7 +159,7 @@ public class RegUtils {
 			case DIMENSION:
 				return Integer.MAX_VALUE;
 		}
-		return -1;
+		return Integer.MIN_VALUE;
 	}
 	
 	public static IdChunk unshiftIdChunk(RegTypes type, IdChunk chunk)
@@ -278,6 +279,27 @@ public class RegUtils {
 	public static boolean isInsideDir(File baseDir, File file)
 	{
 		return file.getAbsolutePath().startsWith(baseDir.getAbsolutePath());
+	}
+
+	public static RegTypes getRegType(Map<Integer, String> conflicts)
+	{
+		if(conflicts == CrashWConflicts.biomes)
+			return RegTypes.BIOME;
+		else if(conflicts == CrashWConflicts.blocks)
+			return RegTypes.BLOCK;
+		else if(conflicts == CrashWConflicts.dimensions)
+			return RegTypes.DIMENSION;
+		else if(conflicts == CrashWConflicts.enchantments)
+			return RegTypes.ENCHANTMENT;
+		else if(conflicts == CrashWConflicts.entities)
+			return RegTypes.ENTITY;
+		else if(conflicts == CrashWConflicts.items)
+			return RegTypes.ITEM;
+		else if(conflicts == CrashWConflicts.potions)
+			return RegTypes.POTION;
+		else if(conflicts == CrashWConflicts.providers)
+			return RegTypes.PROVIDER;
+		return null;
 	}
 
 }

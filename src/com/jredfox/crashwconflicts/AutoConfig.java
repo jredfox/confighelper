@@ -219,10 +219,11 @@ public class AutoConfig {
 
 	public int nextId(DataTypeEntry dt) 
 	{
+		int conflicted = CrashWConflicts.getConflictedId(dt.regType, false);
 		if(!useMaxIds)
 		{
 			List<Integer> vanilla = RegUtils.getVanillaIds(dt.regType);
-			while(vanilla.contains(dt.index))
+			while(vanilla.contains(dt.index) || dt.index == conflicted)
 				dt.index++;
 			this.checkId(dt.index, dt);
 			return dt.index++;//return the result and then increment dt.index by one for next use
@@ -230,7 +231,7 @@ public class AutoConfig {
 		else
 		{
 			List<Integer> vanilla = RegUtils.getVanillaIds(dt.regType);
-			while(vanilla.contains(dt.index))
+			while(vanilla.contains(dt.index) || dt.index == conflicted)//skip vanilla and the reserved conflicted id
 				dt.index--;
 			this.checkId(dt.index, dt);
 			return dt.index--;//return the result and then increment dt.index by one for next use

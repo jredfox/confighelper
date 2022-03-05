@@ -114,7 +114,7 @@ public class DimensionManager
 
     public static void registerDimension(int id, int providerType)
     {
-        if (!getProviders().containsKey(providerType))
+        if (!CrashWConflicts.hasConflicts && !getProviders().containsKey(providerType))
         {
             throw new IllegalArgumentException(String.format("Failed to register dimension for id %d, provider type %d does not exist", id, providerType));
         }
@@ -135,7 +135,7 @@ public class DimensionManager
      */
     public static void unregisterDimension(int id)
     {
-        if (!getDimensions().containsKey(id))
+        if (!CrashWConflicts.hasConflicts && !getDimensions().containsKey(id))
         {
             throw new IllegalArgumentException(String.format("Failed to unregister dimension for id %d; No provider registered", id));
         }
@@ -149,7 +149,7 @@ public class DimensionManager
 
     public static int getProviderType(int dim)
     {
-        if (!getDimensions().containsKey(dim))
+        if (!CrashWConflicts.hasConflicts && !getDimensions().containsKey(dim))
         {
             throw new IllegalArgumentException(String.format("Could not get provider type for dimension %d, does not exist", dim));
         }
