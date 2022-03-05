@@ -37,7 +37,7 @@ public class AutoConfig {
 		clearOld();
 		Configuration cfg = new Configuration(new File(CrashWConflicts.cwcMain, "autoConfig.cfg"));
 		cfg.load();
-		useMaxIds = cfg.get("autoconfig", "useMaxIdAlgorithm", true).getBoolean(true);
+		useMaxIds = cfg.get("autoconfig", "useMaxIdAlgorithm", false).getBoolean(false);
 		Set<String> defaultData = new LinkedHashSet();
 		for(RegTypes t : RegTypes.values())
 			defaultData.add(t.name().toLowerCase() + "Id:" + RegUtils.getMin(t) + ":" + RegUtils.getMax(t));

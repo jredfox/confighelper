@@ -22,7 +22,6 @@ import java.io.OutputStreamWriter;
 import java.io.PushbackInputStream;
 import java.io.Reader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -30,18 +29,14 @@ import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import net.minecraft.block.Block;
-import net.minecraft.item.Item;
-
 import com.google.common.base.CharMatcher;
 import com.google.common.collect.ImmutableSet;
 import com.jredfox.crashwconflicts.cfg.ConfigVars;
-import com.jredfox.util.RegTypes;
-import com.jredfox.util.RegUtils;
 
-import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.relauncher.FMLInjectionData;
+import net.minecraft.block.Block;
+import net.minecraft.item.Item;
 
 /**
  * This class offers advanced configurations capabilities, allowing to provide
