@@ -101,6 +101,8 @@ public class CrashWConflicts implements ITickHandler{
 		String[] arr = cfg.get("global", "passable", new String[0], "for dimensions use null as the class. Format=num:class:modid").getStringList();
 		for(String s : arr)
 		{
+			if(s.isEmpty())
+				continue;
 			try
 			{
 				String[] parts = s.split(":");
