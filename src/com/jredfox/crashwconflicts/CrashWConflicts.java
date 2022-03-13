@@ -2,6 +2,7 @@ package com.jredfox.crashwconflicts;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -156,16 +157,23 @@ public class CrashWConflicts implements ITickHandler{
 		}
 	}
 	
-	public static void writeConflicts()
+	public static void writeConflicts() throws IOException
 	{
 		for(Registry reg : Registry.regs)
 		{
+			RegTypes type = reg.type;
+			BufferedWriter fw = RegUtils.getWriter(new File(cwcDir, "conflicts-" + type.name().substring(0, 1) + type.name().toLowerCase().substring(1) + ".txt"));
+			int count = 0;
 			for(Set<RegEntry> entries : reg.registered.values())
 			{
 				if(entries.size() < 2)
 					continue;//skip the non conflicted registrations
-				//TODO:
+				for(RegEntry e : entries)
+					fw.write(e.oClass.getName());//TODO:
+				if(count++ % 300 == 0)
+					fw.flush();
 			}
+			fw.close();
 		}
 	}
 

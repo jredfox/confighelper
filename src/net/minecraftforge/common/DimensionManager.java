@@ -54,7 +54,7 @@ public class DimensionManager
 
     public static boolean registerProviderType(int id, Class<? extends WorldProvider> provider, boolean keepLoaded)
     {
-        id = Registry.providers.reg(id, provider, null);
+        id = Registry.providers.reg(id, provider, providers);
         getProviders().put(id, provider);
         spawnSettings.put(id, keepLoaded);
         return true;
@@ -115,7 +115,7 @@ public class DimensionManager
         {
             throw new IllegalArgumentException(String.format("Failed to register dimension for id %d, provider type %d does not exist", id, providerType));
         }
-        id = Registry.dimensions.reg(id, id, null);
+        id = Registry.dimensions.reg(id, id, dimensions);
         getDimensions().put(id, providerType);
         if (id >= 0)
         {

@@ -304,12 +304,14 @@ public class EntityRegistry
         }
     }
 
+    public static int index = CrashWConflicts.entId;
     public static int findGlobalUniqueEntityId()
     {
-    	for(int i = CrashWConflicts.entId ; i>=0; i--)
+    	for(int i = index ; i>=0; i--)
     	{
     		if(!EntityList.IDtoClassMapping.containsKey(i))
     			return i;
+    		index--;
     	}
         throw new RuntimeException("EntityRegistry is out of free ids!");
     }

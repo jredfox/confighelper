@@ -80,10 +80,10 @@ public class EntityList
     public static Map IDtoClassMapping = new HashMap();
 
     /** provides a mapping between an Entity Class and an entity ID */
-    private static Map classToIDMapping = new HashMap();
+    public static Map classToIDMapping = new HashMap();
 
     /** Maps entity names to their numeric identifiers */
-    private static Map stringToIDMapping = new HashMap();
+    public static Map stringToIDMapping = new HashMap();
 
     /** This is a HashMap of the Creative Entity Eggs/Spawners. */
     public static HashMap entityEggs = new LinkedHashMap();
@@ -94,7 +94,7 @@ public class EntityList
     public static void addMapping(Class par0Class, String par1Str, int par2)
     {
     	if(IDtoClassMapping.containsKey((Integer)par2))
-    		par2 = Registry.entities.reg(par2, par0Class, null);
+    		par2 = Registry.entities.reg(par2, par0Class, IDtoClassMapping);
         stringToClassMapping.put(par1Str, par0Class);
         classToStringMapping.put(par0Class, par1Str);
         IDtoClassMapping.put(Integer.valueOf(par2), par0Class);

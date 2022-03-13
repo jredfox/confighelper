@@ -15,18 +15,17 @@ import com.jredfox.util.RegUtils;
 
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.ModContainer;
-import net.minecraft.item.Item;
+import cpw.mods.fml.common.registry.EntityRegistry;
 import net.minecraft.item.ItemBlock;
 
 public class Registry {
 	
+	//TODO: ghosted, itemBlock flag
 	public static Registry items = new Registry(RegTypes.ITEM);
 	public static Registry blocks = new Registry(RegTypes.BLOCK);
 	public static Registry biomes = new Registry(RegTypes.BIOME);
 	public static Registry enchantments = new Registry(RegTypes.ENCHANTMENT);
 	public static Registry potions = new Registry(RegTypes.POTION);
-	
-	//TODO: get these bad bois working
 	public static Registry entities = new Registry(RegTypes.ENTITY);
 	public static Registry dimensions = new Registry(RegTypes.DIMENSION);
 	public static Registry providers = new Registry(RegTypes.PROVIDER);
@@ -50,32 +49,6 @@ public class Registry {
 		this.regs.add(this);
 	}
 	
-	public <T> int reg(int id, T obj, T[] arr)
-	{
-		this.orgIds.add(id);
-		if(this.isGhosted(id) || this.isPassable(RegUtils.unshiftId(this.type, id), RegUtils.getOClass(obj)))
-			return this.reg(id, obj);
-		Set<RegEntry> entries = this.getReg(id);
-		return entries.isEmpty() ? this.reg(id, obj) : this.regNextId(obj, arr);
-	}
-
-	public <T> int regNextId(T obj, T[] arr) 
-	{
-		CrashWConflicts.hasConflicts = true;
-		for(int i=this.index;i>=0;i--)
-		{
-			if(i < this.min)
-				break;
-			if(arr[i] == null)
-			{
-				this.ghosting.add(i);
-				return this.reg(i, obj);
-			}
-			this.index--;
-		}
-		throw new RuntimeException("out of free ids for:" + this.type + "!");
-	}
-	
 	public Set<RegEntry> getReg(int id)
 	{
 		Set<RegEntry> arr = this.registered.get(id);
@@ -86,8 +59,65 @@ public class Registry {
 		}
 		return arr;
 	}
+	
+	public <T> int reg(int id, T obj, Object arr)
+	{
+		this.orgIds.add(id);
+		if(this.isGhosted(id) || this.isPassable(RegUtils.unshiftId(this.type, id), RegUtils.getOClass(obj)))
+			return this.regDirect(id, obj);
+		Set<RegEntry> entries = this.getReg(id);
+		return entries.isEmpty() ? this.regDirect(id, obj) : this.regNextId(obj, arr);
+	}
 
-	protected <T> int reg(int id, T obj) 
+	public <T> int regNextId(T obj, Object arr)
+	{
+		CrashWConflicts.hasConflicts = true;
+		switch(this.type)
+		{
+			case ENTITY:
+				return this.regNextIdMap(obj, (Map) arr);
+			case PROVIDER:
+				return this.regNextIdMap(obj, (Map) arr);
+			case DIMENSION:
+				return this.regNextIdMap(obj, (Map) arr);
+			default:
+				return this.regNextId(obj, (T[]) arr);
+		}
+	}
+
+	public <T> int regNextIdMap(T obj, Map<Integer, ?> arr)
+	{
+    	for(int i = this.index ; i>=this.min; i--)
+    	{
+    		if(!arr.containsKey(i))
+    		{
+    			if(i < this.min)
+    				break;
+    			this.ghosting.add(i);
+    			return this.regDirect(i, obj);
+    		}
+    		this.index--;
+    	}
+    	throw new RuntimeException("out of free ids for:" + this.type + "!");
+	}
+
+	public <T> int regNextId(T obj, T[] arr) 
+	{
+		for(int i=this.index;i>=0;i--)
+		{
+			if(i < this.min)
+				break;
+			if(arr[i] == null)
+			{
+				this.ghosting.add(i);
+				return this.regDirect(i, obj);
+			}
+			this.index--;
+		}
+		throw new RuntimeException("out of free ids for:" + this.type + "!");
+	}
+
+	protected <T> int regDirect(int id, T obj) 
 	{
 		this.getReg(id).add(new RegEntry(obj));
 		return id;
