@@ -18,6 +18,7 @@ import com.google.common.collect.MapMaker;
 import com.google.common.collect.Multiset;
 import com.jredfox.crashwconflicts.CrashWConflicts;
 import com.jredfox.crashwconflicts.Passable;
+import com.jredfox.crashwconflicts.reg.Registry;
 import com.jredfox.util.RegTypes;
 import com.jredfox.util.RegUtils;
 
@@ -53,11 +54,7 @@ public class DimensionManager
 
     public static boolean registerProviderType(int id, Class<? extends WorldProvider> provider, boolean keepLoaded)
     {
-    	RegUtils.registerOrgId(RegTypes.PROVIDER, id);
-        if(getProviders().containsKey(id))
-        {
-            id = CrashWConflicts.getFreeDimId(true, id, provider, provider.getName(), getProviders().get(id).getName());
-        }
+        id = Registry.providers.reg(id, provider, null);
         getProviders().put(id, provider);
         spawnSettings.put(id, keepLoaded);
         return true;
@@ -118,11 +115,7 @@ public class DimensionManager
         {
             throw new IllegalArgumentException(String.format("Failed to register dimension for id %d, provider type %d does not exist", id, providerType));
         }
-        RegUtils.registerOrgId(RegTypes.DIMENSION, id);
-        if (getDimensions().containsKey(id))
-        {
-           id = CrashWConflicts.getFreeDimId(false, id, Passable.class, null, null);
-        }
+        id = Registry.dimensions.reg(id, id, null);
         getDimensions().put(id, providerType);
         if (id >= 0)
         {

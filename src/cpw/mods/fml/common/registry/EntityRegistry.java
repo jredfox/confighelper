@@ -36,6 +36,7 @@ import com.google.common.collect.Maps;
 import com.google.common.primitives.UnsignedBytes;
 import com.google.common.primitives.UnsignedInteger;
 import com.jredfox.crashwconflicts.CrashWConflicts;
+import com.jredfox.crashwconflicts.reg.Registry;
 
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.FMLLog;
@@ -210,7 +211,7 @@ public class EntityRegistry
             FMLLog.warning("Compensating for modloader out of range compensation by mod : entityId %d for mod %s is now %d", id, Loader.instance().activeModContainer().getModId(), realId);
             realId += 3000;
         }
-        return EntityList.IDtoClassMapping.containsKey(realId) && !CrashWConflicts.isPassable(id, c) ? findGlobalUniqueEntityId() : realId;
+        return EntityList.IDtoClassMapping.containsKey(realId) && !Registry.entities.isPassable(id, c) ? findGlobalUniqueEntityId() : realId;
     }
     
     /**

@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Random;
 
 import com.jredfox.crashwconflicts.CrashWConflicts;
+import com.jredfox.crashwconflicts.reg.Registry;
 import com.jredfox.util.RegTypes;
 import com.jredfox.util.RegUtils;
 
@@ -258,11 +259,7 @@ public class Item
     public Item(int par1)
     {
     	par1 = 256 + par1;
-    	RegUtils.registerOrgId(RegTypes.ITEM, par1);
-        if(itemsList[par1] != null)
-        {
-        	par1 = CrashWConflicts.getFreeId(CrashWConflicts.items, itemsList, par1, this.getClass(), itemsList[par1].getClass());
-        }
+    	par1 = Registry.items.reg(par1, this, Item.itemsList);
         this.itemID = par1;
         itemsList[par1] = this;
         GameData.newItemAdded(this);

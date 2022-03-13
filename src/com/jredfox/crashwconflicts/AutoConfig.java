@@ -85,6 +85,8 @@ public class AutoConfig {
 				cats[i - 1] = catObj;
 			}
 			this.cfgs.add(new Config(file, cats));
+//			for(Cat c : this.cfgs.get(0).cats)
+//				System.out.println("\"" + c + "\"");
 		}
 		cfg.save();
 		return this;

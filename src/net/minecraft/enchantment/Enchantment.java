@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import com.google.common.collect.ObjectArrays;
 import com.jredfox.crashwconflicts.CrashWConflicts;
+import com.jredfox.crashwconflicts.reg.Registry;
 import com.jredfox.util.RegTypes;
 import com.jredfox.util.RegUtils;
 
@@ -105,13 +106,9 @@ public abstract class Enchantment
 
     protected Enchantment(int par1, int par2, EnumEnchantmentType par3EnumEnchantmentType)
     {
-    	RegUtils.registerOrgId(RegTypes.ENCHANTMENT, par1);
         this.weight = par2;
         this.type = par3EnumEnchantmentType;
-        if (enchantmentsList[par1] != null)
-        {
-        	par1 = CrashWConflicts.getFreeId(CrashWConflicts.enchantments, enchantmentsList, par1, this.getClass(), enchantmentsList[par1].getClass());
-        }
+        par1 = Registry.enchantments.reg(par1, this, Enchantment.enchantmentsList);
         this.effectId = par1;
         enchantmentsList[par1] = this;
     }

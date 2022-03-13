@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Random;
 
 import com.jredfox.crashwconflicts.CrashWConflicts;
+import com.jredfox.crashwconflicts.reg.Registry;
 import com.jredfox.util.RegTypes;
 import com.jredfox.util.RegUtils;
 
@@ -149,7 +150,6 @@ public abstract class BiomeGenBase
 
     public BiomeGenBase(int par1)
     {
-    	RegUtils.registerOrgId(RegTypes.BIOME, par1);
         this.topBlock = (byte)Block.grass.blockID;
         this.fillerBlock = (byte)Block.dirt.blockID;
         this.field_76754_C = 5169201;
@@ -167,8 +167,7 @@ public abstract class BiomeGenBase
         this.worldGeneratorBigTree = new WorldGenBigTree(false);
         this.worldGeneratorForest = new WorldGenForest(false);
         this.worldGeneratorSwamp = new WorldGenSwamp();
-        if( biomeList[par1] != null)
-        	par1 = CrashWConflicts.getFreeId(CrashWConflicts.biomes, biomeList, par1, this.getClass(), biomeList[par1].getClass());
+        par1 = Registry.biomes.reg(par1, this, BiomeGenBase.biomeList);
         this.biomeID = par1;
         
         biomeList[par1] = this;
