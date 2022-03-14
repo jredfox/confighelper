@@ -1,10 +1,14 @@
-fix ghost conflicts by auto-reassigning captured conflict ids
-add blacklist for directory as a feature
-auto gen ids for blocks / items
+figure out why the conflicts are happening with it being in neither mod config matching the description nor id
+autoconfig config around unconfigured ids
+add hook into Configuration class with the autoconfig
+setup crashing hooks. if mc is crashing and it's not suppose to be to dumpIds
+fix crashing in general and support dedicated server side
+add the advanced form of passables <id:oldClass:oldMod:newClass:newMod> people will be able to add selfconflicts that way as well as prevent unwanted conflicts
+test:verify that the autoconfig fully works
 
-test:
-id chunks in memory grabbing starts at min
-forge config works
-configuration works
-verify that the autoconfig fully works
+future:
+conflicts are in json
+add support for data watchers
+extend all ids original config helper did
+rename to confighelper porting to 1.6.4 and 1.7.10 using mixings to edit the classes this time
 
