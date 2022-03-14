@@ -73,55 +73,55 @@ public class Registry {
 		else if(this.isPassable(RegUtils.unshiftId(this.type, id), RegUtils.getOClass(obj)))
 			return this.regPassable(id, obj);
 		Set<RegEntry> entries = this.getReg(id);
-		return entries.isEmpty() ? this.regDirect(id, new RegEntry(id, obj)) : this.regNextId(obj, arr);
+		return entries.isEmpty() ? this.regDirect(id, new RegEntry(id, obj)) : this.regNextId(id, obj, arr);
 	}
 
-	public <T> int regNextId(T obj, Object arr)
+	public <T> int regNextId(int orgId, T obj, Object arr)
 	{
 		CrashWConflicts.hasConflicts = true;
 		switch(this.type)
 		{
 			case ENTITY:
-				return this.regNextIdMap(obj, (Map) arr);
+				return this.regNextIdMap(orgId, obj, (Map) arr);
 			case PROVIDER:
-				return this.regNextIdMap(obj, (Map) arr);
+				return this.regNextIdMap(orgId, obj, (Map) arr);
 			case DIMENSION:
-				return this.regNextIdMap(obj, (Map) arr);
+				return this.regNextIdMap(orgId, obj, (Map) arr);
 			default:
-				return this.regNextId(obj, (T[]) arr);
+				return this.regNextId(orgId, obj, (T[]) arr);
 		}
 	}
 
-	public <T> int regNextIdMap(T obj, Map<Integer, ?> arr)
+	public <T> int regNextIdMap(int orgId, T obj, Map<Integer, ?> arr)
 	{
     	for(int i = this.index ; i>=this.min; i--)
     	{
 			if(i < this.min)
 				break;
     		if(!arr.containsKey(i))
-    			return this.regGhost(i, obj);
+    			return this.regGhost(i, orgId, obj);
     		this.index--;
     	}
     	throw new RuntimeException("out of free ids for:" + this.type + "!");
 	}
 
-	public <T> int regNextId(T obj, T[] arr) 
+	public <T> int regNextId(int orgId, T obj, T[] arr)
 	{
 		for(int i=this.index;i>=0;i--)
 		{
 			if(i < this.min)
 				break;
 			if(arr[i] == null)
-				return this.regGhost(i, obj);
+				return this.regGhost(i, orgId, obj);
 			this.index--;
 		}
 		throw new RuntimeException("out of free ids for:" + this.type + "!");
 	}
 	
-	protected <T> int regGhost(int id, T obj) 
+	protected <T> int regGhost(int id, int orgId, T obj) 
 	{
 		this.ghosting.add(id);
-		RegEntry entry = new RegEntry(id, obj);
+		RegEntry entry = new RegEntry(id, orgId, obj);
 		entry.isGhost = true;
 		return this.regDirect(id, entry);
 	}
@@ -164,6 +164,7 @@ public class Registry {
 	public class RegEntry
 	{
 		public int id;
+		public int orgId;
 		public Class<?> oClass;
 		public Object obj;
 		public String name;//will be null until it's time to write conflicts
@@ -175,7 +176,13 @@ public class Registry {
 		
 		public RegEntry(int id, Object obj)
 		{
+			this(id, id, obj);
+		}
+		
+		public RegEntry(int id, int orgId, Object obj)
+		{
 			this.id = id;
+			this.orgId = orgId;
 			this.oClass = RegUtils.getOClass(obj);
 			this.obj = obj;
 			ModContainer mc = Registry.getMod();
@@ -195,7 +202,7 @@ public class Registry {
 			if(!(obj instanceof RegEntry))
 				return false;
 			RegEntry o = (RegEntry)obj;
-			return this.id == o.id && this.oClass.equals(o.oClass) && this.modid.equals(o.modid);
+			return this.id == o.id && this.orgId == o.orgId && this.oClass.equals(o.oClass) && this.modid.equals(o.modid);
 		}
 
 		public String getName()
