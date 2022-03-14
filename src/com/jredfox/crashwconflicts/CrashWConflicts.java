@@ -178,7 +178,7 @@ public class CrashWConflicts implements ITickHandler{
 				for(RegEntry e : entries)
 					b.append("class:" + e.oClass.getName() + ", name:\"" + e.getName() + "\", modid:" + e.modid + ", modname:\"" + e.modname + "\", passable:" + e.passable + (e.newId != e.orgId ? ", newId:" + RegUtils.unshiftId(type, e.newId) : "") + System.lineSeparator());
 				fw.write(b.toString());
-				if(count++ % 150 == 0)
+				if(count++ % 100 == 0)
 					fw.flush();
 			}
 			fw.close();

@@ -34,7 +34,7 @@ public class Registry {
 	
 	public Map<Integer, Set<RegEntry>> registered = new LinkedHashMap();
 	public Set<Integer> orgIds = new HashSet();
-	public Set<Integer> ghosting = new HashSet();
+	public List<Integer> bl = RegUtils.asArr(new int[]{Short.MAX_VALUE});//blacklisted ids ItemStack GameRegistry
 	public Set<Integer> configuredIds = new HashSet();//TODO: a list of configured ids to avoid when using the autoconfig
 	public static Set<Passable> passables = new HashSet();//a global list of passable objects
 	public RegTypes type;
@@ -80,21 +80,18 @@ public class Registry {
 	
 	public <T> int reg(int id, T obj, Object arr)
 	{
-		this.sanityCheck();
+		this.sanityCheck(id);
 		this.orgIds.add(id);
-		if(this.isGhosted(id))
-		{
-			System.out.println("replacing ghost id:" + id + " with:" + obj + " type:" + this.type);
-			return this.regDirect(new RegEntry(id, obj));//a ghost registration is here so it's safe to override it
-		}
-		else if(this.isPassable(RegUtils.unshiftId(this.type, id), RegUtils.getOClass(obj)))
+		if(this.isPassable(RegUtils.unshiftId(this.type, id), RegUtils.getOClass(obj)))
 			return this.regPassable(id, obj);
 		Set<RegEntry> entries = this.getReg(id);
 		return entries.isEmpty() ? this.regDirect(new RegEntry(id, obj)) : this.regNextId(id, obj, arr);
 	}
 
-	public void sanityCheck() 
+	public void sanityCheck(int id) 
 	{
+		if(this.bl.contains(id))
+			throw new RuntimeException("invalid id for:" + this.type + " id:" + id);
 		if(!this.hasInit || this.max != RegUtils.getMax(this.type))
 			this.init();//TODO: when ids are extended protect all vanilla static array's data from bad mods(either improperly extending ids or on purpose). but since I don't extend them yet most I can do is re-sync the init
 	}
@@ -118,12 +115,12 @@ public class Registry {
 
 	public <T> int regNextIdMap(int orgId, T obj, Map<Integer, ?> arr)
 	{
-    	for(int i = this.index ; i>=this.min; i--)
+    	for(int i = this.index; i >= this.min; i--)
     	{
 			if(i < this.min)
 				break;
-    		if(!arr.containsKey(i))
-    			return this.regGhost(i, orgId, obj);
+    		if(!arr.containsKey(i) && !this.bl.contains(i))
+    			return this.regAuto(i, orgId, obj);
     		this.index--;
     	}
     	throw new RuntimeException("out of free ids for:" + this.type + "!");
@@ -131,22 +128,20 @@ public class Registry {
 
 	public <T> int regNextId(int orgId, T obj, T[] arr)
 	{
-		for(int i=this.index;i>=0;i--)
+		for(int i = this.index; i >= 0; i--)
 		{
 			if(i < this.min)
 				break;
-			if(arr[i] == null)
-				return this.regGhost(i, orgId, obj);
+			if(arr[i] == null && !this.bl.contains(i))
+				return this.regAuto(i, orgId, obj);
 			this.index--;
 		}
 		throw new RuntimeException("out of free ids for:" + this.type + "!");
 	}
 	
-	protected <T> int regGhost(int id, int orgId, T obj) 
+	protected <T> int regAuto(int id, int orgId, T obj) 
 	{
-		this.ghosting.add(id);
 		RegEntry entry = new RegEntry(id, orgId, obj);
-		entry.isGhost = true;
 		return this.regDirect(entry);
 	}
 	
@@ -161,14 +156,6 @@ public class Registry {
 	{
 		this.getReg(entry.orgId).add(entry);
 		return entry.newId;
-	}
-	
-	/**
-	 * returns if the id occupied in in memory is an auto id(ghost) or a real one
-	 */
-	public boolean isGhosted(int id)
-	{
-		return this.ghosting.contains(id) && this.getReg(id).size() < 2;
 	}
 
 	public boolean isPassable(int id, Class<?> nc)
@@ -190,7 +177,6 @@ public class Registry {
 			return;
 		}
 		System.out.println("unregistering orgId:" + orgId + " type:" + this.type);
-		this.ghosting.remove(orgId);
 		this.registered.remove(orgId);
 	}
 	
@@ -226,7 +212,6 @@ public class Registry {
 		public String name;//will be null until it's time to write conflicts
 		public String modid;
 		public String modname;
-		public boolean isGhost;
 		public boolean passable;
 		public static final String MINECRAFT = "minecraft";
 		
