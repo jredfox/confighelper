@@ -174,10 +174,10 @@ public class CrashWConflicts implements ITickHandler{
 				if(first == null || !reg.isConflicted(first.newId))
 					continue;//skip the non conflicted registrations
 				StringBuilder b = new StringBuilder();
-				b.append("id:" + RegUtils.unshiftId(type, first.newId) + (reg.hasItemBlock(entries) ? " blockId:" + first.newId : ""));
+				b.append("id:" + RegUtils.unshiftId(type, first.newId) + (reg.hasItemBlock(entries) ? " blockId:" + first.newId : "") + System.lineSeparator());
 				for(RegEntry e : entries)
-					b.append(" entry:" + e.oClass.getName() + ", " + e.getName() + ", " + e.modid + ", " + e.modname + ", passable:" + e.passable + ", isGhost:" + e.isGhost + (e.newId != e.orgId ? ", newId:" + RegUtils.unshiftId(type, e.newId) : ""));
-				fw.write(b.toString() + System.lineSeparator());
+					b.append("class:" + e.oClass.getName() + ", name:\"" + e.getName() + "\", modid:" + e.modid + ", modname:\"" + e.modname + "\", passable:" + e.passable + (e.newId != e.orgId ? ", newId:" + RegUtils.unshiftId(type, e.newId) : "") + System.lineSeparator());
+				fw.write(b.toString());
 				if(count++ % 150 == 0)
 					fw.flush();
 			}

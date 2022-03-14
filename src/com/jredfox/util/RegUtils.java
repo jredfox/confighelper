@@ -239,7 +239,7 @@ public class RegUtils {
 	}
 
 	/**
-	 * ensures vanilla data types are all loaded
+	 * ensures vanilla data types are all loaded except datawatchers as I don't support those yet
 	 */
 	public static void init()
 	{

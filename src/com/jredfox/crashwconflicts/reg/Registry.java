@@ -79,8 +79,6 @@ public class Registry {
 	
 	public <T> int reg(int id, T obj, Object arr)
 	{
-		if(this.type == RegTypes.ENTITY)
-			System.out.println(id + " obj:" + obj);
 		this.sanityCheck();
 		this.orgIds.add(id);
 		if(this.isGhosted(id))
