@@ -108,6 +108,8 @@ public class DimensionManager
         registerDimension( 0,  0);
         registerDimension(-1, -1);
         registerDimension( 1,  1);
+        Registry.providers.initMc();
+        Registry.dimensions.initMc();
     }
 
     public static void registerDimension(int id, int providerType)

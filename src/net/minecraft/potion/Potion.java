@@ -68,6 +68,11 @@ public class Potion
     public static final Potion field_76406_E = null;
     public static final Potion field_76407_F = null;
     public static final Potion field_76408_G = null;
+    
+    static
+    {
+    	Registry.potions.initMc();
+    }
 
     /** The Id of a Potion object. */
     public final int id;

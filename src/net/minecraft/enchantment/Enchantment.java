@@ -97,6 +97,11 @@ public abstract class Enchantment
     public static final Enchantment infinity = new EnchantmentArrowInfinite(51, 1);
     public final int effectId;
     private final int weight;
+    
+    static
+    {
+    	Registry.enchantments.initMc();
+    }
 
     /** The EnumEnchantmentType given to this Enchantment. */
     public EnumEnchantmentType type;

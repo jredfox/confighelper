@@ -54,6 +54,7 @@ public class CrashWConflicts implements ITickHandler{
 	static
 	{
 		initCfg();//called in mod's conctructor to prevent other conflicts from happening in pre-init before this mod is loaded. <clinit> can cause class initialization errors if the RegTypes's class isn't initialized yet
+		RegUtils.init();
 	}
 	
 	@PreInit
@@ -79,7 +80,6 @@ public class CrashWConflicts implements ITickHandler{
 		new EnchantmentProtection(1, 5, 1);
 		new Potion(3, false, 400).setPotionName("Crash W Conflicts Potion Name");
 		
-		RegUtils.init();
 		TickRegistry.registerTickHandler(new CrashWConflicts(), Side.CLIENT);
 	}
 

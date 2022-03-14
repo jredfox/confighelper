@@ -226,6 +226,11 @@ public class Item
     public static Item recordWard = (new ItemRecord(2009, "ward")).setUnlocalizedName("record");
     public static Item record11 = (new ItemRecord(2010, "11")).setUnlocalizedName("record");
     public static Item recordWait = (new ItemRecord(2011, "wait")).setUnlocalizedName("record");
+    
+    static
+    {
+    	Registry.items.initMc();
+    }
 
     /** The ID of this item. */
     public int itemID;

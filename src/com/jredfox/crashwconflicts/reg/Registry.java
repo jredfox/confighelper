@@ -42,6 +42,7 @@ public class Registry {
 	public int max;
 	public int index;
 	public boolean hasConflicts;
+	public boolean initMc;//returns false if vanilla isn't pre-initialized
 	
 	public Registry(RegTypes type)
 	{
@@ -172,7 +173,7 @@ public class Registry {
 
 	public boolean isPassable(int id, Class<?> nc)
 	{
-		boolean p = this.passables.contains(new Passable(id, nc.getName(), Registry.getMod().getModId()));
+		boolean p = this.passables.contains(new Passable(id, nc.getName(), this.getMod().getModId()));
 		if(p)
 			System.out.println("skipping passable:" + id + " " + nc);
 		return p;
@@ -193,10 +194,27 @@ public class Registry {
 		this.registered.remove(orgId);
 	}
 	
-	public static ModContainer getMod()
+	public boolean hasItemBlock(Set<RegEntry> entries) 
+	{
+		for(RegEntry e : entries)
+			if(e.obj instanceof ItemBlock)
+				return true;
+		return false;
+	}
+	
+	public static final ModContainer vmc = Loader.instance().getMinecraftModContainer();//vanilla mod container
+	public ModContainer getMod()
 	{
 		ModContainer mc = Loader.instance().activeModContainer();
-		return mc != null ? mc : Loader.instance().getMinecraftModContainer();
+		return  mc != null && this.initMc ? mc : vmc;
+	}
+	
+	/**
+	 * sets the initMc to true used to determine when the Minecraft mod container enforcement is disabled unless mod container is null or returns mc
+	 */
+	public void initMc()
+	{
+		this.initMc = true;
 	}
 	
 	public class RegEntry
@@ -223,7 +241,7 @@ public class Registry {
 			this.orgId = orgId;
 			this.oClass = RegUtils.getOClass(obj);
 			this.obj = obj;
-			ModContainer mc = Registry.getMod();
+			ModContainer mc = Registry.this.getMod();
 			this.modid = mc.getModId();
 			this.modname = mc.getName();
 		}
@@ -256,13 +274,5 @@ public class Registry {
 				return t.getClass().getName();
 			}
 		}
-	}
-
-	public boolean hasItemBlock(Set<RegEntry> entries) 
-	{
-		for(RegEntry e : entries)
-			if(e.obj instanceof ItemBlock)
-				return true;
-		return false;
 	}
 }

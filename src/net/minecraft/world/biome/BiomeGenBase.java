@@ -147,6 +147,11 @@ public abstract class BiomeGenBase
 
     /** The swamp tree generator. */
     protected WorldGenSwamp worldGeneratorSwamp;
+    
+    static
+    {
+    	Registry.biomes.initMc();
+    }
 
     public BiomeGenBase(int par1)
     {
