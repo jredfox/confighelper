@@ -2,20 +2,15 @@ package com.jredfox.crashwconflicts;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
 import java.util.Set;
 
 import com.jredfox.crashwconflicts.proxy.Proxy;
 import com.jredfox.crashwconflicts.reg.Registry;
 import com.jredfox.crashwconflicts.reg.Registry.RegEntry;
+import com.jredfox.crashwconflicts.tst.D;
+import com.jredfox.crashwconflicts.tst.E;
 import com.jredfox.util.IdChunk;
 import com.jredfox.util.RegTypes;
 import com.jredfox.util.RegUtils;
@@ -27,15 +22,24 @@ import cpw.mods.fml.common.Mod.PreInit;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.TickType;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import cpw.mods.fml.common.registry.EntityRegistry;
 import cpw.mods.fml.common.registry.TickRegistry;
 import cpw.mods.fml.relauncher.Side;
+import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
 import net.minecraft.crash.CrashReport;
+import net.minecraft.enchantment.EnchantmentProtection;
+import net.minecraft.entity.EntityList;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemBlock;
+import net.minecraft.potion.Potion;
+import net.minecraft.world.WorldProvider;
+import net.minecraft.world.WorldProviderEnd;
+import net.minecraft.world.WorldProviderSurface;
+import net.minecraft.world.biome.BiomeGenOcean;
 import net.minecraftforge.common.Configuration;
 import net.minecraftforge.common.DimensionManager;
 
-@Mod(modid = "crash-w-conflicts", name = "Crash With Conflicts", version = "build47")
+@Mod(modid = "crash-w-conflicts", name = "Crash With Conflicts", version = "b48")
 public class CrashWConflicts implements ITickHandler{
 	
 	public static boolean hasConflicts;
@@ -56,25 +60,25 @@ public class CrashWConflicts implements ITickHandler{
 	public static void preInit(FMLPreInitializationEvent pi)
 	{
 //		//DimensionTest
-//		DimensionManager.registerDimension(0, 0);
-//		DimensionManager.registerDimension(-1, -1);
-//		DimensionManager.registerProviderType(-1, WorldProvider.class, true);
-//		DimensionManager.registerProviderType(0, WorldProvider.class, true);
+		DimensionManager.registerDimension(0, 0);
+		DimensionManager.registerDimension(-1, -1);
+		DimensionManager.registerProviderType(-1, WorldProviderSurface.class, true);
+		DimensionManager.registerProviderType(0, WorldProviderEnd.class, true);
 		
 		//conflict test
-//		new Item(RegUtils.getMax(RegTypes.ITEM)).setUnlocalizedName("item.tst");
-//		new Block(1, Material.anvil).setUnlocalizedName("tile.tst");
-//		new BiomeGenOcean(3);
-//		new EnchantmentProtection(1, 5, 1);
-//		new Potion(3, false, 400);
-//		EntityRegistry.registerGlobalEntityID(D.class, "a", 14);
-//		EntityList.addMapping(E.class, "a", 14);
-//		new Item(69).setUnlocalizedName("item.tst");
-//		new Block(1, Material.anvil).setUnlocalizedName("tile.tst");
-//		new BiomeGenOcean(3);
-//		new EnchantmentProtection(1, 5, 1);
-//		new Potion(3, false, 400);
-//		ItemBlock
+		Item item1 = new Item(69).setUnlocalizedName("item.tst");
+		new Block(1, Material.anvil).setUnlocalizedName("tile.tst");
+		new BiomeGenOcean(3).setBiomeName("cwc-ocean");
+		new EnchantmentProtection(1, 5, 1);
+		new Potion(3, false, 400).setPotionName("cwcPotion1");
+		EntityRegistry.registerGlobalEntityID(D.class, "a", 50);
+		EntityList.addMapping(E.class, "a", 50);
+		new Item(69).setUnlocalizedName("item.tst2");
+		new Block(1, Material.anvil).setUnlocalizedName("tile.tst2");
+		new BiomeGenOcean(3).setBiomeName("cwc-ocean2");
+		new EnchantmentProtection(1, 5, 1);
+		new Potion(3, false, 400).setPotionName("Crash W Conflicts Potion Name");
+		
 		RegUtils.init();
 		TickRegistry.registerTickHandler(new CrashWConflicts(), Side.CLIENT);
 	}
@@ -167,14 +171,14 @@ public class CrashWConflicts implements ITickHandler{
 			for(Set<RegEntry> entries : reg.registered.values())
 			{
 				RegEntry first = RegUtils.getFirst(entries);
-				if(first == null || !reg.isConflicted(first.id))
+				if(first == null || !reg.isConflicted(first.newId))
 					continue;//skip the non conflicted registrations
 				StringBuilder b = new StringBuilder();
-				b.append("id:" + RegUtils.unshiftId(type, first.id) + (reg.hasItemBlock(entries) ? " blockId:" + first.id : ""));
+				b.append("id:" + RegUtils.unshiftId(type, first.newId) + (reg.hasItemBlock(entries) ? " blockId:" + first.newId : ""));
 				for(RegEntry e : entries)
-					b.append(e.oClass + ", " + e.getName() + ", " + e.modid + ", " + e.modname + ", passable:" + e.passable + ", isGhost:" + e.isGhost + (e.id != e.orgId ? ", orgId:" + e.orgId : ""));
+					b.append(" entry:" + e.oClass.getName() + ", " + e.getName() + ", " + e.modid + ", " + e.modname + ", passable:" + e.passable + ", isGhost:" + e.isGhost + (e.newId != e.orgId ? ", newId:" + RegUtils.unshiftId(type, e.newId) : ""));
 				fw.write(b.toString() + System.lineSeparator());
-				if(count++ % 300 == 0)
+				if(count++ % 150 == 0)
 					fw.flush();
 			}
 			fw.close();

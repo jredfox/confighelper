@@ -78,6 +78,7 @@ public class DimensionManager
         }
         getProviders().remove(id);
         spawnSettings.remove(id);
+        Registry.providers.unregOrg(id);
 
         int[] ret = new int[getDimensions().size()];
         int x = 0;
@@ -132,6 +133,7 @@ public class DimensionManager
         {
             throw new IllegalArgumentException(String.format("Failed to unregister dimension for id %d; No provider registered", id));
         }
+        Registry.dimensions.unregOrg(id);
         getDimensions().remove(id);
     }
 

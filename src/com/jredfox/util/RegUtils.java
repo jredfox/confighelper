@@ -78,9 +78,9 @@ public class RegUtils {
 	public static String getName(int id, RegTypes type, Object o) throws InstantiationException, IllegalAccessException
 	{
 		if(o instanceof Item)
-			return trans(((Item)o).getUnlocalizedName());
+			return ((Item)o).getStatName();
 		else if(o instanceof Block)
-			return trans(((Block)o).getUnlocalizedName());
+			return ((Block)o).getLocalizedName();
 		else if(o instanceof BiomeGenBase)
 			return ((BiomeGenBase)o).biomeName;
 		else if(o instanceof Enchantment)
@@ -105,8 +105,6 @@ public class RegUtils {
 	public static String trans(String unlocal) 
 	{
 		String str = StatCollector.translateToLocal(unlocal);
-		if(str.endsWith(".name"))
-			str = LanguageRegistry.instance().getStringLocalization(unlocal);
 		return str.isEmpty() ? unlocal : str;
 	}
 

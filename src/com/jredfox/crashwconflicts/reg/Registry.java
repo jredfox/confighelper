@@ -17,10 +17,12 @@ import com.jredfox.util.RegUtils;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.ModContainer;
 import cpw.mods.fml.common.registry.EntityRegistry;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 
 public class Registry {
 	
+	public static List<Registry> regs = new ArrayList();//the registry of registries
 	public static Registry items = new Registry(RegTypes.ITEM);
 	public static Registry blocks = new Registry(RegTypes.BLOCK);
 	public static Registry biomes = new Registry(RegTypes.BIOME);
@@ -29,24 +31,34 @@ public class Registry {
 	public static Registry entities = new Registry(RegTypes.ENTITY);
 	public static Registry dimensions = new Registry(RegTypes.DIMENSION);
 	public static Registry providers = new Registry(RegTypes.PROVIDER);
-	public static List<Registry> regs = new ArrayList();//the registry of registries
 	
 	public Map<Integer, Set<RegEntry>> registered = new LinkedHashMap();
 	public Set<Integer> orgIds = new HashSet();
 	public Set<Integer> ghosting = new HashSet();
+	public Set<Integer> configuredIds = new HashSet();//TODO: a list of configured ids to avoid when using the autoconfig
 	public static Set<Passable> passables = new HashSet();//a global list of passable objects
 	public RegTypes type;
 	public int min;
 	public int max;
 	public int index;
+	public boolean hasConflicts;
 	
 	public Registry(RegTypes type)
 	{
 		this.type = type;
-		this.min = RegUtils.getMin(type, true);
-		this.max = RegUtils.getMax(type, true);
-		this.index = this.max;
 		this.regs.add(this);
+	}
+	
+	protected boolean hasInit;
+	/**
+	 * don't initialize in clinit as that will cause initialization exceptions for example item class tries to load before clinit is done on block class
+	 */
+	protected void init()
+	{
+		this.min = RegUtils.getMin(this.type, true);
+		this.max = RegUtils.getMax(this.type, true);
+		this.index = this.max;
+		this.hasInit = true;
 	}
 	
 	public boolean isConflicted(int id)
@@ -67,18 +79,31 @@ public class Registry {
 	
 	public <T> int reg(int id, T obj, Object arr)
 	{
+		if(this.type == RegTypes.ENTITY)
+			System.out.println(id + " obj:" + obj);
+		this.sanityCheck();
 		this.orgIds.add(id);
 		if(this.isGhosted(id))
-			return this.regDirect(id, new RegEntry(id, obj));//don't register as a ghost as this isn't a ghost but the slot that is reg is a ghost
+		{
+			System.out.println("replacing ghost id:" + id + " with:" + obj + " type:" + this.type);
+			return this.regDirect(new RegEntry(id, obj));//a ghost registration is here so it's safe to override it
+		}
 		else if(this.isPassable(RegUtils.unshiftId(this.type, id), RegUtils.getOClass(obj)))
 			return this.regPassable(id, obj);
 		Set<RegEntry> entries = this.getReg(id);
-		return entries.isEmpty() ? this.regDirect(id, new RegEntry(id, obj)) : this.regNextId(id, obj, arr);
+		return entries.isEmpty() ? this.regDirect(new RegEntry(id, obj)) : this.regNextId(id, obj, arr);
+	}
+
+	public void sanityCheck() 
+	{
+		if(!this.hasInit || this.max != RegUtils.getMax(this.type))
+			this.init();//TODO: when ids are extended protect all vanilla static array's data from bad mods(either improperly extending ids or on purpose). but since I don't extend them yet most I can do is re-sync the init
 	}
 
 	public <T> int regNextId(int orgId, T obj, Object arr)
 	{
 		CrashWConflicts.hasConflicts = true;
+		this.hasConflicts = true;
 		switch(this.type)
 		{
 			case ENTITY:
@@ -123,20 +148,20 @@ public class Registry {
 		this.ghosting.add(id);
 		RegEntry entry = new RegEntry(id, orgId, obj);
 		entry.isGhost = true;
-		return this.regDirect(id, entry);
+		return this.regDirect(entry);
 	}
 	
 	protected <T> int regPassable(int id, T obj) 
 	{
 		RegEntry entry = new RegEntry(id, obj);
 		entry.passable = true;
-		return this.regDirect(id, entry);
+		return this.regDirect(entry);
 	}
 
-	protected <T> int regDirect(int id, RegEntry entry) 
+	protected <T> int regDirect(RegEntry entry) 
 	{
-		this.getReg(id).add(entry);
-		return id;
+		this.getReg(entry.orgId).add(entry);
+		return entry.newId;
 	}
 	
 	/**
@@ -155,6 +180,21 @@ public class Registry {
 		return p;
 	}
 	
+	/**
+	 * unregister the registration from the original id. doesn't work when there are conflicts
+	 */
+	public void unregOrg(int orgId)
+	{
+		if(this.isConflicted(orgId))
+		{
+			System.err.println("cannot unregister a conflicted domain:" + orgId + " for:" + this.type);
+			return;
+		}
+		System.out.println("unregistering orgId:" + orgId + " type:" + this.type);
+		this.ghosting.remove(orgId);
+		this.registered.remove(orgId);
+	}
+	
 	public static ModContainer getMod()
 	{
 		ModContainer mc = Loader.instance().activeModContainer();
@@ -163,7 +203,7 @@ public class Registry {
 	
 	public class RegEntry
 	{
-		public int id;
+		public int newId;
 		public int orgId;
 		public Class<?> oClass;
 		public Object obj;
@@ -179,9 +219,9 @@ public class Registry {
 			this(id, id, obj);
 		}
 		
-		public RegEntry(int id, int orgId, Object obj)
+		public RegEntry(int newId, int orgId, Object obj)
 		{
-			this.id = id;
+			this.newId = newId;
 			this.orgId = orgId;
 			this.oClass = RegUtils.getOClass(obj);
 			this.obj = obj;
@@ -193,7 +233,7 @@ public class Registry {
 		@Override
 		public int hashCode()
 		{
-			return this.id;
+			return this.newId;
 		}
 		
 		@Override
@@ -202,17 +242,19 @@ public class Registry {
 			if(!(obj instanceof RegEntry))
 				return false;
 			RegEntry o = (RegEntry)obj;
-			return this.id == o.id && this.orgId == o.orgId && this.oClass.equals(o.oClass) && this.modid.equals(o.modid);
+			return this.newId == o.newId && this.orgId == o.orgId && this.oClass.equals(o.oClass) && this.modid.equals(o.modid);
 		}
 
 		public String getName()
 		{
 			try
 			{
-				return RegUtils.getName(this.id, Registry.this.type, this.obj);
+				return RegUtils.getName(this.newId, Registry.this.type, this.obj);
 			}
 			catch(Throwable t)
 			{
+				System.err.println("error while getting name:" + Registry.this.type + " obj:" + this.obj);
+				t.printStackTrace();
 				return t.getClass().getName();
 			}
 		}

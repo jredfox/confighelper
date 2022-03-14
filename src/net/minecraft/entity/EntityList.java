@@ -93,8 +93,7 @@ public class EntityList
      */
     public static void addMapping(Class par0Class, String par1Str, int par2)
     {
-    	if(IDtoClassMapping.containsKey((Integer)par2))
-    		par2 = Registry.entities.reg(par2, par0Class, IDtoClassMapping);
+    	par2 = Registry.entities.reg(par2, par0Class, IDtoClassMapping);
         stringToClassMapping.put(par1Str, par0Class);
         classToStringMapping.put(par0Class, par1Str);
         IDtoClassMapping.put(Integer.valueOf(par2), par0Class);
