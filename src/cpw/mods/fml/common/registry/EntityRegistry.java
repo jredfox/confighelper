@@ -121,7 +121,7 @@ public class EntityRegistry
     private BitSet availableIndicies;
     private ListMultimap<ModContainer, EntityRegistration> entityRegistrations = ArrayListMultimap.create();
     private Map<String,ModContainer> entityNames = Maps.newHashMap();
-    private BiMap<Class<? extends Entity>, EntityRegistration> entityClassRegistrations = HashBiMap.create();
+    public BiMap<Class<? extends Entity>, EntityRegistration> entityClassRegistrations = HashBiMap.create();
     public static EntityRegistry instance()
     {
         return INSTANCE;

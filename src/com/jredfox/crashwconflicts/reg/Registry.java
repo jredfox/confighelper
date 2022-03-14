@@ -10,6 +10,7 @@ import java.util.Set;
 
 import com.jredfox.crashwconflicts.CrashWConflicts;
 import com.jredfox.crashwconflicts.Passable;
+import com.jredfox.crashwconflicts.reg.Registry.RegEntry;
 import com.jredfox.util.RegTypes;
 import com.jredfox.util.RegUtils;
 
@@ -20,7 +21,6 @@ import net.minecraft.item.ItemBlock;
 
 public class Registry {
 	
-	//TODO: ghosted, itemBlock flag
 	public static Registry items = new Registry(RegTypes.ITEM);
 	public static Registry blocks = new Registry(RegTypes.BLOCK);
 	public static Registry biomes = new Registry(RegTypes.BIOME);
@@ -49,6 +49,11 @@ public class Registry {
 		this.regs.add(this);
 	}
 	
+	public boolean isConflicted(int id)
+	{
+		return this.getReg(id).size() > 1;
+	}
+	
 	public Set<RegEntry> getReg(int id)
 	{
 		Set<RegEntry> arr = this.registered.get(id);
@@ -63,10 +68,12 @@ public class Registry {
 	public <T> int reg(int id, T obj, Object arr)
 	{
 		this.orgIds.add(id);
-		if(this.isGhosted(id) || this.isPassable(RegUtils.unshiftId(this.type, id), RegUtils.getOClass(obj)))
-			return this.regDirect(id, obj);
+		if(this.isGhosted(id))
+			return this.regDirect(id, new RegEntry(id, obj));//don't register as a ghost as this isn't a ghost but the slot that is reg is a ghost
+		else if(this.isPassable(RegUtils.unshiftId(this.type, id), RegUtils.getOClass(obj)))
+			return this.regPassable(id, obj);
 		Set<RegEntry> entries = this.getReg(id);
-		return entries.isEmpty() ? this.regDirect(id, obj) : this.regNextId(obj, arr);
+		return entries.isEmpty() ? this.regDirect(id, new RegEntry(id, obj)) : this.regNextId(obj, arr);
 	}
 
 	public <T> int regNextId(T obj, Object arr)
@@ -89,13 +96,10 @@ public class Registry {
 	{
     	for(int i = this.index ; i>=this.min; i--)
     	{
+			if(i < this.min)
+				break;
     		if(!arr.containsKey(i))
-    		{
-    			if(i < this.min)
-    				break;
-    			this.ghosting.add(i);
-    			return this.regDirect(i, obj);
-    		}
+    			return this.regGhost(i, obj);
     		this.index--;
     	}
     	throw new RuntimeException("out of free ids for:" + this.type + "!");
@@ -108,18 +112,30 @@ public class Registry {
 			if(i < this.min)
 				break;
 			if(arr[i] == null)
-			{
-				this.ghosting.add(i);
-				return this.regDirect(i, obj);
-			}
+				return this.regGhost(i, obj);
 			this.index--;
 		}
 		throw new RuntimeException("out of free ids for:" + this.type + "!");
 	}
-
-	protected <T> int regDirect(int id, T obj) 
+	
+	protected <T> int regGhost(int id, T obj) 
 	{
-		this.getReg(id).add(new RegEntry(obj));
+		this.ghosting.add(id);
+		RegEntry entry = new RegEntry(id, obj);
+		entry.isGhost = true;
+		return this.regDirect(id, entry);
+	}
+	
+	protected <T> int regPassable(int id, T obj) 
+	{
+		RegEntry entry = new RegEntry(id, obj);
+		entry.passable = true;
+		return this.regDirect(id, entry);
+	}
+
+	protected <T> int regDirect(int id, RegEntry entry) 
+	{
+		this.getReg(id).add(entry);
 		return id;
 	}
 	
@@ -131,7 +147,7 @@ public class Registry {
 		return this.ghosting.contains(id) && this.getReg(id).size() < 2;
 	}
 
-	public boolean isPassable(int id, Class<?> nc) 
+	public boolean isPassable(int id, Class<?> nc)
 	{
 		boolean p = this.passables.contains(new Passable(id, nc.getName(), Registry.getMod().getModId()));
 		if(p)
@@ -147,24 +163,59 @@ public class Registry {
 	
 	public class RegEntry
 	{
+		public int id;
 		public Class<?> oClass;
-		public String unlocal;
+		public Object obj;
+		public String name;//will be null until it's time to write conflicts
 		public String modid;
 		public String modname;
+		public boolean isGhost;
+		public boolean passable;
 		public static final String MINECRAFT = "minecraft";
 		
-		public RegEntry(Object obj)
+		public RegEntry(int id, Object obj)
 		{
+			this.id = id;
 			this.oClass = RegUtils.getOClass(obj);
+			this.obj = obj;
 			ModContainer mc = Registry.getMod();
 			this.modid = mc.getModId();
 			this.modname = mc.getName();
-			this.unlocal = this.modid.equals(MINECRAFT) ? "" : ((IUnlocalizedName)obj).getUnlocalizedName();
+		}
+		
+		@Override
+		public int hashCode()
+		{
+			return this.id;
+		}
+		
+		@Override
+		public boolean equals(Object obj)
+		{
+			if(!(obj instanceof RegEntry))
+				return false;
+			RegEntry o = (RegEntry)obj;
+			return this.id == o.id && this.oClass.equals(o.oClass) && this.modid.equals(o.modid);
+		}
+
+		public String getName()
+		{
+			try
+			{
+				return RegUtils.getName(this.id, Registry.this.type, this.obj);
+			}
+			catch(Throwable t)
+			{
+				return t.getClass().getName();
+			}
 		}
 	}
-	
-	public interface IUnlocalizedName
+
+	public boolean hasItemBlock(Set<RegEntry> entries) 
 	{
-		public String getUnlocalizedName();
+		for(RegEntry e : entries)
+			if(e.obj instanceof ItemBlock)
+				return true;
+		return false;
 	}
 }

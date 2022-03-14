@@ -10,17 +10,25 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
 import com.jredfox.crashwconflicts.CrashWConflicts;
 import com.jredfox.crashwconflicts.reg.Registry;
+import com.jredfox.crashwconflicts.reg.Registry.RegEntry;
 
+import cpw.mods.fml.common.registry.EntityRegistry;
+import cpw.mods.fml.common.registry.EntityRegistry.EntityRegistration;
+import cpw.mods.fml.common.registry.LanguageRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.enchantment.Enchantment;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.item.Item;
 import net.minecraft.potion.Potion;
+import net.minecraft.util.StatCollector;
+import net.minecraft.world.WorldProvider;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraftforge.common.DimensionManager;
 
@@ -30,6 +38,7 @@ import net.minecraftforge.common.DimensionManager;
  */
 public class RegUtils {
 	
+	public static final String MC_VERSION = "1.5.2";//the mc version which RegUtils currently supports
 	public static final List<Integer> id_items = RegUtils.asArr(new int[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 2256, 2257, 2258, 2259, 2260, 2261, 2262, 2263, 2264, 2265, 2266, 2267, 256, 257, 258, 259, 260, 261, 262, 263, 264, 265, 266, 267, 268, 269, 270, 271, 272, 273, 274, 275, 276, 277, 278, 279, 280, 281, 282, 283, 284, 285, 286, 287, 288, 289, 290, 291, 292, 293, 294, 295, 296, 297, 298, 299, 300, 301, 302, 303, 304, 305, 306, 307, 308, 309, 310, 311, 312, 313, 314, 315, 316, 317, 318, 319, 320, 321, 322, 323, 324, 325, 326, 327, 328, 329, 330, 331, 332, 333, 334, 335, 336, 337, 338, 339, 340, 341, 342, 343, 344, 345, 346, 347, 348, 349, 350, 351, 352, 353, 354, 355, 356, 357, 358, 359, 360, 361, 362, 363, 364, 365, 366, 367, 368, 369, 370, 371, 372, 373, 374, 375, 376, 377, 378, 379, 380, 381, 382, 383, 384, 385, 386, 387, 388, 389, 390, 391, 392, 393, 394, 395, 396, 397, 398, 399, 400, 401, 402, 403, 404, 405, 406, 407, 408});
 	public static final List<Integer> id_blocks = RegUtils.asArr(new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158});
 	public static final List<Integer> id_biomes = RegUtils.asArr(new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22});
@@ -39,32 +48,6 @@ public class RegUtils {
 	public static final List<Integer> id_dimensions = RegUtils.asArr(new int[]{0, -1, 1});
 	public static final List<Integer> id_empty = new ArrayList(0);
 	public static final int ITEM_SHIFT = 256;
-	
-//	public static <T> T[] getArr(RegTypes type)
-//	{
-//		switch(type)
-//		{
-//			case ITEM:
-//				return (T[]) Item.itemsList;
-//			case BLOCK:
-//				return (T[]) Block.blocksList;
-//			case BLOCK_GEN:
-//				return (T[]) Block.blocksList;
-//			case BIOME:
-//				return (T[]) BiomeGenBase.biomeList;
-//			case ENCHANTMENT:
-//				return (T[]) Enchantment.enchantmentsList;
-//			case POTION:
-//				return (T[]) Potion.potionTypes;
-//			case ENTITY:
-//				return (T[]) toArray(EntityList.IDtoClassMapping.keySet(), Integer.class);
-//			case DIMENSION:
-//				return (T[]) DimensionManager.getStaticDimensionIDs();
-//			case PROVIDER:
-//				return (T[]) DimensionManager.getStaticProviderIDs();//TODO: make this cached for AutoConfig
-//		}
-//		return null;
-//	}
 	
 	public static List<Integer> getVanillaIds(RegTypes type)
 	{
@@ -92,6 +75,63 @@ public class RegUtils {
 		return id_empty;
 	}
 	
+	public static String getName(int id, RegTypes type, Object o) throws InstantiationException, IllegalAccessException
+	{
+		if(o instanceof Item)
+			return trans(((Item)o).getUnlocalizedName());
+		else if(o instanceof Block)
+			return trans(((Block)o).getUnlocalizedName());
+		else if(o instanceof BiomeGenBase)
+			return ((BiomeGenBase)o).biomeName;
+		else if(o instanceof Enchantment)
+			return trans(((Enchantment)o).getName());
+		else if(o instanceof Potion)
+			return trans(((Potion)o).getName());
+		else if(type == RegTypes.PROVIDER)
+		{
+			Class<? extends WorldProvider> c = (Class<? extends WorldProvider>) o;
+			WorldProvider provider = c.newInstance();
+			provider.setDimension(id);
+			return provider.getDimensionName();
+		}
+		else if(type == RegTypes.DIMENSION)
+			return RegUtils.id_dimensions.contains(id) ? "vanilla" : "modded";
+		else if(type == RegTypes.ENTITY)
+			return getTransEntity((Class<? extends Entity>)o);
+		
+		return null;
+	}
+	
+	public static String trans(String unlocal) 
+	{
+		String str = StatCollector.translateToLocal(unlocal);
+		if(str.endsWith(".name"))
+			str = LanguageRegistry.instance().getStringLocalization(unlocal);
+		return str.isEmpty() ? unlocal : str;
+	}
+
+	/**
+	 * method adapted from mo spawn eggs mod which is also written by me
+	 */
+	public static String getTransEntity(Class<? extends Entity> o)
+	{
+		String entityId = (String) EntityList.classToStringMapping.get(o);
+        String s1 = StatCollector.translateToLocal("entity." + entityId + ".name");
+        if(s1.startsWith("entity."))
+        {
+        	EntityRegistration er = EntityRegistry.instance().entityClassRegistrations.get(EntityList.stringToClassMapping.get(entityId));
+        	if(er != null)
+        	{
+        		s1 = StatCollector.translateToLocal("entity." + er.getEntityName() + ".name");
+        		if(s1.startsWith("entity."))
+        			return er.getEntityName();//returns spawn + " " + realEntityId without the modid.entityId as the translated name when regular translation fails
+        	}
+        }
+        if(s1.startsWith("entity."))
+        	s1 = entityId;
+        return s1;
+	}
+
 	public static boolean isClassExtending(Class<? extends Object> base, Class<? extends Object> toCompare) 
 	{
 		return base.isAssignableFrom(toCompare);
@@ -280,6 +320,12 @@ public class RegUtils {
 	public static boolean isInsideDir(File baseDir, File file)
 	{
 		return file.getAbsolutePath().startsWith(baseDir.getAbsolutePath());
+	}
+
+	public static <T> T getFirst(Collection<T> col) 
+	{
+		Iterator<T> it = col.iterator();
+		return it.next();
 	}
 
 }

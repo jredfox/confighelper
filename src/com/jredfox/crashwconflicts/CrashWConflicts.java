@@ -35,7 +35,7 @@ import net.minecraft.item.ItemBlock;
 import net.minecraftforge.common.Configuration;
 import net.minecraftforge.common.DimensionManager;
 
-@Mod(modid = "crash-w-conflicts", name = "Crash With Conflicts", version = "build46")
+@Mod(modid = "crash-w-conflicts", name = "Crash With Conflicts", version = "build47")
 public class CrashWConflicts implements ITickHandler{
 	
 	public static boolean hasConflicts;
@@ -166,10 +166,14 @@ public class CrashWConflicts implements ITickHandler{
 			int count = 0;
 			for(Set<RegEntry> entries : reg.registered.values())
 			{
-				if(entries.size() < 2)
+				RegEntry first = RegUtils.getFirst(entries);
+				if(first == null || !reg.isConflicted(first.id))
 					continue;//skip the non conflicted registrations
+				StringBuilder b = new StringBuilder();
+				b.append("id:" + RegUtils.unshiftId(type, first.id) + (reg.hasItemBlock(entries) ? " blockId:" + first.id : ""));
 				for(RegEntry e : entries)
-					fw.write(e.oClass.getName());//TODO:
+					b.append(e.oClass + ", " + e.getName() + ", " + e.modid + ", " + e.modname + ", passable:" + e.passable + ", isGhost:" + e.isGhost);
+				fw.write(b.toString() + System.lineSeparator());
 				if(count++ % 300 == 0)
 					fw.flush();
 			}
