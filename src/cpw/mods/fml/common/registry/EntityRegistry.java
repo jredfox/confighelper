@@ -211,7 +211,7 @@ public class EntityRegistry
             FMLLog.warning("Compensating for modloader out of range compensation by mod : entityId %d for mod %s is now %d", id, Loader.instance().activeModContainer().getModId(), realId);
             realId += 3000;
         }
-        return EntityList.IDtoClassMapping.containsKey(realId) && !Registry.entities.isPassable(id, c) ? findGlobalUniqueEntityId() : realId;
+        return EntityList.IDtoClassMapping.containsKey(realId) && !Registry.entities.isPassable(id, c, EntityList.IDtoClassMapping) ? findGlobalUniqueEntityId() : realId;
     }
     
     /**

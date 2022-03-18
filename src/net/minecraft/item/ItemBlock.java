@@ -43,6 +43,7 @@ public class ItemBlock extends Item
     	if(Block.blocksList[this.blockID] == null)
     	{
     		System.out.println("null blockid:" + this.blockID + " item:" + Item.itemsList[this.itemID] + " " + Block.blocksList[this.itemID]);
+    		return 0;
     	}
         return Block.blocksList[this.blockID].getItemIconName() != null ? 1 : 0;
     }

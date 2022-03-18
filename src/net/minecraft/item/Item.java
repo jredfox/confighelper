@@ -263,8 +263,7 @@ public class Item
 
     public Item(int par1)
     {
-    	par1 = 256 + par1;
-    	par1 = Registry.items.reg(par1, this, Item.itemsList);
+    	par1 = Registry.items.reg(par1 + 256, this, Item.itemsList);
         this.itemID = par1;
         itemsList[par1] = this;
         GameData.newItemAdded(this);

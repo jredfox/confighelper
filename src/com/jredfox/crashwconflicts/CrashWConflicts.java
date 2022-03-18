@@ -60,25 +60,25 @@ public class CrashWConflicts implements ITickHandler{
 	@PreInit
 	public static void preInit(FMLPreInitializationEvent pi)
 	{
-//		//DimensionTest
-		DimensionManager.registerDimension(0, 0);
-		DimensionManager.registerDimension(-1, -1);
-		DimensionManager.registerProviderType(-1, WorldProviderSurface.class, true);
-		DimensionManager.registerProviderType(0, WorldProviderEnd.class, true);
-		
-		//conflict test
-		Item item1 = new Item(69).setUnlocalizedName("item.tst");
-		new Block(1, Material.anvil).setUnlocalizedName("tile.tst");
-		new BiomeGenOcean(3).setBiomeName("cwc-ocean");
-		new EnchantmentProtection(1, 5, 1);
-		new Potion(3, false, 400).setPotionName("cwcPotion1");
-		EntityRegistry.registerGlobalEntityID(D.class, "a", 50);
-		EntityList.addMapping(E.class, "a", 50);
-		new Item(69).setUnlocalizedName("item.tst2");
-		new Block(1, Material.anvil).setUnlocalizedName("tile.tst2");
-		new BiomeGenOcean(3).setBiomeName("cwc-ocean2");
-		new EnchantmentProtection(1, 5, 1);
-		new Potion(3, false, 400).setPotionName("Crash W Conflicts Potion Name");
+//		//DimensionTest ItemStack ItemBlock
+//		DimensionManager.registerDimension(0, 0);
+//		DimensionManager.registerDimension(-1, -1);
+//		DimensionManager.registerProviderType(-1, WorldProviderSurface.class, true);
+//		DimensionManager.registerProviderType(0, WorldProviderEnd.class, true);
+//		
+//		//conflict test
+//		Item item1 = new Item(69).setUnlocalizedName("item.tst");
+//		new Block(1, Material.anvil).setUnlocalizedName("tile.tst");
+//		new BiomeGenOcean(3).setBiomeName("cwc-ocean");
+//		new EnchantmentProtection(1, 5, 1);
+//		new Potion(3, false, 400).setPotionName("cwcPotion1");
+//		EntityRegistry.registerGlobalEntityID(D.class, "a", 50);
+//		EntityList.addMapping(E.class, "a", 50);
+//		new Item(69).setUnlocalizedName("item.tst2");
+//		new Block(1, Material.anvil).setUnlocalizedName("tile.tst2");
+//		new BiomeGenOcean(3).setBiomeName("cwc-ocean2");
+//		new EnchantmentProtection(1, 5, 1);
+//		new Potion(3, false, 400).setPotionName("Crash W Conflicts Potion Name");
 		
 		TickRegistry.registerTickHandler(new CrashWConflicts(), Side.CLIENT);
 	}

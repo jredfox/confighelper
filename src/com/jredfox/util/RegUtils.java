@@ -75,7 +75,7 @@ public class RegUtils {
 		return id_empty;
 	}
 	
-	public static String getName(int id, RegTypes type, Object o) throws InstantiationException, IllegalAccessException
+	public static String getName(int id, RegTypes type, Object o) throws Exception
 	{
 		if(o instanceof Item)
 			return ((Item)o).getStatName();
@@ -99,7 +99,7 @@ public class RegUtils {
 		else if(type == RegTypes.ENTITY)
 			return getTransEntity((Class<? extends Entity>)o);
 		
-		return null;
+		return "";
 	}
 	
 	public static String trans(String unlocal) 

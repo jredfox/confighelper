@@ -41,7 +41,7 @@ public class Registry {
 	public int min;
 	public int max;
 	public int index;
-	public boolean hasConflicts;
+	public boolean hasConflicts;//TODO: in crash report display what registries are crashing
 	public boolean initMc;//returns false if vanilla isn't pre-initialized
 	
 	public Registry(RegTypes type)
@@ -82,7 +82,7 @@ public class Registry {
 	{
 		this.sanityCheck(id);
 		this.orgIds.add(id);
-		if(this.isPassable(RegUtils.unshiftId(this.type, id), RegUtils.getOClass(obj)))
+		if(this.isPassable(id, RegUtils.getOClass(obj), arr))
 			return this.regPassable(id, obj);
 		Set<RegEntry> entries = this.getReg(id);
 		return entries.isEmpty() ? this.regDirect(new RegEntry(id, obj)) : this.regNextId(id, obj, arr);
@@ -158,14 +158,38 @@ public class Registry {
 		return entry.newId;
 	}
 
-	public boolean isPassable(int id, Class<?> nc)
+	/**
+	 * determines whether or not an object is allowed to override as an intended conflict
+	 */
+	public boolean isPassable(int orgId, Class<?> nc, Object arr)
 	{
-		boolean p = this.passables.contains(new Passable(id, nc.getName(), this.getMod().getModId()));
+		int unshifted = RegUtils.unshiftId(this.type, orgId);
+		boolean p = this.passables.contains(new Passable(unshifted, nc.getName(), this.getMod().getModId())) || this.registered.containsKey(orgId) && isNull(orgId, arr);
 		if(p)
-			System.out.println("skipping passable:" + id + " " + nc);
+			System.out.println("skipping passable:" + unshifted + " " + nc);
 		return p;
 	}
 	
+	public <T> boolean isNull(int id, Object arr)
+	{
+		switch(this.type)
+		{
+			case ENTITY:
+				return this.isNullMap(id, (Map) arr);
+			case PROVIDER:
+				return this.isNullMap(id, (Map) arr);
+			case DIMENSION:
+				return this.isNullMap(id, (Map) arr);
+			default:	
+				return ((T[])arr)[id] == null;
+		}
+	}
+
+	public boolean isNullMap(int id, Map arr) 
+	{
+		return !arr.containsKey(id);
+	}
+
 	/**
 	 * unregister the registration from the original id. doesn't work when there are conflicts
 	 */
@@ -196,7 +220,7 @@ public class Registry {
 	}
 	
 	/**
-	 * sets the initMc to true used to determine when the Minecraft mod container enforcement is disabled unless mod container is null or returns mc
+	 * sets the initMc to true used to determine when to used to determine whether or not the class this registry is for has been initialized yet
 	 */
 	public void initMc()
 	{
@@ -209,7 +233,6 @@ public class Registry {
 		public int orgId;
 		public Class<?> oClass;
 		public Object obj;
-		public String name;//will be null until it's time to write conflicts
 		public String modid;
 		public String modname;
 		public boolean passable;
