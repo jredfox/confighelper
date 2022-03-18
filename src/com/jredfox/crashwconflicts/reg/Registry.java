@@ -67,6 +67,19 @@ public class Registry {
 		return this.getReg(id).size() > 1;
 	}
 	
+	/**
+	 * @return true if it's only a passable conflict
+	 */
+	public boolean isPassableConflict(int id)
+	{
+		Set<RegEntry> li = this.getReg(id);
+		RegEntry first = RegUtils.getFirst(li);
+		for(RegEntry r : li)
+			if(r != first && !r.passable)
+				return false;
+		return li.size() > 1;
+	}
+	
 	public Set<RegEntry> getReg(int id)
 	{
 		Set<RegEntry> arr = this.registered.get(id);
@@ -164,7 +177,7 @@ public class Registry {
 	public boolean isPassable(int orgId, Class<?> nc, Object arr)
 	{
 		int unshifted = RegUtils.unshiftId(this.type, orgId);
-		boolean p = this.passables.contains(new Passable(unshifted, nc.getName(), this.getMod().getModId())) || this.registered.containsKey(orgId) && isNull(orgId, arr);
+		boolean p = this.passables.contains(new Passable(unshifted, nc.getName(), this.getMod().getModId())) || CrashWConflicts.passableNullables && this.registered.containsKey(orgId) && isNull(orgId, arr);
 		if(p)
 			System.out.println("skipping passable:" + unshifted + " " + nc);
 		return p;

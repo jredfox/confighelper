@@ -26,6 +26,7 @@ public class AutoConfig {
 	public List<File> blDirs = new ArrayList();
 	public Set<String> done = new HashSet();
 	public boolean useMaxIds;
+	public String[] exts;
 	
 	public AutoConfig()
 	{
@@ -37,7 +38,8 @@ public class AutoConfig {
 		clearOld();
 		Configuration cfg = new Configuration(new File(CrashWConflicts.cwcMain, "autoConfig.cfg"));
 		cfg.load();
-		useMaxIds = cfg.get("autoconfig", "useMaxIdAlgorithm", false).getBoolean(false);
+		this.useMaxIds = cfg.get("autoconfig", "useMaxIdAlgorithm", false).getBoolean(false);
+		this.exts = cfg.get("autoconfig", "extensions", "cfg,txt").getString().split(",");
 		Set<String> defaultData = new LinkedHashSet();
 		for(RegTypes t : RegTypes.values())
 			defaultData.add(t.name().toLowerCase() + "Id:" + RegUtils.getMin(t) + ":" + RegUtils.getMax(t));
@@ -120,7 +122,7 @@ public class AutoConfig {
 		long ms = System.currentTimeMillis();
 		for(Config cfgObj : this.cfgs)
 		{
-			Set<File> files = RegUtils.getDirFiles(cfgObj.cfgFile.getAbsoluteFile(), ".cfg");
+			List<File> files = RegUtils.getDirFiles(cfgObj.cfgFile.getAbsoluteFile(), this.exts);
 			boolean isDir = files.size() > 1;
 			for(File f : files)
 			{

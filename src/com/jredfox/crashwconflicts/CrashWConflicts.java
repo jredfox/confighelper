@@ -39,13 +39,15 @@ import net.minecraft.world.biome.BiomeGenOcean;
 import net.minecraftforge.common.Configuration;
 import net.minecraftforge.common.DimensionManager;
 
-@Mod(modid = "crash-w-conflicts", name = "Crash With Conflicts", version = "b48")
+@Mod(modid = "crash-w-conflicts", name = "Crash With Conflicts", version = "b49")
 public class CrashWConflicts implements ITickHandler{
 	
 	public static boolean hasConflicts;
 	public static int entId = 127;
 	public static boolean writeFreeIds;
 	public static boolean autocfg;
+	public static boolean showPassables;
+	public static boolean passableNullables;
 	public static File cwcMain = new File("config/cwc").getAbsoluteFile();
 	public static File cwcDir = new File(cwcMain, "dumpIds");
 	@SidedProxy(clientSide="com.jredfox.crashwconflicts.proxy.ClientProxy", serverSide="com.jredfox.crashwconflicts.proxy.Proxy")
@@ -54,6 +56,10 @@ public class CrashWConflicts implements ITickHandler{
 	static
 	{
 		initCfg();//called in mod's conctructor to prevent other conflicts from happening in pre-init before this mod is loaded. <clinit> can cause class initialization errors if the RegTypes's class isn't initialized yet
+	}
+	
+	public CrashWConflicts()
+	{
 		RegUtils.init();
 	}
 	
@@ -90,6 +96,8 @@ public class CrashWConflicts implements ITickHandler{
 		entId = cfg.get("global", "entityIdLimit", entId).getInt();
 		writeFreeIds = cfg.get("global", "writeFreeIds", true).getBoolean(true);
 		autocfg = cfg.get("global", "autoConfig", false).getBoolean(false);
+		showPassables = cfg.get("global", "showPassableConflicts", true).getBoolean(true);
+		passableNullables = cfg.get("global", "passableNullables", true, "allow mods to register to null indices which were previously registered as non null. Disable this if you have an unintended conflict from this and manually add each one to passables").getBoolean(true);
 		String[] arr = cfg.get("global", "passable", new String[0], "for dimensions use null as the class. Format=num:class:modid").getStringList();
 		for(String s : arr)
 		{
@@ -171,12 +179,12 @@ public class CrashWConflicts implements ITickHandler{
 			for(Set<RegEntry> entries : reg.registered.values())
 			{
 				RegEntry first = RegUtils.getFirst(entries);
-				if(first == null || !reg.isConflicted(first.newId))
-					continue;//skip the non conflicted registrations
+				if(first == null || !reg.isConflicted(first.newId) || !showPassables && reg.isPassableConflict(first.newId))
+					continue;
 				StringBuilder b = new StringBuilder();
 				b.append("id:" + RegUtils.unshiftId(type, first.newId) + (reg.hasItemBlock(entries) ? " blockId:" + first.newId : "") + System.lineSeparator());
 				for(RegEntry e : entries)
-					b.append("class:" + e.oClass.getName() + ", name:\"" + e.getName() + "\", modid:" + e.modid + ", modname:\"" + e.modname + "\", passable:" + e.passable + (e.newId != e.orgId ? ", newId:" + RegUtils.unshiftId(type, e.newId) : "") + System.lineSeparator());
+					b.append("class:" + e.oClass.getName() + ", name:\"" + e.getName() + "\", modid:" + e.modid + ", modname:\"" + e.modname + "\"" + (e.passable  ? ", passable:" + true : "") + (e.newId != e.orgId ? ", newId:" + RegUtils.unshiftId(type, e.newId) : "") + System.lineSeparator());
 				fw.write(b.toString());
 				if(count++ % 100 == 0)
 					fw.flush();
