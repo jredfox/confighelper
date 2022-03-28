@@ -155,7 +155,7 @@ public class CrashWConflicts implements ITickHandler{
 		{
 			int min = RegUtils.getMin(type, true);
 			int max = RegUtils.getMax(type, true);
-			Set<Integer> org = RegUtils.getFreeIds(type);
+			Set<Integer> org = RegUtils.getOccupiedIds(type);
 			Set<IdChunk> chunky = IdChunk.fromAround(min, max, org);
 			BufferedWriter fw = RegUtils.getWriter(new File(cwcDir, "freeids-" + type.name().substring(0, 1) + type.name().toLowerCase().substring(1) + ".txt"));
 			int count = 0;

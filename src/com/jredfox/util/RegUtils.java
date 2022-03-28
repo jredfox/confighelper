@@ -14,6 +14,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 import com.jredfox.crashwconflicts.CrashWConflicts;
 import com.jredfox.crashwconflicts.reg.Registry;
@@ -213,13 +214,13 @@ public class RegUtils {
 		return new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f), StandardCharsets.UTF_8));
 	}
 	
-	public static Set<Integer> getFreeIds(RegTypes type)
+	public static Set<Integer> getOccupiedIds(RegTypes type)
 	{
 		Set<Integer> ids = getOrgIds(type);
 		if(type == RegTypes.BLOCK)
 		{
 			ids = copyShallow(ids);
-			ids.addAll(getVanillaIds(RegTypes.ITEM));
+			ids.addAll(getOrgIds(RegTypes.ITEM));
 		}
 		return ids;
 	}

@@ -1,0 +1,18 @@
+bedrock isn't getting configured around even though it has been detected
+validate whether or not all the spam of unconfigured items is accurate
+add configuration hooks for autoconfig. at the end go through any missed properties
+categories that require script like things startswith and ends with for tropicraft mod as an example
+list of categories to increase / decrease value for broken mods
+list of properties to have a range value instead of a single value for mods like Colorful blocks
+
+add the advanced form of passables <id:oldClass:oldMod:newClass:newMod> people will be able to add selfconflicts that way as well as prevent unwanted conflicts
+if LaunchClassLoader exists stop the memory leaks by using a dummy map
+
+future:
+conflicts are in json
+add support for data watchers
+extend all ids original config helper did
+rename to confighelper porting to 1.6.4 and 1.7.10 using mixings to edit the classes this time
+
+done:
+configure around detectable unconfigured ids

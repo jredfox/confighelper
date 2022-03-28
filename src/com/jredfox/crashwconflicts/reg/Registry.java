@@ -34,7 +34,7 @@ public class Registry {
 	public Map<Integer, Set<RegEntry>> registered = new LinkedHashMap();
 	public Set<Integer> orgIds = new HashSet();
 	public List<Integer> bl = RegUtils.asArr(new int[]{Short.MAX_VALUE});//blacklisted ids ItemStack GameRegistry
-	public Set<Integer> unconfiguredIds = new HashSet();//TODO: a list of configured ids to avoid when using the autoconfig
+	public Set<Integer> unconfiguredIds = new HashSet();
 	public static Set<Passable> passables = new HashSet();//a global list of passable objects
 	public RegTypes type;
 	public int min;
@@ -109,7 +109,7 @@ public class Registry {
 			{
 				this.unconfiguredIds.add(id);
 				if(this.getMod() != vmc && !(obj instanceof ItemBlock))
-					System.err.println("unconfigured id:" + this.type + " " + this.getMod().getName() + " id:" + id + " " + obj.getClass().getName());
+					System.err.println("unconfigured id:" + this.type + " " + this.getMod().getName() + " id:" + RegUtils.unshiftId(this.type, id) + " " + obj.getClass().getName());
 			}
 		}
 		else if(this.type == RegTypes.BLOCK)
@@ -118,7 +118,7 @@ public class Registry {
 			{
 				this.unconfiguredIds.add(id);
 				if(this.getMod() != vmc)
-					System.err.println("unconfigured id:" + this.type + " " + this.getMod().getName() + " id:" + id + " " + obj.getClass().getName());
+					System.err.println("unconfigured id:" + this.type + " " + this.getMod().getName() + " id:" + RegUtils.unshiftId(this.type, id) + " " + obj.getClass().getName());
 			}
 		}
 	}

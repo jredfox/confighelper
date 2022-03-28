@@ -253,7 +253,7 @@ public class AutoConfig {
 
 	public boolean isUnconfigured(DataTypeEntry dt)
 	{
-		return dt.regType == RegTypes.BLOCK || dt.regType == RegTypes.BLOCK_GEN ? Registry.blocks.unconfiguredIds.contains(dt.index) : dt.regType == RegTypes.ITEM ? Registry.items.unconfiguredIds.contains(dt.index) : false;
+		return (dt.regType == RegTypes.BLOCK || dt.regType == RegTypes.BLOCK_GEN) ? (Registry.blocks.unconfiguredIds.contains(dt.index) || Registry.items.unconfiguredIds.contains(dt.index)) : dt.regType == RegTypes.ITEM ? Registry.items.unconfiguredIds.contains(dt.index) : false;
 	}
 
 	public void checkId(int i, DataTypeEntry dt)
