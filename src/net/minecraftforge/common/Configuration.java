@@ -31,7 +31,8 @@ import java.util.regex.Pattern;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.collect.ImmutableSet;
-import com.jredfox.crashwconflicts.cfg.ConfigVars;
+import com.jredfox.crashwconflicts.cfg.ConfigVarBlock;
+import com.jredfox.crashwconflicts.cfg.ConfigVarItem;
 
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.relauncher.FMLInjectionData;
@@ -135,16 +136,16 @@ public class Configuration
     	{
     		for(int i=upper-1;i>=lower;i--)//have to do -1 because they used size for the upper but index for the lower
     		{
-    			if(!ConfigVars.mark_blocks[i] && Block.blocksList[i] == null)
+    			if(!ConfigVarBlock.mark_blocks[i] && Block.blocksList[i] == null)
     			{
-    				ConfigVars.mark_blocks[i] = true;//keep track of what blocks we have used
+    				ConfigVarBlock.markBlock(i);//keep track of what blocks we have used
     				p.set(i);
     				return p;
     			}
     		}
     		throw new RuntimeException("out of free block ids for:" + this.file + " in cat:" + category + " min:" + lower + " max:" + upper);
     	}
-    	ConfigVars.mark_blocks[id] = true;//keep track of what's been registered
+    	ConfigVarBlock.markBlock(id);
     	return p;
     }
 
@@ -156,19 +157,19 @@ public class Configuration
     {
     	Property p = this.get(category, key, defaultID);
     	int id = p.getInt();
-    	int shifted = id + ConfigVars.ITEM_SHIFT;
-    	if(shifted < ConfigVars.ITEM_MIN || shifted > ConfigVars.ITEM_MAX)
-    		p.set(this.nextItemID() - ConfigVars.ITEM_SHIFT);//set out of bounds min item ids to max value
-    	ConfigVars.mark_items[p.getInt() + ConfigVars.ITEM_SHIFT] = true;
+    	int shifted = id + ConfigVarItem.ITEM_SHIFT;
+    	if(shifted < ConfigVarItem.ITEM_MIN || shifted > ConfigVarItem.ITEM_MAX)
+    		p.set(this.nextItemID() - ConfigVarItem.ITEM_SHIFT);//set out of bounds min item ids to max value
+    	ConfigVarItem.markItem(p.getInt() + ConfigVarItem.ITEM_SHIFT);
     	return p;
     }
 
     public int nextItemID() 
     {
-		for(int i=ConfigVars.item_index;i>=0;i--)
+		for(int i=ConfigVarItem.item_index;i>=0;i--)
 		{
-			ConfigVars.item_index--;
-			if(!ConfigVars.mark_items[i] && Item.itemsList[i] == null)
+			ConfigVarItem.item_index--;
+			if(!ConfigVarItem.mark_items[i] && Item.itemsList[i] == null)
 				return i;
 		}
 		throw new RuntimeException("Configuration is out of free ids!");

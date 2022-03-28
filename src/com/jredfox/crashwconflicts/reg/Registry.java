@@ -10,14 +10,13 @@ import java.util.Set;
 
 import com.jredfox.crashwconflicts.CrashWConflicts;
 import com.jredfox.crashwconflicts.Passable;
-import com.jredfox.crashwconflicts.reg.Registry.RegEntry;
+import com.jredfox.crashwconflicts.cfg.ConfigVarBlock;
+import com.jredfox.crashwconflicts.cfg.ConfigVarItem;
 import com.jredfox.util.RegTypes;
 import com.jredfox.util.RegUtils;
 
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.ModContainer;
-import cpw.mods.fml.common.registry.EntityRegistry;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 
 public class Registry {
@@ -35,7 +34,7 @@ public class Registry {
 	public Map<Integer, Set<RegEntry>> registered = new LinkedHashMap();
 	public Set<Integer> orgIds = new HashSet();
 	public List<Integer> bl = RegUtils.asArr(new int[]{Short.MAX_VALUE});//blacklisted ids ItemStack GameRegistry
-	public Set<Integer> configuredIds = new HashSet();//TODO: a list of configured ids to avoid when using the autoconfig
+	public Set<Integer> unconfiguredIds = new HashSet();//TODO: a list of configured ids to avoid when using the autoconfig
 	public static Set<Passable> passables = new HashSet();//a global list of passable objects
 	public RegTypes type;
 	public int min;
@@ -95,10 +94,33 @@ public class Registry {
 	{
 		this.sanityCheck(id);
 		this.orgIds.add(id);
+		this.regUncfg(id, obj);
 		if(this.isPassable(id, RegUtils.getOClass(obj), arr))
 			return this.regPassable(id, obj);
 		Set<RegEntry> entries = this.getReg(id);
 		return entries.isEmpty() ? this.regDirect(new RegEntry(id, obj)) : this.regNextId(id, obj, arr);
+	}
+
+	public <T> void regUncfg(int id, T obj)
+	{
+		if(this.type == RegTypes.ITEM)
+		{
+			if(!ConfigVarItem.mark_items[id])
+			{
+				this.unconfiguredIds.add(id);
+				if(this.getMod() != vmc && !(obj instanceof ItemBlock))
+					System.err.println("unconfigured id:" + this.type + " " + this.getMod().getName() + " id:" + id + " " + obj.getClass().getName());
+			}
+		}
+		else if(this.type == RegTypes.BLOCK)
+		{
+			if(!ConfigVarBlock.mark_blocks[id])
+			{
+				this.unconfiguredIds.add(id);
+				if(this.getMod() != vmc)
+					System.err.println("unconfigured id:" + this.type + " " + this.getMod().getName() + " id:" + id + " " + obj.getClass().getName());
+			}
+		}
 	}
 
 	public void sanityCheck(int id) 

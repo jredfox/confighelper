@@ -212,6 +212,27 @@ public class RegUtils {
 	{
 		return new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f), StandardCharsets.UTF_8));
 	}
+	
+	public static Set<Integer> getFreeIds(RegTypes type)
+	{
+		Set<Integer> ids = getOrgIds(type);
+		if(type == RegTypes.BLOCK)
+		{
+			ids = copyShallow(ids);
+			ids.addAll(getVanillaIds(RegTypes.ITEM));
+		}
+		return ids;
+	}
+
+	/**
+	 * returns a shallow copy of a list the objects inside the list are not copied
+	 */
+	public static <T> Set<T> copyShallow(Set<T> set)
+	{
+		Set<T> copySet = new HashSet(set.size());
+		copySet.addAll(set);
+		return copySet;
+	}
 
 	public static Set<Integer> getOrgIds(RegTypes type) 
 	{
@@ -283,14 +304,14 @@ public class RegUtils {
 			return Collections.emptyList();
 		if(!dir.isDirectory())
 		{
-			List<File> li = new ArrayList<>(1);
+			List<File> li = new ArrayList(1);
 			String ext = getExtension(dir);
 			boolean isType = blacklist ? !isExtEqual(ext, exts) : isExtEqual(ext, exts);
 			if(isType)
 				li.add(dir);
 			return li;
 		}
-		List<File> list = new ArrayList<>(dir.listFiles().length);
+		List<File> list = new ArrayList(dir.listFiles().length);
 		getDirFiles(list, dir, exts, blacklist);
 		return list;
 	}

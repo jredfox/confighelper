@@ -39,7 +39,7 @@ import net.minecraft.world.biome.BiomeGenOcean;
 import net.minecraftforge.common.Configuration;
 import net.minecraftforge.common.DimensionManager;
 
-@Mod(modid = "crash-w-conflicts", name = "Crash With Conflicts", version = "b49")
+@Mod(modid = "crash-w-conflicts", name = "Crash With Conflicts", version = "b50")
 public class CrashWConflicts implements ITickHandler{
 	
 	public static boolean hasConflicts;
@@ -66,7 +66,7 @@ public class CrashWConflicts implements ITickHandler{
 	@PreInit
 	public static void preInit(FMLPreInitializationEvent pi)
 	{
-//		//DimensionTest ItemStack ItemBlock
+//		//DimensionTest ItemStack ItemBlock GameRegistry ItemArmor
 //		DimensionManager.registerDimension(0, 0);
 //		DimensionManager.registerDimension(-1, -1);
 //		DimensionManager.registerProviderType(-1, WorldProviderSurface.class, true);
@@ -155,7 +155,7 @@ public class CrashWConflicts implements ITickHandler{
 		{
 			int min = RegUtils.getMin(type, true);
 			int max = RegUtils.getMax(type, true);
-			Set<Integer> org = RegUtils.getOrgIds(type);
+			Set<Integer> org = RegUtils.getFreeIds(type);
 			Set<IdChunk> chunky = IdChunk.fromAround(min, max, org);
 			BufferedWriter fw = RegUtils.getWriter(new File(cwcDir, "freeids-" + type.name().substring(0, 1) + type.name().toLowerCase().substring(1) + ".txt"));
 			int count = 0;

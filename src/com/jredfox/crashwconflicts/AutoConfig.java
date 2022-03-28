@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.jredfox.crashwconflicts.cfg.ConfigVarBlock;
+import com.jredfox.crashwconflicts.reg.Registry;
 import com.jredfox.util.IdChunk;
 import com.jredfox.util.RegTypes;
 import com.jredfox.util.RegUtils;
@@ -35,7 +37,7 @@ public class AutoConfig {
 	
 	public AutoConfig load()
 	{
-		clearOld();
+		this.clearOld();
 		Configuration cfg = new Configuration(new File(CrashWConflicts.cwcMain, "autoConfig.cfg"));
 		cfg.load();
 		this.useMaxIds = cfg.get("autoconfig", "useMaxIdAlgorithm", false).getBoolean(false);
@@ -124,6 +126,7 @@ public class AutoConfig {
 		{
 			List<File> files = RegUtils.getDirFiles(cfgObj.cfgFile.getAbsoluteFile(), this.exts);
 			boolean isDir = files.size() > 1;
+			Map<File, Configuration> cfgmap = new HashMap();
 			for(File f : files)
 			{
 				if(this.isBlackListed(f))
@@ -131,7 +134,7 @@ public class AutoConfig {
 					System.out.println("skipping blf:" + f);
 					continue;
 				}
-				Configuration cfg = this.getConfiguration(f);
+				Configuration cfg = this.getConfiguration(f, cfgmap);
 				if(cfg == null)
 				{
 					FMLLog.warning("maulformed config skipping:%s", f);
@@ -201,12 +204,16 @@ public class AutoConfig {
 		return false;
 	}
 
-	public Configuration getConfiguration(File f) 
+	public Configuration getConfiguration(File f, Map<File, Configuration> cfgmap) 
 	{
+		if(cfgmap.containsKey(f))
+			return cfgmap.get(f);
+		
 		try
 		{
 			Configuration cfg = new Configuration(f);
-			cfg.load();
+			cfgmap.put(f, cfg);
+//			cfg.load(); TODO: 1.6+ check to see if it still loads via constructor
 			return cfg;
 		}
 		catch(Throwable t)
@@ -221,24 +228,32 @@ public class AutoConfig {
 		return !this.done.add(catUri);
 	}
 
-	public int nextId(DataTypeEntry dt) 
+	public int nextId(DataTypeEntry dt)
 	{
 		if(!useMaxIds)
 		{
-			List<Integer> vanilla = RegUtils.getVanillaIds(dt.regType);
-			while(vanilla.contains(dt.index))
+			while(this.contains(dt))
 				dt.index++;
 			this.checkId(dt.index, dt);
 			return dt.index++;//return the result and then increment dt.index by one for next use
 		}
 		else
 		{
-			List<Integer> vanilla = RegUtils.getVanillaIds(dt.regType);
-			while(vanilla.contains(dt.index))
+			while(this.contains(dt))
 				dt.index--;
 			this.checkId(dt.index, dt);
 			return dt.index--;//return the result and then increment dt.index by one for next use
 		}
+	}
+
+	public boolean contains(DataTypeEntry dt)
+	{
+		return RegUtils.getVanillaIds(dt.regType).contains(dt.index) || dt.regType == RegTypes.BLOCK ? RegUtils.getVanillaIds(RegTypes.ITEM).contains(dt.index) : false || this.isUnconfigured(dt);//if the type is block make sure that it has a freeid for it's item block
+	}
+
+	public boolean isUnconfigured(DataTypeEntry dt)
+	{
+		return dt.regType == RegTypes.BLOCK || dt.regType == RegTypes.BLOCK_GEN ? Registry.blocks.unconfiguredIds.contains(dt.index) : dt.regType == RegTypes.ITEM ? Registry.items.unconfiguredIds.contains(dt.index) : false;
 	}
 
 	public void checkId(int i, DataTypeEntry dt)
