@@ -23,11 +23,13 @@ public class AutoConfig {
 	
 	public Map<String, DataTypeEntry> dataTypes = new HashMap();
 	public List<Config> cfgs = new ArrayList();
+	public List<Prop> props = new ArrayList();
 	public List<File> blfs = new ArrayList();
 	public List<File> blDirs = new ArrayList();
 	public Set<String> done = new HashSet();
 	public boolean useMaxIds;
 	public String[] exts;
+	public static AutoConfig INSTANCE = new AutoConfig();
 	
 	public AutoConfig()
 	{
@@ -76,7 +78,7 @@ public class AutoConfig {
 			File file = this.getFile(vals[0]);
 			if(!file.exists())
 			{
-				System.err.println("config entry is maulformed or contains an invalid file skipping. File:\"" + file.getAbsolutePath() + "\" config entry:" + s);
+				System.err.println("config entry is maulformed skipping:\"" + file.getAbsolutePath() + "\" config entry:" + s);
 				continue;
 			}
 			Cat[] cats = new Cat[vals.length - 1];
@@ -122,11 +124,14 @@ public class AutoConfig {
 	public void run() 
 	{
 		long ms = System.currentTimeMillis();
+		Set<Configuration> master = new HashSet();
+		
+		//autoconfig loop
+		Map<File, Configuration> cfgmap = new HashMap();
 		for(Config cfgObj : this.cfgs)
 		{
 			List<File> files = RegUtils.getDirFiles(cfgObj.cfgFile.getAbsoluteFile(), this.exts);
 			boolean isDir = files.size() > 1;
-			Map<File, Configuration> cfgmap = new HashMap();
 			for(File f : files)
 			{
 				if(this.isBlackListed(f))
@@ -180,9 +185,40 @@ public class AutoConfig {
 						}
 					}
 				}
-				cfg.save();
 			}
 		}
+		
+		//configuration hooks loop
+		Map<File, Configuration> ap_map = new HashMap();
+		for(Prop ap : this.props)
+		{
+			DataTypeEntry dt = this.dataTypes.get(ap.dataType);
+			if(dt == null)
+			{
+				System.err.println("skipping NULL dataType:" + ap.dataType);
+				continue;
+			}
+			Configuration cfg = this.getConfiguration(ap.file, ap_map);
+			if(cfg == null)
+			{
+				System.err.println("Config file missing or maulformed for auto hooks:" + ap.file.getPath());
+				continue;
+			}
+			else if(this.hasDone(ap.file, ap.cat))
+			{
+				System.out.println("skipping duplicate config property:" + ap.cat + ":" + ap.key);
+				continue;
+			}
+			Property p = cfg.get(ap.cat, ap.key, -1);
+			p.set(this.nextId(dt));
+		}
+		
+		//save all configs
+		master.addAll(cfgmap.values());
+		master.addAll(ap_map.values());
+		for(Configuration c : master)
+			c.save();
+		
 		System.out.println("AutoConfig completed in:" + (System.currentTimeMillis() - ms) + "ms");
 	}
 
@@ -227,6 +263,19 @@ public class AutoConfig {
 		String catUri = f.getPath() + ";" + cn;
 		return !this.done.add(catUri);
 	}
+	
+	/**
+	 * ADD a property to the auto config to be configured later
+	 */
+	public void addProperty(File file, String category, String key, RegTypes type)
+	{
+		this.addProperty(file, category, key, type.name() + "Id");
+	}
+
+	public void addProperty(File file, String category, String key, String type)
+	{
+		this.props.add(new Prop(file, category, key, type));
+	}
 
 	public int nextId(DataTypeEntry dt)
 	{
@@ -249,7 +298,6 @@ public class AutoConfig {
 	public boolean contains(DataTypeEntry dt)
 	{
 		return this.isUnconfigured(dt);
-//		return RegUtils.getVanillaIds(dt.regType).contains(dt.index) || dt.regType == RegTypes.BLOCK ? RegUtils.getVanillaIds(RegTypes.ITEM).contains(dt.index) : false || this.isUnconfigured(dt);//if the type is block make sure that it has a freeid for it's item block
 	}
 
 	public boolean isUnconfigured(DataTypeEntry dt)
@@ -328,6 +376,22 @@ public class AutoConfig {
 		public String toString()
 		{
 			return this.cfgFile.getPath() + this.cats;
+		}
+	}
+	
+	public class Prop
+	{
+		public File file;
+		public String cat;
+		public String key;
+		public String dataType;
+		
+		public Prop(File f, String c, String k, String type)
+		{
+			this.file = f;
+			this.cat = c;
+			this.key = k;
+			this.dataType = type;
 		}
 	}
 	

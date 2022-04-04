@@ -31,9 +31,11 @@ import java.util.regex.Pattern;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.collect.ImmutableSet;
+import com.jredfox.crashwconflicts.AutoConfig;
 import com.jredfox.crashwconflicts.cfg.CfgMarker;
 import com.jredfox.crashwconflicts.cfg.CfgVarBlock;
 import com.jredfox.crashwconflicts.cfg.CfgVarItem;
+import com.jredfox.util.RegTypes;
 
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.relauncher.FMLInjectionData;
@@ -134,6 +136,7 @@ public class Configuration
     public Property getBlockInternal(String category, String key, int d, String comment, int lower, int upper)
     {
     	Property p = this.get(category, key, d, comment);
+    	AutoConfig.INSTANCE.addProperty(this.file, category, key, RegTypes.BLOCK);
     	int id = p.getInt();
     	if(id < lower || id >= upper)
     	{
@@ -159,6 +162,7 @@ public class Configuration
     public Property getItem(String category, String key, int defaultID, String comment)
     {
     	Property p = this.get(category, key, defaultID);
+    	AutoConfig.INSTANCE.addProperty(this.file, category, key, RegTypes.ITEM);
     	int id = p.getInt();
     	int shifted = id + CfgVarItem.ITEM_SHIFT;
     	if(shifted < CfgVarItem.ITEM_MIN || shifted > CfgVarItem.ITEM_MAX)

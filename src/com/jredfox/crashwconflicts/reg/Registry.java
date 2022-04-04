@@ -127,7 +127,7 @@ public class Registry {
 	{
 		if(this.bl.contains(id))
 			throw new RuntimeException("invalid id for:" + this.type + " id:" + id);
-		if(!this.hasInit || this.max != RegUtils.getMax(this.type))
+		if(!this.hasInit || this.max != RegUtils.getMax(this.type, true))
 			this.init();//TODO: when ids are extended protect all vanilla static array's data from bad mods(either improperly extending ids or on purpose). but since I don't extend them yet most I can do is re-sync the init
 	}
 

@@ -210,7 +210,7 @@ public class CrashWConflicts implements ITickHandler{
 	{
 		firstTick = false;
 		if(autocfg)
-			new AutoConfig().load().run();
+			AutoConfig.INSTANCE.load().run();
 		dumpIds();
 	}
 

@@ -147,12 +147,12 @@ public class RegUtils {
 		return getMax(type, false);
 	}
 	
-	public static int getMin(RegTypes type, boolean unshifted) 
+	public static int getMin(RegTypes type, boolean shifted) 
 	{
 		switch(type)
 		{
 			case ITEM:
-				return unshifted ? Block.blocksList.length : Block.blocksList.length - ITEM_SHIFT;//avoid ItemBlocks as free ids it's -1 for length then +1 to start the index so no need to say -1 +1
+				return shifted ? Block.blocksList.length : Block.blocksList.length - ITEM_SHIFT;//avoid ItemBlocks as free ids it's -1 for length then +1 to start the index so no need to say -1 +1
 			case BLOCK:
 				return 256;
 			case PROVIDER:
@@ -164,12 +164,12 @@ public class RegUtils {
 		}
 	}
 	
-	public static int getMax(RegTypes type, boolean unshifted)
+	public static int getMax(RegTypes type, boolean shifted)
 	{
 		switch(type)
 		{
 			case ITEM:
-				return unshifted ? Item.itemsList.length - 1 : Item.itemsList.length - (ITEM_SHIFT + 1);
+				return shifted ? Item.itemsList.length - 1 : Item.itemsList.length - (ITEM_SHIFT + 1);
 			case BLOCK:
 				return Block.blocksList.length - 1;
 			case BLOCK_GEN:
