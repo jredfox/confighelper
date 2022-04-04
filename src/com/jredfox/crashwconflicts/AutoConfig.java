@@ -73,7 +73,7 @@ public class AutoConfig {
 		{
 			if(s.isEmpty())
 				continue;
-			s = s.substring(1, s.length() - 1).trim();
+			s = s.substring(1, s.length() - 1).trim();//gets rid of the '"' marks
 			String[] vals = s.split(";");
 			File file = this.getFile(vals[0]);
 			if(!file.exists())
@@ -124,10 +124,9 @@ public class AutoConfig {
 	public void run() 
 	{
 		long ms = System.currentTimeMillis();
-		Set<Configuration> master = new HashSet();
+		Map<File, Configuration> master = new HashMap();
 		
 		//autoconfig loop
-		Map<File, Configuration> cfgmap = new HashMap();
 		for(Config cfgObj : this.cfgs)
 		{
 			List<File> files = RegUtils.getDirFiles(cfgObj.cfgFile.getAbsoluteFile(), this.exts);
@@ -139,7 +138,7 @@ public class AutoConfig {
 					System.out.println("skipping blf:" + f);
 					continue;
 				}
-				Configuration cfg = this.getConfiguration(f, cfgmap);
+				Configuration cfg = this.getConfiguration(f, master);
 				if(cfg == null)
 				{
 					FMLLog.warning("maulformed config skipping:%s", f);
@@ -189,7 +188,6 @@ public class AutoConfig {
 		}
 		
 		//configuration hooks loop
-		Map<File, Configuration> ap_map = new HashMap();
 		for(Prop ap : this.props)
 		{
 			DataTypeEntry dt = this.dataTypes.get(ap.dataType);
@@ -198,15 +196,15 @@ public class AutoConfig {
 				System.err.println("skipping NULL dataType:" + ap.dataType);
 				continue;
 			}
-			Configuration cfg = this.getConfiguration(ap.file, ap_map);
+			Configuration cfg = this.getConfiguration(ap.file, master);
 			if(cfg == null)
 			{
 				System.err.println("Config file missing or maulformed for auto hooks:" + ap.file.getPath());
 				continue;
 			}
-			else if(this.hasDone(ap.file, ap.cat))
+			else if(this.hasDone(ap.file, ap.cat, false))
 			{
-				System.out.println("skipping duplicate config property:" + ap.cat + ":" + ap.key);
+//				System.out.println("skipping duplicate config property:" + ap.cat + ":" + ap.key);
 				continue;
 			}
 			Property p = cfg.get(ap.cat, ap.key, -1);
@@ -214,9 +212,7 @@ public class AutoConfig {
 		}
 		
 		//save all configs
-		master.addAll(cfgmap.values());
-		master.addAll(ap_map.values());
-		for(Configuration c : master)
+		for(Configuration c : master.values())
 			c.save();
 		
 		System.out.println("AutoConfig completed in:" + (System.currentTimeMillis() - ms) + "ms");
@@ -260,8 +256,13 @@ public class AutoConfig {
 
 	public boolean hasDone(File f, String cn)
 	{
+		return this.hasDone(f, cn, true);
+	}
+	
+	public boolean hasDone(File f, String cn, boolean add)
+	{
 		String catUri = f.getPath() + ";" + cn;
-		return !this.done.add(catUri);
+		return add ? !this.done.add(catUri) : this.done.contains(catUri);
 	}
 	
 	/**
@@ -297,7 +298,7 @@ public class AutoConfig {
 
 	public boolean contains(DataTypeEntry dt)
 	{
-		return this.isUnconfigured(dt);
+		return this.isUnconfigured(dt) || RegUtils.getVanillaIds(dt.regType).contains(RegUtils.shiftIndex(dt.regType, dt.index)) || (dt.regType == RegTypes.BLOCK ? RegUtils.getVanillaIds(RegTypes.ITEM).contains(dt.index) : false);
 	}
 
 	public boolean isUnconfigured(DataTypeEntry dt)
@@ -391,7 +392,7 @@ public class AutoConfig {
 			this.file = f;
 			this.cat = c;
 			this.key = k;
-			this.dataType = type;
+			this.dataType = type.toLowerCase();
 		}
 	}
 	

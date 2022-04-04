@@ -140,7 +140,7 @@ public class Configuration
     	int id = p.getInt();
     	if(id < lower || id >= upper)
     	{
-    		for(int i=upper;i>=lower;i--)//have to do -1 because they used size for the upper but index for the lower
+    		for(int i=upper-1;i>=lower;i--)//have to do -1 because they used size for the upper but index for the lower
     		{
     			if(!CfgVarBlock.markBlocks.isMarked(i) && Block.blocksList[i] == null && (upper > 255 ? Item.itemsList[i] == null : true))//TODO: change per mc version
     			{
