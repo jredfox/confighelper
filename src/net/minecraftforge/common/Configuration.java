@@ -31,8 +31,9 @@ import java.util.regex.Pattern;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.collect.ImmutableSet;
-import com.jredfox.crashwconflicts.cfg.ConfigVarBlock;
-import com.jredfox.crashwconflicts.cfg.ConfigVarItem;
+import com.jredfox.crashwconflicts.cfg.CfgMarker;
+import com.jredfox.crashwconflicts.cfg.CfgVarBlock;
+import com.jredfox.crashwconflicts.cfg.CfgVarItem;
 
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.relauncher.FMLInjectionData;
@@ -67,6 +68,7 @@ public class Configuration
     private String fileName = null;
     public boolean isChild = false;
     private boolean changed = false;
+    public String modid = CfgMarker.getModId();
     
     public Configuration()
     {
@@ -78,6 +80,7 @@ public class Configuration
      */
     public Configuration(File file)
     {
+    	this();
         this.file = file;
         String basePath = ((File)(FMLInjectionData.data()[6])).getAbsolutePath().replace(File.separatorChar, '/').replace("/.", "");
         String path = file.getAbsolutePath().replace(File.separatorChar, '/').replace("/./", "/").replace(basePath, "");
@@ -125,7 +128,7 @@ public class Configuration
      */
     public Property getTerrainBlock(String category, String key, int defaultID, String comment)
     {
-        return getBlockInternal(category, key, defaultID, comment, 0, 256); 
+        return getBlockInternal(category, key, defaultID, comment, 0, 255);
     }
 
     public Property getBlockInternal(String category, String key, int d, String comment, int lower, int upper)
@@ -134,18 +137,18 @@ public class Configuration
     	int id = p.getInt();
     	if(id < lower || id >= upper)
     	{
-    		for(int i=upper-1;i>=lower;i--)//have to do -1 because they used size for the upper but index for the lower
+    		for(int i=upper;i>=lower;i--)//have to do -1 because they used size for the upper but index for the lower
     		{
-    			if(!ConfigVarBlock.mark_blocks[i] && Block.blocksList[i] == null)
+    			if(!CfgVarBlock.markBlocks.isMarked(i) && Block.blocksList[i] == null && (upper > 255 ? Item.itemsList[i] == null : true))//TODO: change per mc version
     			{
-    				ConfigVarBlock.markBlock(i);//keep track of what blocks we have used
+    				CfgVarBlock.markBlocks.mark(i, this.modid);//keep track of what blocks we have used
     				p.set(i);
     				return p;
     			}
     		}
     		throw new RuntimeException("out of free block ids for:" + this.file + " in cat:" + category + " min:" + lower + " max:" + upper);
     	}
-    	ConfigVarBlock.markBlock(id);
+    	CfgVarBlock.markBlocks.mark(id, this.modid);
     	return p;
     }
 
@@ -157,19 +160,19 @@ public class Configuration
     {
     	Property p = this.get(category, key, defaultID);
     	int id = p.getInt();
-    	int shifted = id + ConfigVarItem.ITEM_SHIFT;
-    	if(shifted < ConfigVarItem.ITEM_MIN || shifted > ConfigVarItem.ITEM_MAX)
-    		p.set(this.nextItemID() - ConfigVarItem.ITEM_SHIFT);//set out of bounds min item ids to max value
-    	ConfigVarItem.markItem(p.getInt() + ConfigVarItem.ITEM_SHIFT);
+    	int shifted = id + CfgVarItem.ITEM_SHIFT;
+    	if(shifted < CfgVarItem.ITEM_MIN || shifted > CfgVarItem.ITEM_MAX)
+    		p.set(this.nextItemID() - CfgVarItem.ITEM_SHIFT);//set out of bounds min item ids to max value
+    	CfgVarItem.markItems.mark(p.getInt() + CfgVarItem.ITEM_SHIFT, this.modid);
     	return p;
     }
 
     public int nextItemID() 
     {
-		for(int i=ConfigVarItem.item_index;i>=0;i--)
+		for(int i=CfgVarItem.item_index;i>=0;i--)
 		{
-			ConfigVarItem.item_index--;
-			if(!ConfigVarItem.mark_items[i] && Item.itemsList[i] == null)
+			CfgVarItem.item_index--;
+			if(!CfgVarItem.markItems.isMarked(i) && Item.itemsList[i] == null)
 				return i;
 		}
 		throw new RuntimeException("Configuration is out of free ids!");

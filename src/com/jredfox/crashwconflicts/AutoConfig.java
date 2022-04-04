@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.jredfox.crashwconflicts.cfg.ConfigVarBlock;
 import com.jredfox.crashwconflicts.reg.Registry;
 import com.jredfox.util.IdChunk;
 import com.jredfox.util.RegTypes;
@@ -64,6 +63,7 @@ public class AutoConfig {
 			else
 				this.blfs.add(f);
 		}
+		this.blDirs.add(CrashWConflicts.cwcMain);//blacklist cwc as it won't return configurable mc datatypes and will result in maulformed configs
 		
 		//parse the auto config data entries
 		String[] arr = cfg.get("autoconfig", "entries", new String[]{"\"root/config;item:itemId;block:blockId;biome:biomeId;biomes:biomeId\""}, "the format is \"file.cfg;category:dataType\" To add more categories just append the \";category:dataType\"").getStringList();
@@ -204,7 +204,7 @@ public class AutoConfig {
 		return false;
 	}
 
-	public Configuration getConfiguration(File f, Map<File, Configuration> cfgmap) 
+	public Configuration getConfiguration(File f, Map<File, Configuration> cfgmap)
 	{
 		if(cfgmap.containsKey(f))
 			return cfgmap.get(f);
@@ -248,12 +248,22 @@ public class AutoConfig {
 
 	public boolean contains(DataTypeEntry dt)
 	{
-		return RegUtils.getVanillaIds(dt.regType).contains(dt.index) || dt.regType == RegTypes.BLOCK ? RegUtils.getVanillaIds(RegTypes.ITEM).contains(dt.index) : false || this.isUnconfigured(dt);//if the type is block make sure that it has a freeid for it's item block
+		return this.isUnconfigured(dt);
+//		return RegUtils.getVanillaIds(dt.regType).contains(dt.index) || dt.regType == RegTypes.BLOCK ? RegUtils.getVanillaIds(RegTypes.ITEM).contains(dt.index) : false || this.isUnconfigured(dt);//if the type is block make sure that it has a freeid for it's item block
 	}
 
 	public boolean isUnconfigured(DataTypeEntry dt)
 	{
-		return (dt.regType == RegTypes.BLOCK || dt.regType == RegTypes.BLOCK_GEN) ? (Registry.blocks.unconfiguredIds.contains(dt.index) || Registry.items.unconfiguredIds.contains(dt.index)) : dt.regType == RegTypes.ITEM ? Registry.items.unconfiguredIds.contains(dt.index) : false;
+		int index = RegUtils.shiftIndex(dt.regType, dt.index);
+		switch(dt.regType)
+		{
+			case BLOCK:
+				return Registry.blocks.unconfiguredIds.contains(index) || Registry.items.unconfiguredIds.contains(index);
+			case ITEM:
+				return Registry.items.unconfiguredIds.contains(index);
+			default:
+				return false;
+		}
 	}
 
 	public void checkId(int i, DataTypeEntry dt)

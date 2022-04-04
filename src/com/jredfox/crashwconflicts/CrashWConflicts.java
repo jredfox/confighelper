@@ -39,7 +39,7 @@ import net.minecraft.world.biome.BiomeGenOcean;
 import net.minecraftforge.common.Configuration;
 import net.minecraftforge.common.DimensionManager;
 
-@Mod(modid = "crash-w-conflicts", name = "Crash With Conflicts", version = "b50")
+@Mod(modid = "crash-w-conflicts", name = "Crash With Conflicts", version = "b51")
 public class CrashWConflicts implements ITickHandler{
 	
 	public static boolean hasConflicts;
@@ -155,6 +155,7 @@ public class CrashWConflicts implements ITickHandler{
 		{
 			int min = RegUtils.getMin(type, true);
 			int max = RegUtils.getMax(type, true);
+//			min = 0;
 			Set<Integer> org = RegUtils.getOccupiedIds(type);
 			Set<IdChunk> chunky = IdChunk.fromAround(min, max, org);
 			BufferedWriter fw = RegUtils.getWriter(new File(cwcDir, "freeids-" + type.name().substring(0, 1) + type.name().toLowerCase().substring(1) + ".txt"));

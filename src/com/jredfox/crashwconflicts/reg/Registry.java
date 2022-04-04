@@ -10,8 +10,8 @@ import java.util.Set;
 
 import com.jredfox.crashwconflicts.CrashWConflicts;
 import com.jredfox.crashwconflicts.Passable;
-import com.jredfox.crashwconflicts.cfg.ConfigVarBlock;
-import com.jredfox.crashwconflicts.cfg.ConfigVarItem;
+import com.jredfox.crashwconflicts.cfg.CfgVarBlock;
+import com.jredfox.crashwconflicts.cfg.CfgVarItem;
 import com.jredfox.util.RegTypes;
 import com.jredfox.util.RegUtils;
 
@@ -105,7 +105,7 @@ public class Registry {
 	{
 		if(this.type == RegTypes.ITEM)
 		{
-			if(!ConfigVarItem.mark_items[id])
+			if(CfgVarItem.markItems.isUnconfigured(id))
 			{
 				this.unconfiguredIds.add(id);
 				if(this.getMod() != vmc && !(obj instanceof ItemBlock))
@@ -114,7 +114,7 @@ public class Registry {
 		}
 		else if(this.type == RegTypes.BLOCK)
 		{
-			if(!ConfigVarBlock.mark_blocks[id])
+			if(CfgVarBlock.markBlocks.isUnconfigured(id))
 			{
 				this.unconfiguredIds.add(id);
 				if(this.getMod() != vmc)

@@ -199,6 +199,11 @@ public class RegUtils {
 	{
 		return type == RegTypes.ITEM ? id - ITEM_SHIFT : id;
 	}
+	
+	public static int shiftIndex(RegTypes regType, int index) 
+	{
+		return regType == RegTypes.ITEM ? index + ITEM_SHIFT : index;
+	}
 
 	public static Object[] getArr(Collection<Integer> col, int size) 
 	{
