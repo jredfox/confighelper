@@ -130,10 +130,10 @@ public class AutoConfig {
 		for(Config cfgObj : this.cfgs)
 		{
 			List<File> files = RegUtils.getDirFiles(cfgObj.cfgFile.getAbsoluteFile(), this.exts);
-			boolean isDir = files.size() > 1;
+			boolean isDir = cfgObj.cfgFile.isDirectory();
 			for(File f : files)
 			{
-				if(this.isBlackListed(f))
+				if(isDir && this.isBlackListed(f))//isDir is here so it doesn't ignore specified configs regardless of blacklisted domain
 				{
 					System.out.println("skipping blf:" + f);
 					continue;
