@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import com.jredfox.crashwconflicts.reg.Registry;
@@ -165,7 +166,7 @@ public class AutoConfig {
 							}
 							for(Property p : cfg.getCategory(cn).values())
 							{
-								if(p.isIntValue())
+								if(p.isIntValue() && !this.hasProp(f, cn, p.getName()))
 									p.set(this.nextId(dt));
 							}
 						}
@@ -179,7 +180,7 @@ public class AutoConfig {
 						}
 						for(Property p : cfg.getCategory(cat.cat).values())
 						{
-							if(p.isIntValue())
+							if(p.isIntValue() && !this.hasProp(f, cat.cat, p.getName()))
 								p.set(this.nextId(dt));
 						}
 					}
@@ -202,11 +203,11 @@ public class AutoConfig {
 				System.err.println("Config file missing or maulformed for auto hooks:" + ap.file.getPath());
 				continue;
 			}
-			else if(this.hasDone(ap.file, ap.cat, false))
-			{
-//				System.out.println("skipping duplicate config property:" + ap.cat + ":" + ap.key);
-				continue;
-			}
+//			else if(this.hasDone(ap.file, ap.cat, false))
+//			{
+////			System.out.println("skipping duplicate config property:" + ap.cat + ":" + ap.key);
+//				continue;
+//			}
 			Property p = cfg.get(ap.cat, ap.key, -1);
 			p.set(this.nextId(dt));
 		}
@@ -263,6 +264,11 @@ public class AutoConfig {
 	{
 		String catUri = f.getPath() + ";" + cn;
 		return add ? !this.done.add(catUri) : this.done.contains(catUri);
+	}
+	
+	public boolean hasProp(File f, String cat, String key) 
+	{
+		return this.props.contains(new Prop(f, cat, key, null));
 	}
 	
 	/**
@@ -392,7 +398,22 @@ public class AutoConfig {
 			this.file = f;
 			this.cat = c;
 			this.key = k;
-			this.dataType = type.toLowerCase();
+			this.dataType = type != null ? type.toLowerCase() : null;
+		}
+		
+		@Override
+		public int hashCode()
+		{
+			return Objects.hash(this.cat, this.key);
+		}
+		
+		@Override
+		public boolean equals(Object o)
+		{
+			if(!(o instanceof Prop))
+				return false;
+			Prop p = (Prop)o;
+			return this.file.equals(p.file) && this.cat.equals(p.cat) && this.key.equals(p.key);
 		}
 	}
 	

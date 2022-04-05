@@ -136,7 +136,7 @@ public class Configuration
     public Property getBlockInternal(String category, String key, int d, String comment, int lower, int upper)
     {
     	Property p = this.get(category, key, d, comment);
-    	AutoConfig.INSTANCE.addProperty(this.file, category, key, RegTypes.BLOCK);
+    	AutoConfig.INSTANCE.addProperty(this.file, category, key, upper > 255 ? RegTypes.BLOCK : RegTypes.BLOCK_GEN);//TODO: version specific
     	int id = p.getInt();
     	if(id < lower || id >= upper)
     	{
