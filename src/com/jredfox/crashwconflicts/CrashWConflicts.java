@@ -39,7 +39,7 @@ import net.minecraft.world.biome.BiomeGenOcean;
 import net.minecraftforge.common.Configuration;
 import net.minecraftforge.common.DimensionManager;
 
-@Mod(modid = "crash-w-conflicts", name = "Crash With Conflicts", version = "b52")
+@Mod(modid = "crash-w-conflicts", name = "Crash With Conflicts", version = "b54")
 public class CrashWConflicts implements ITickHandler{
 	
 	public static boolean hasConflicts;

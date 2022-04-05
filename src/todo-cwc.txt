@@ -1,11 +1,5 @@
-mo creatures configuration hooks are not overriding specified blocks even though it ignores black list
-block_gen properties are getting incorrectly overriden
-check highlands and secret rooms mod not giving out the correct ids
-finish fixing any bugs with the auto config
-categories that require script like things startswith and ends with for tropicraft mod as an example
-list of categories to increase / decrease value for broken mods
-list of properties to have a range value instead of a single value for mods like Colorful blocks
-
+custom properties with range support and scripting
+free ids appear to have gaps in them figure out why
 add the advanced form of passables <id:oldClass:oldMod:newClass:newMod> people will be able to add selfconflicts that way as well as prevent unwanted conflicts
 if LaunchClassLoader exists stop the memory leaks by using a dummy map
 
@@ -13,6 +7,3 @@ future:
 add support for data watchers
 extend all ids original config helper did
 rename to confighelper porting to 1.6.4 and 1.7.10 using mixings to edit the classes this time
-
-done:
-fixed specified configuration files won't fire if it's under a blacklisted domain

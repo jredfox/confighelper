@@ -1,0 +1,27 @@
+#<file.cfg or script>:<cat or script>:<property name or script>:<dataType>:<ids count>:<shift> #if a mod does weird stuff where the configured id != item id + 256 then change the shift and determine it by using bytecode viewer. note that ItemBlock ids are equal to the block id so they will have a -256 when constructing the ItemBlock but only once
+tropicraft/ModIds.cfg:tropicraft ids:%s'BLOCK_'%e'_ID':blockId:1:0 #tropicraft
+tropicraft/ModIds.cfg:tropicraft ids:%s'ITEM_'%e'_ID':itemId:1:0 #tropicraft
+tropicraft/ModIds.cfg:tropicraft ids:%s'ENCHANT_':enchantmentId:1:0 #tropicraft
+coloredblocksmod.cfg:block:IDS:50:0 #colored blocks mod
+LionKing.cfg:item:%s*!'Silver Pickaxe':1:-256 #this creates all properties of the category minus the Silver Pickaxe property
+HarkenScythe_Core.cfg:blood system:Altar- Altar of Blood:blockId:1:0
+Colorful_Armor.cfg:*:*:itemId:1:0
+Colorful_Armor.cfg:*:%sBoots%sHelm%sLeggings%sPlate:itemId:1:0#this says the same thing above it but was able to be alot more specific in case for example blocks were added to each category to for some reason
+root/config:%sitem%sitems:*:itemId:1:0 #this says to do all the configuration files with item or items category and using the data type of itemId with an increment of 1
+root/config:%sblocks!%sblocksAndBiomes:*:blockId:1:0 #this tells it to do all blocks category but not anything that starts with blocksAndBiomes
+
+opperands for scripting:
+%s = starts with
+%e = ends with
+! = not category or not opperand
+* = any can be applied either to the category name or the key for the category or even the file
+
+notes:
+- concrete property: a property which has a specified name and isn't grabbed from a script example:blocks as "blocks" != %sblocks which could be anything like "blocks123"
+- duplicatate concrete properties inside of configs are skipped whether it be grabbed from a script or conecrate property
+- if a property is specified by either a script or otherwise it will skip the main cwc auto config loop on that property
+- if using the "!" the next must be an opperand or string which cannot be "!" or "*"
+- the id cound must be >= 1
+- the shift must be 0 unless a mod has broken ids
+- '%!:* are all forbidden characters inside of a property category
+- :; are all forbidden characters of the main auto config

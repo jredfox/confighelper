@@ -212,7 +212,7 @@ public class AutoConfig {
 			p.set(this.nextId(dt));
 		}
 		
-		//save all configs
+//		save all configs
 		for(Configuration c : master.values())
 			c.save();
 		
