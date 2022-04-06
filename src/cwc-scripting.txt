@@ -1,13 +1,15 @@
+#<file.cfg or script>:<cat or script>:<property name or script>:<dataType> for auto properties that count is 1 and shift is 0
 #<file.cfg or script>:<cat or script>:<property name or script>:<dataType>:<int count>:<int shift>
 
 Examples:
-*:@'items'@'items'@'item ids':*:itemId:1:0
-*:@'block'@'blocks'@'block ids':*:blockId:1:0
-*:@'biomes'@'biomes.biome ids'@'biomes.sub-biome ids':*:biomeId:1:0
-*:@'enchantment'@'custom enchantments':*:enchantmentId:1:0
+*:@'item'|@'items'|@'item ids':*:itemId:1:0
+*:@'block'|@'blocks'|@'block ids':*:blockId:1:0
+*:@'biomes'|@'biomes.biome ids'|@'biomes.sub-biome ids':*:biomeId:1:0
+*:@'enchantment'|@'custom enchantments':*:enchantmentId:1:0
 Colorful_Armor.cfg:*:*:itemId:1:0
-tropicraft/ModIds.cfg:*:%s'ITEM_'&%e'_ID':itemId:1:0
-tropicraft/ModIds.cfg:*:%s'BLOCK_'&%e'_ID':blockId:1:0
+Colorful_Armor.cfg:*:%s'Boots'|%s'Leggings'|%s'Chest'|%s'Helmet':itemId:1:0
+tropicraft/ModIds.cfg:*:%s'ITEM_'%e'_ID':itemId:1:0
+tropicraft/ModIds.cfg:*:%s'BLOCK_'%e'_ID':blockId:1:0
 tropicraft/ModIds.cfg:*:%s'ENCHANTMENT_':enchantment:1:0
 LionKing.cfg:items:*:itemId:1:256
 coloredblocksmod.cfg:%sitems:IDS:itemId:50:0 #as this takes up 50 places
@@ -33,15 +35,15 @@ opperands for scripting:
 %s = starts with
 %e = ends with
 %c = contains
-& = append next opperand with previous one or the next operrand will become an or statement instead of appending it
-! = not category or not opperand
-* = any can be applied either to the category name or the key for the category or even the file
+| = the or opperand this starts the next statement
+! = not opperand
+* = applied as the script itself to always return true
 ' = a string with spacing support
-@ = equals a string use when scripting
+@ = equals a string use when scripting operands > 1
++ = regex expresion for the entire string
 # = comments the rest of the entire line out
 
 illegal opperand appending:
-& !
 @ & @
 & &
 ! !
