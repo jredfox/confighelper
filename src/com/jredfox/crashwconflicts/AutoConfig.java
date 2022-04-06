@@ -342,22 +342,9 @@ public class AutoConfig {
 		public DataTypeEntry(String type, IdChunk chunk)
 		{
 			this.type = type;
-			this.regType = this.getRegType(type);
+			this.regType = AutoConfig.getRegType(type);
 			this.range = chunk;
 			this.index = useMaxIds ? chunk.maxId : chunk.minId;
-		}
-		
-		public RegTypes getRegType(String type)
-		{
-			try
-			{
-				return RegTypes.valueOf(type.toUpperCase().substring(0, type.length() - 2));
-			}
-			catch(Throwable t)
-			{
-				System.err.println("NULL DataType for:\"" + type.toUpperCase() + "\" Vanilla ids won't work on this DataType!");
-				return null;
-			}
 		}
 
 		@Override
@@ -431,6 +418,19 @@ public class AutoConfig {
 		public String toString()
 		{
 			return this.cat + ":" + this.dataType;
+		}
+	}
+	
+	public static RegTypes getRegType(String type)
+	{
+		try
+		{
+			return RegTypes.valueOf(type.toUpperCase().substring(0, type.length() - 2));
+		}
+		catch(Throwable t)
+		{
+			System.err.println("NULL DataType for:\"" + type.toUpperCase() + "\" Vanilla ids won't work on this DataType!");
+			return null;
 		}
 	}
 

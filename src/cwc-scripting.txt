@@ -1,27 +1,51 @@
-#<file.cfg or script>:<cat or script>:<property name or script>:<dataType>:<ids count>:<shift> #if a mod does weird stuff where the configured id != item id + 256 then change the shift and determine it by using bytecode viewer. note that ItemBlock ids are equal to the block id so they will have a -256 when constructing the ItemBlock but only once
-tropicraft/ModIds.cfg:tropicraft ids:%s'BLOCK_'%e'_ID':blockId:1:0 #tropicraft
-tropicraft/ModIds.cfg:tropicraft ids:%s'ITEM_'%e'_ID':itemId:1:0 #tropicraft
-tropicraft/ModIds.cfg:tropicraft ids:%s'ENCHANT_':enchantmentId:1:0 #tropicraft
-coloredblocksmod.cfg:block:IDS:50:0 #colored blocks mod
-LionKing.cfg:item:%s*!'Silver Pickaxe':1:-256 #this creates all properties of the category minus the Silver Pickaxe property
-HarkenScythe_Core.cfg:blood system:Altar- Altar of Blood:blockId:1:0
+#<file.cfg or script>:<cat or script>:<property name or script>:<dataType>:<int count>:<int shift>
+
+Examples:
+*:@'items'@'items'@'item ids':*:itemId:1:0
+*:@'block'@'blocks'@'block ids':*:blockId:1:0
+*:@'biomes'@'biomes.biome ids'@'biomes.sub-biome ids':*:biomeId:1:0
+*:@'enchantment'@'custom enchantments':*:enchantmentId:1:0
 Colorful_Armor.cfg:*:*:itemId:1:0
-Colorful_Armor.cfg:*:%sBoots%sHelm%sLeggings%sPlate:itemId:1:0#this says the same thing above it but was able to be alot more specific in case for example blocks were added to each category to for some reason
-root/config:%sitem%sitems:*:itemId:1:0 #this says to do all the configuration files with item or items category and using the data type of itemId with an increment of 1
-root/config:%sblocks!%sblocksAndBiomes:*:blockId:1:0 #this tells it to do all blocks category but not anything that starts with blocksAndBiomes
+tropicraft/ModIds.cfg:*:%s'ITEM_'&%e'_ID':itemId:1:0
+tropicraft/ModIds.cfg:*:%s'BLOCK_'&%e'_ID':blockId:1:0
+tropicraft/ModIds.cfg:*:%s'ENCHANTMENT_':enchantment:1:0
+LionKing.cfg:items:*:itemId:1:256
+coloredblocksmod.cfg:%sitems:IDS:itemId:50:0 #as this takes up 50 places
+
+list of domains to pull configs from:
+root/config
+root if enabled
+specified paths
+
+list of extensions: 
+txt, cfg
+
+rules:
+- all scripts are just a boolean to determine if the property should get configured
+- order is configuration hooks(item / block) as the first script to ensure it will always get done
+- the shift is overriden by the last script != 0 or 0 if none are found
+- the count is overriden by the last script > 1 or 1 if none are found
+- all strings are lowercased if enabled to ensure user friendly scripting
+- count must be > 0
+- if you don't have the desired output you made your scripts not specific enough or simply have them in the wrong order
 
 opperands for scripting:
 %s = starts with
 %e = ends with
+%c = contains
+& = append next opperand with previous one or the next operrand will become an or statement instead of appending it
 ! = not category or not opperand
 * = any can be applied either to the category name or the key for the category or even the file
+' = a string with spacing support
+@ = equals a string use when scripting
+# = comments the rest of the entire line out
 
-notes:
-- concrete property: a property which has a specified name and isn't grabbed from a script example:blocks as "blocks" != %sblocks which could be anything like "blocks123"
-- duplicatate concrete properties inside of configs are skipped whether it be grabbed from a script or conecrate property
-- if a property is specified by either a script or otherwise it will skip the main cwc auto config loop on that property
-- if using the "!" the next must be an opperand or string which cannot be "!" or "*"
-- the id cound must be >= 1
-- the shift must be 0 unless a mod has broken ids
-- '%!:* are all forbidden characters inside of a property category
-- :; are all forbidden characters of the main auto config
+illegal opperand appending:
+& !
+@ & @
+& &
+! !
+! *
+
+illegal scripting:
+*:*:* because any file with any category with any property name cannot be determined for a specified data type

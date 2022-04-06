@@ -1,4 +1,4 @@
-custom properties with range support and scripting
+autoconfig 2
 free ids appear to have gaps in them figure out why
 add the advanced form of passables <id:oldClass:oldMod:newClass:newMod> people will be able to add selfconflicts that way as well as prevent unwanted conflicts
 if LaunchClassLoader exists stop the memory leaks by using a dummy map
