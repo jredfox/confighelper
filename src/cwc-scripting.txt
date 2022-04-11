@@ -1,7 +1,10 @@
+ACPS (Automatic Configuration Pointer Script) #these will be used for the AutoConfig
+#config properties set these to true or false per script file {acps.lowercase=true}
 #<file.cfg or script>:<cat or script>:<property name or script>:<dataType> for auto properties that count is 1 and shift is 0
 #<file.cfg or script>:<cat or script>:<property name or script>:<dataType>:<int count>:<int shift>
 
 Examples:
+$acps.lowercase=false #set this scrip to be case sensitive. since it's a default variable setting it will override the default value
 *:@'item'|@'items'|@'item ids':*:itemId:1:0
 *:@'block'|@'blocks'|@'block ids':*:blockId:1:0
 *:@'biomes'|@'biomes.biome ids'|@'biomes.sub-biome ids':*:biomeId:1:0
@@ -12,7 +15,27 @@ tropicraft/ModIds.cfg:*:%s'ITEM_'%e'_ID':itemId:1:0
 tropicraft/ModIds.cfg:*:%s'BLOCK_'%e'_ID':blockId:1:0
 tropicraft/ModIds.cfg:*:%s'ENCHANTMENT_':enchantment:1:0
 LionKing.cfg:items:*:itemId:1:256
-coloredblocksmod.cfg:%sitems:IDS:itemId:50:0 #as this takes up 50 places
+coloredblocksmod.cfg:%sitem:IDS:itemId:50:0 #as this takes up 50 places
+
+Example of directory scripting 1: 
+"root/config/CustomOreGen/natura/ores/ids.cfg root/config/CustomOreGen/natura2/ores2/ids2.cfg" # the mod now has different naming for the files but has different naming so we have to write a script for it instead
+%d'root/config/CustomOreGen'%p%s'ores'%p%p%s'natura'%s'ids'%e'.cfg':*:*:blockId
+
+lets explain this script simply. first we verify we are in the right root dir. next we check the ores is the parent directory. 
+After we check that the name goes back to the file name and we have to use %p twice to check to make sure it's natura.
+After we do that again the name resets to the file name. We check the file name itself starting with ids and ending with .cfg as that's the only pattern here.
+Let's say hypothetically there was more then just block ids here sadley the script only supports one data type entry per line to prevent messyness. so just duplicate the lines and change the property scripts if that happens
+
+Example of directory scripting 2:
+$cfgExt '.txt', '.cfg'
+root/config/gen_000
+root/config/gen_001
+root/config/gen_002_block/ids/block_00001.cfg
+root/config/gen_048_block/ids/block_04.cfg
+%d%s'root/config/gen_ %p%s'ids' %p%p%e'_block' %s'block_' %e$cfgExt:*:%s'id_':blockId #this states taht anything with the path that starts with root/config/"gen_" + ? + "_block"/ids is the dir. The file name must also start with block_ and end with .cfg
+%d%s'root/config/gen_' %d[2]%e'_block' %p@'ids' %s'block_' %e$cfgExt:*:%s'id_':blockId #same as above just with using %dp[int]
+
+In this example we show that any gen_ block configurations files. it states anything that starts with gen_ and ends in _block from a certain directory path and the next dir being ids with the file starting with block_ will be configured with any category and any property
 
 list of domains to pull configs from:
 root/config
@@ -35,6 +58,10 @@ opperands for scripting:
 %s = starts with
 %e = ends with
 %c = contains
+%p = parent file/dir for the next opperand. concat as many times as you need to compare the right directory. only works with the file script section
+%d = entire directory string the file's parent must be concated with another opperand %s %e %c @ + or ! varients. only works with file script section
+%d[int or keywords and optional +-] = directory path with specified index must be concated with another opperand %s %e %c @ + or ! varients. only works with file script section
+$ = reference to the variable itself or a decloration of one. the decloration is an array of strings boolean or long integer. can only be used to fill as the string for opperands that use strings aka '' examples @ %s %e %c but not %p or %d
 | = the or opperand this starts the next statement
 ! = not opperand
 * = applied as the script itself to always return true
@@ -44,8 +71,6 @@ opperands for scripting:
 # = comments the rest of the entire line out
 
 illegal opperand appending:
-@ & @
-& &
 ! !
 ! *
 
