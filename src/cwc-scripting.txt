@@ -59,8 +59,8 @@ opperands for scripting:
 %e = ends with
 %c = contains
 %p = parent file/dir for the next opperand. concat as many times as you need to compare the right directory. only works with the file script section
-%d = entire directory string the file's parent must be concated with another opperand %s %e %c @ + or ! varients. only works with file script section
-%d[int or keywords and optional +-] = directory path with specified index must be concated with another opperand %s %e %c @ + or ! varients. only works with file script section
+%d = verify derectory concated with another opperand %s %e %c @ + or ! varients. only works with file script section
+%d[int or keywords{first,last} and optional +-int] = verify directory name with specific index must be concated with another opperand %s %e %c @ + or ! varients. only works with file script section
 $ = reference to the variable itself or a decloration of one. the decloration is an array of strings boolean or long integer. can only be used to fill as the string for opperands that use strings aka '' examples @ %s %e %c but not %p or %d
 | = the or opperand this starts the next statement
 ! = not opperand
