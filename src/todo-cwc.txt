@@ -1,3 +1,5 @@
+acps properties
+acps interface impl for forge configuration
 autoconfig 2
 unconfigured ids dection should be detected per configurable mod list or if the item ids < blocklist.lenght aka itemblocks this should make the free ids gaps go away by makinig the user configure the mods that are actually unconfigured
 add the advanced form of passables <id:oldClass:oldMod:newClass:newMod> people will be able to add selfconflicts that way as well as prevent unwanted conflicts
