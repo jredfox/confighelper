@@ -1,4 +1,4 @@
-acps properties
+configuration does supports more datatypes then just int such as long or short
 acps interface impl for forge configuration
 autoconfig 2
 unconfigured ids dection should be detected per configurable mod list or if the item ids < blocklist.lenght aka itemblocks this should make the free ids gaps go away by makinig the user configure the mods that are actually unconfigured

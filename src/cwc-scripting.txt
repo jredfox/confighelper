@@ -2,22 +2,29 @@ ACPS (Automatic Configuration Pointer Script) #these will be used for the AutoCo
 #<file.cfg or script>:<cat or script>:<property name or script>:<dataType> for auto properties that count is 1 and shift is 0
 #<file.cfg or script>:<cat or script>:<property name or script>:<dataType>:<int count>:<int shift>
 
-Examples:
+Example of whitelisted:
 *:@'item'|@'items'|@'item ids':*:itemId:1:0
 *:@'block'|@'blocks'|@'block ids':*:blockId:1:0
 *:@'biomes'|@'biomes.biome ids'|@'biomes.sub-biome ids':*:biomeId:1:0
 *:@'enchantment'|@'custom enchantments':*:enchantmentId:1:0
-Colorful_Armor.cfg:*:*:itemId:1:0
-Colorful_Armor.cfg:*:%s'Boots'|%s'Leggings'|%s'Chest'|%s'Helmet':itemId:1:0
+
+Example of scripting:
+*:%s'item':*:itemId
+*:%s'block':*:blockId
+*:%s'enchantment':*:enchantmentId
+*:%s'potion':*:potionId
+*:%s'biome':*:biomeId
+Colorful_Armor.cfg:*:*:itemId:1:0 #assumes everything from this config is an item
+Colorful_Armor.cfg:*:%s'Boots'|%s'Leggings'|%s'Chest'|%s'Helmet':itemId:1:0 #exact configuration support would need updates when the configuration names change but would prevent unauthorized configuration changes if for example there were more integer properties then just the ids per category
 tropicraft/ModIds.cfg:*:%s'ITEM_'%e'_ID':itemId:1:0
 tropicraft/ModIds.cfg:*:%s'BLOCK_'%e'_ID':blockId:1:0
-tropicraft/ModIds.cfg:*:%s'ENCHANTMENT_':enchantment:1:0
-LionKing.cfg:items:*:itemId:1:256
+tropicraft/ModIds.cfg:*:%s'ENCHANT_':enchantmentId:1:0
+LionKing.cfg:items:*:itemId:1:256 #lion king's ids are improper this will shift them in the config so they appear properly configurationID + ITEMSHIFT like default behavior is
 coloredblocksmod.cfg:%sitem:IDS:itemId:50:0 #as this takes up 50 places
 
 Example of directory scripting 1:
 "root/config/CustomOreGen/natura/ores/ids.cfg root/config/CustomOreGen/natura2/ores2/ids2.cfg" # the mod now has different naming for the files but has different naming so we have to write a script for it instead
-%d'root/config/CustomOreGen'%p%s'ores'%p%p%s'natura'%s'ids'%e'.cfg':*:*:blockId
+%d'root/config/CustomOreGen' %p%s'ores' %p%p%s'natura' %s'ids' %e'.cfg':*:*:blockId
 
 lets explain this script simply. first we verify we are in the right root dir. next we check the ores is the parent directory. 
 After we check that the name goes back to the file name and we have to use %p twice to check to make sure it's natura.
@@ -25,26 +32,31 @@ After we do that again the name resets to the file name. We check the file name 
 Let's say hypothetically there was more then just block ids here sadley the script only supports one data type entry per line to prevent messyness. so just duplicate the lines and change the property scripts if that happens
 
 Example of directory scripting 2:
+$myExtensions '.cfg', '.txt', '.text', 'configuration', 'modconfig'
+$genSupport = true # change to change scripting behavior
 root/config/gen_000
 root/config/gen_001
 root/config/gen_002_block/ids/block_00001.cfg
 root/config/gen_048_block/ids/block_04.cfg
-%d%s'root/config/gen_ %p%s'ids' %p%p%e'_block' %s'block_' %e$cfgExt:*:%s'id_':blockId #this states taht anything with the path that starts with root/config/"gen_" + ? + "_block"/ids is the dir. The file name must also start with block_ and end with .cfg
-%d%s'root/config/gen_' %d[2]%e'_block' %p@'ids' %s'block_' %e$cfgExt:*:%s'id_':blockId #same as above just with using %dp[int]
-In this example we show that any gen_ block configurations files. it states anything that starts with gen_ and ends in _block from a certain directory path and the next dir being ids with the file starting with block_ will be configured with any category and any property
+%b$genSupport %d%s%f'root/config/gen_' %p%s'ids' %p%p%e'_block' %s'block_' %e$myExtensions:*:%s'id_':blockId
+
+We check to make sure our script support is turned on for the generation mod. 
+Next we verify the directory that it starts with config/gen_. 
+once verified we can now check that the parent is 'ids' and the parents parent ends with _block to make sure it's a block type.
+the name resets back to the file name we make sure that it starts with block_ in case there is blockprops_ or anything like that. So now we can 100% safely say that if it's the right extension it's the proper file
 
 var examples:
-$file 'root/config'
+$lowercase=false #override the default behavior of the script property
+$file = %f'root'
+$file = $file[0] ^ '/config' #overrides the variable
 $cfgExt '.txt', '.cfg'
-$props = $file ^ 'cwc/props' ^ $cfgExt[0], $c ^ 'cwc/props' ^ cfgExt[1] #makes it root/config/cwc/props.txt & root/config/cwc/props.cfg can have an array by appending another var with ,
-$hasDone = true, false, false, true, false
-$rectangle = 20, 20, 10, 10
-#arrays can not get concated they can only be from a fixed string or a var returning a fixed string
+$props = $file ^ '/cwc/props' ^ $cfgExt[0], $c ^ '/cwc/props' ^ cfgExt[1] #makes it root/config/cwc/props.txt & root/config/cwc/props.cfg can have an array by appending another var with ,
+$betterProps = $file ^ '/cwc/props' ^ $cfgExt #creates the same as above your just able to dynamically increase the variable array without changing anything here
+$differentProps = $file ^ '/cwc/props', $cfgExt # creates root/cwc/props, .txt,.cfg
 
 list of domains to pull configs from:
 root/config
-root if enabled
-specified paths
+specified paths that may or may not be from the root
 
 list of extensions: 
 txt, cfg
@@ -60,26 +72,26 @@ rules:
 - subcategories must be category + "." + subCategory in order to mess with sub categories this includes jsons ins jsons or configuration categories inside of another category
 
 opperands for scripting:
-%s = starts with
-%e = ends with
-%c = contains
-%p = parent file/dir for the next opperand. concat as many times as you need to compare the right directory. only works with the file script section
-%d = verify derectory concated with another opperand %s %e %c @ + or ! varients. only works with file script section. if concated opperand contains a "/" and it's using %s or @ opperand it will get transformed into a file string
-%d[int or keywords{first,last} and optional +-int] = verify directory name with specific index must be concated with another opperand %s %e %c @ + or ! varients. only works with file script section
-$ = reference to the variable itself or a decloration of one. the decloration is an array of string[], boolean[], or long integer. can only be used to fill as the string for opperands that use strings aka '' examples @ %s %e %c but not %p or %d
+%f = returns a transformed string into a file string #example root/config --> %appdata%/<current_program>/config if the program is run inside of the appdata
+%p =  verify parent directory's name with a string opperand or string
+%d = verify derectory path the file's parent with a string opperand or string #with string instead of opperand it will transform it using %f automatically for userfriendlyness as it's understood you always want to compare file path's here
+%b = verify a variable(boolean) is true. The next opperand call must be a variable
+%s = starts with (next is an opperand returning a strign or string) #string opperand as it requires a string input
+%e = ends with (next is an opperand returning a strign or string) #string opperand
+%c = contains  (next opperand returns or is a string) #string opperand
+$ = reference to a variable with optional specified index. if you don't specify an index in use with a string opperand it will try all of the array and try and return true
 | = the or opperand this starts the next statement
 ! = not opperand
+^<f,a> = concat to previous string opperand, string or variable. f is the meta for append first, and a is the metadata for add indexes rather then concat all posibilities #we can't use the "+" symbol as that's already taken for regex expresions. if the optional meta "a" isn't present it will combine all posibilities rather then just add them. [a, b] ^ [1, 2] = [a1, a2, b1, b2]
 * = applied as the script itself to always return true
-' = a string with spacing support
-@ = equals a string use when scripting operands > 1
+' = a string with spacing support #the string itself
+@ = equals a string use when scripting operands > 1 #string opperand
 + = regex expresion for the entire string
-^ = concat string from previous opperand %s %e %c @
 # = comments the rest of the entire line out
 
 variables declaration:
-$ is the variable declaration or reference if not first
-^ is concat string or another variable
-= is assign the variable
+$ = declare a variable if at the begining. reference to a variable with optional index [keys(first,last,int) optional +- int]
+^<f/a> = concat. you can concat just like you would in scripting and it's cleaner if you can keep most concats in variable declorations
 
 illegal opperand appending:
 ! !
