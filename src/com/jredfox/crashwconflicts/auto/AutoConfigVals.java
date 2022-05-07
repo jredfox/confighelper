@@ -17,6 +17,7 @@ import net.minecraftforge.common.Configuration;
 
 public class AutoConfigVals {
 	
+	public boolean lowercase;
 	public boolean maxIds;
 	public String[] exts;
 	public Set<File> blfs = new HashSet();
@@ -31,6 +32,7 @@ public class AutoConfigVals {
 		cfg.load();
 		//parse config vals
 		this.maxIds = cfg.get("autoconfig", "maxIds", false).getBoolean(false);
+		this.lowercase = cfg.get("autoconfig", "lowercaseScripts", true).getBoolean(true);
 		this.exts = cfg.get("autoconfig", "extensions", "cfg,txt").getString().split(",");
 		
 		//parse datatypes
@@ -75,7 +77,7 @@ public class AutoConfigVals {
 		while(it.hasNext())
 		{
 			File f = it.next();
-			if(this.isBlackListed(f) && !sfiles.contains(f))//for specified files in the search it will now ignore the blacklist
+			if(!sfiles.contains(f) && this.isBlackListed(f))//for specified files in the search it will now ignore the blacklist
 				it.remove();
 		}
 	}

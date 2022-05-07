@@ -9,7 +9,7 @@ public class AutoProperty {
 	public Script sc;
 	public Script sp;
 	public String dataType;
-	public RegTypes regType;
+	public RegTypes regType;//will be null for non vanilla data types
 	public int range;
 	public int shift;
 	
@@ -20,7 +20,7 @@ public class AutoProperty {
 	
 	public AutoProperty(Script file, Script cat, Script property, String dataType, int rangeCount, int shift)
 	{
-		assert rangeCount > 0 : "idCount must be > 0!";
+		assert rangeCount > 0 : "range must be > 0!";
 		this.sf = file;
 		this.sc = cat;
 		this.sp = property;

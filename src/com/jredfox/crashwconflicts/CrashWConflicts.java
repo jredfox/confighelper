@@ -9,35 +9,21 @@ import java.util.Set;
 import com.jredfox.crashwconflicts.proxy.Proxy;
 import com.jredfox.crashwconflicts.reg.Registry;
 import com.jredfox.crashwconflicts.reg.Registry.RegEntry;
-import com.jredfox.crashwconflicts.tst.D;
-import com.jredfox.crashwconflicts.tst.E;
 import com.jredfox.util.IdChunk;
 import com.jredfox.util.RegTypes;
 import com.jredfox.util.RegUtils;
 
 import cpw.mods.fml.common.ITickHandler;
-import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.PreInit;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.TickType;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import cpw.mods.fml.common.registry.EntityRegistry;
 import cpw.mods.fml.common.registry.TickRegistry;
 import cpw.mods.fml.relauncher.Side;
-import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
+import net.minecraft.client.Minecraft;
 import net.minecraft.crash.CrashReport;
-import net.minecraft.enchantment.EnchantmentProtection;
-import net.minecraft.entity.EntityList;
-import net.minecraft.item.Item;
-import net.minecraft.potion.Potion;
-import net.minecraft.world.WorldProvider;
-import net.minecraft.world.WorldProviderEnd;
-import net.minecraft.world.WorldProviderSurface;
-import net.minecraft.world.biome.BiomeGenOcean;
 import net.minecraftforge.common.Configuration;
-import net.minecraftforge.common.DimensionManager;
 
 @Mod(modid = "crash-w-conflicts", name = "Crash With Conflicts", version = "b54")
 public class CrashWConflicts implements ITickHandler{

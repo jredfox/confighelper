@@ -1,14 +1,10 @@
-figure out why the conflicts are happening with it being in neither mod config matching the description nor id
-autoconfig config around unconfigured ids
-add hook into Configuration class with the autoconfig
-setup crashing hooks. if mc is crashing and it's not suppose to be to dumpIds
-fix crashing in general and support dedicated server side
+configuration does supports more datatypes then just int such as long or short
+acps interface impl for forge configuration
+autoconfig 2
+unconfigured ids dection should be detected per configurable mod list or if the item ids < blocklist.lenght aka itemblocks this should make the free ids gaps go away by makinig the user configure the mods that are actually unconfigured
 add the advanced form of passables <id:oldClass:oldMod:newClass:newMod> people will be able to add selfconflicts that way as well as prevent unwanted conflicts
-test:verify that the autoconfig fully works
+if LaunchClassLoader exists stop the memory leaks by using a dummy map
 
-future:
-conflicts are in json
-add support for data watchers
-extend all ids original config helper did
+1.0.0 cwc release:
+extend all ids{Block(Short or int), BlockMeta(short or int), Block_Gen(disable the cap), Item(short or int), Biome(short or int), Potion(int), Enchantment(short), DataWatcher(with types as int), Entity(short or int), ItemStack(int)}
 rename to confighelper porting to 1.6.4 and 1.7.10 using mixings to edit the classes this time
-

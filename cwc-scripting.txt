@@ -1,0 +1,101 @@
+ACPS (Automatic Configuration Pointer Script) #these will be used for the AutoConfig
+#<file.cfg or script>:<cat or script>:<property name or script>:<dataType> for auto properties that count is 1 and shift is 0
+#<file.cfg or script>:<cat or script>:<property name or script>:<dataType>:<int count>:<int shift>
+
+Example of whitelisted:
+*:@'item'|@'items'|@'item ids':*:itemId:1:0
+*:@'block'|@'blocks'|@'block ids':*:blockId:1:0
+*:@'biomes'|@'biomes.biome ids'|@'biomes.sub-biome ids':*:biomeId:1:0
+*:@'enchantment'|@'custom enchantments':*:enchantmentId:1:0
+
+Example of scripting:
+*:%s'item':*:itemId
+*:%s'block':*:blockId
+*:%s'enchantment':*:enchantmentId
+*:%s'potion':*:potionId
+*:%s'biome':*:biomeId
+Colorful_Armor.cfg:*:*:itemId:1:0 #assumes everything from this config is an item
+Colorful_Armor.cfg:*:%s'Boots'|%s'Leggings'|%s'Chest'|%s'Helmet':itemId:1:0 #exact configuration support would need updates when the configuration names change but would prevent unauthorized configuration changes if for example there were more integer properties then just the ids per category
+tropicraft/ModIds.cfg:*:%s'ITEM_'%e'_ID':itemId:1:0
+tropicraft/ModIds.cfg:*:%s'BLOCK_'%e'_ID':blockId:1:0
+tropicraft/ModIds.cfg:*:%s'ENCHANT_':enchantmentId:1:0
+LionKing.cfg:items:*:itemId:1:256 #lion king's ids are improper this will shift them in the config so they appear properly configurationID + ITEMSHIFT like default behavior is
+coloredblocksmod.cfg:%sitem:IDS:itemId:50:0 #as this takes up 50 places
+
+Example of directory scripting 1:
+"root/config/CustomOreGen/natura/ores/ids.cfg root/config/CustomOreGen/natura2/ores2/ids2.cfg" # the mod now has different naming for the files but has different naming so we have to write a script for it instead
+%d'root/config/CustomOreGen' %p%s'ores' %p%p%s'natura' %s'ids' %e'.cfg':*:*:blockId
+
+lets explain this script simply. first we verify we are in the right root dir. next we check the ores is the parent directory. 
+After we check that the name goes back to the file name and we have to use %p twice to check to make sure it's natura.
+After we do that again the name resets to the file name. We check the file name itself starting with ids and ending with .cfg as that's the only pattern here.
+Let's say hypothetically there was more then just block ids here sadley the script only supports one data type entry per line to prevent messyness. so just duplicate the lines and change the property scripts if that happens
+
+Example of directory scripting 2:
+$myExtensions '.cfg', '.txt', '.text', 'configuration', 'modconfig'
+$genSupport = true # change to change scripting behavior
+root/config/gen_000
+root/config/gen_001
+root/config/gen_002_block/ids/block_00001.cfg
+root/config/gen_048_block/ids/block_04.cfg
+%b$genSupport %d%s%f'root/config/gen_' %p%s'ids' %p%p%e'_block' %s'block_' %e$myExtensions:*:%s'id_':blockId
+
+We check to make sure our script support is turned on for the generation mod. 
+Next we verify the directory that it starts with config/gen_. 
+once verified we can now check that the parent is 'ids' and the parents parent ends with _block to make sure it's a block type.
+the name resets back to the file name we make sure that it starts with block_ in case there is blockprops_ or anything like that. So now we can 100% safely say that if it's the right extension it's the proper file
+
+var examples:
+$lowercase=false #override the default behavior of the script property
+$file = %f'root'
+$file = $file[0] ^ '/config' #overrides the variable
+$cfgExt '.txt', '.cfg'
+$props = $file ^ '/cwc/props' ^ $cfgExt[0], $c ^ '/cwc/props' ^ cfgExt[1] #makes it root/config/cwc/props.txt & root/config/cwc/props.cfg can have an array by appending another var with ,
+$betterProps = $file ^ '/cwc/props' ^ $cfgExt #creates the same as above your just able to dynamically increase the variable array without changing anything here
+$differentProps = $file ^ '/cwc/props', $cfgExt # creates root/cwc/props, .txt,.cfg
+
+list of domains to pull configs from:
+root/config
+specified paths that may or may not be from the root
+
+list of extensions: 
+txt, cfg
+
+rules:
+- all scripts are just a boolean to determine if the property should get configured
+- order is configuration hooks(item / block) as the first script to ensure it will always get done
+- the shift is overriden by the last script != 0 or 0 if none are found
+- the count is overriden by the last script > 1 or 1 if none are found
+- all strings are lowercased if enabled to ensure user friendly scripting
+- count must be > 0
+- if you don't have the desired output you made your scripts not specific enough or simply have them in the wrong order
+- subcategories must be category + "." + subCategory in order to mess with sub categories this includes jsons ins jsons or configuration categories inside of another category
+
+opperands for scripting:
+%f = returns a transformed string / variable into the config file string(s) #example root/config --> <programDir/config> example 2: modid.cfg --> <programDir/config/modid.cfg>
+%p =  verify parent directory's name with a string comparator or string
+%d = verify derectory path the file's parent <programdir/dir> not <programdir/dir/file> with a string comparator or string #with string instead of opperand it will transform it using %f automatically for userfriendlyness as it's understood you always want to compare file path's here
+%b = verify a variable(boolean) is true. The next opperand call must be a variable reference
+%s = starts with (next is an opperand returning a strign or string) #string comparator
+%e = ends with (next is an opperand returning a strign or string) #string comparator
+%c = contains  (next opperand returns or is a string) #string comparator
+$ = reference to a variable with optional specified index. if you don't specify an index in use with a string comparator it will try all of the array and try and return true
+| = the or opperand this starts the next statement
+! = not opperand
+^<f,a> = concat to previous string opperand, string or variable. f is the meta for append first, and a is the metadata for add indexes rather then concat all posibilities #we can't use the "+" symbol as that's already taken for regex expresions. if the optional meta "a" isn't present it will combine all posibilities rather then just add them. [a, b] ^ [1, 2] = [a1, a2, b1, b2]
+* = applied as the script itself to always return true
+' = a string with spacing support #the string itself
+@ = equals a string use when scripting operands > 1 #string comparator
++ = regex expresion. use something that returns a string or variable. the entire string for the script your working with is called $string
+# = comments the rest of the entire line out
+
+variables declaration:
+$ = declare a variable if at the begining. reference to a variable with optional index [keys(first,last,int) optional +- int]
+^<f/a> = concat. you can concat just like you would in scripting and it's cleaner if you can keep most concats in variable declorations instead of scripts
+
+illegal opperand appending:
+! !
+! *
+
+illegal scripting:
+*:*:* because any file with any category with any property name cannot be determined for a specified data type
